@@ -14,8 +14,12 @@ public class Localization2EImpl implements Localization {
     public IMU imu;
     public int oldReadX, oldReadY;
     public double oldReadHeading;
-    public static final double xMultiplier = 1, yMultiplier = 1;
 
+    // TODO tune these values
+    public static final class Constants {
+        public static final double xMultiplier = 1, yMultiplier = 1;
+        public static final double xEncoderOffset = 0, yEncoderOffset = 0;
+    }
 
     public Localization2EImpl(HardwareMap map, String xEncoder, String yEncoder, Pose2d startingPosition) {
         this.xEncoder = map.get(DcMotorImpl.class, xEncoder);
@@ -48,11 +52,16 @@ public class Localization2EImpl implements Localization {
         int xInt = xEncoder.getCurrentPosition();
         int yInt = yEncoder.getCurrentPosition();
 
-        double xDiff = (xInt - oldReadX) * xMultiplier;
-        double yDiff = (yInt - oldReadY) * yMultiplier;
+        // get position
+        double xDiff = (xInt - oldReadX) * Constants.xMultiplier;
+        double yDiff = (yInt - oldReadY) * Constants.yMultiplier;
 
         double heading = getYaw();
         double averageHeading = (heading + oldReadHeading) / 2;
+
+        // TODO correct xDiff and yDiff for offset blah blah blah rotation arc length, image i posted on 9/3/23 at 8:56
+        //  in my garbage zone
+
 
         double sinHeading = Math.sin(averageHeading);
         double cosHeading = Math.cos(averageHeading);
