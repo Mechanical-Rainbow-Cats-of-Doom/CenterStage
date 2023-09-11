@@ -8,4 +8,7 @@ public interface Localization {
     void setPosition(Pose2d pose);
 
     void updatePosition();
+
+    @Deprecated
+    void updatePosition(int xEncoderPos, int yEncoderPos, double imuRotation);
 }
