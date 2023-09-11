@@ -18,7 +18,26 @@ public class Localization2EImpl implements Localization {
     // TODO tune these values
     public static final class Constants {
         public static final double xMultiplier = 1, yMultiplier = 1;
-        public static final double xEncoderOffset = 0, yEncoderOffset = 0;
+        public static final double xEncoderXOffset = 0, xEncoderYOffset = 0,
+                yEncoderXOffset = 0, yEncoderYOffset = 0;
+        public static boolean xUpdated = true, yUpdated = true;
+        private static double xDistance = 0, yDistance = 0;
+
+        public static double xDistance() {
+            if(xUpdated) {
+                xDistance = Math.sqrt(xEncoderXOffset*xEncoderXOffset+xEncoderYOffset*xEncoderYOffset);
+                xUpdated = false;
+            }
+            return xDistance;
+        }
+
+        public static double yDistance() {
+            if(yUpdated) {
+                yDistance = Math.sqrt(yEncoderXOffset*yEncoderXOffset+yEncoderYOffset*yEncoderYOffset);
+                yUpdated = false;
+            }
+            return yDistance;
+        }
     }
 
     public Localization2EImpl(HardwareMap map, String xEncoder, String yEncoder, Pose2d startingPosition) {
@@ -59,9 +78,8 @@ public class Localization2EImpl implements Localization {
         double heading = getYaw();
         double averageHeading = (heading + oldReadHeading) / 2;
 
-        // TODO correct xDiff and yDiff for offset blah blah blah rotation arc length, image i posted on 9/3/23 at 8:56
-        //  in my garbage zone
-
+        xDiff -= Constants.xDistance()*(heading-oldReadHeading);
+        yDiff -= Constants.yDistance()*(heading-oldReadHeading);
 
         double sinHeading = Math.sin(averageHeading);
         double cosHeading = Math.cos(averageHeading);
