@@ -88,7 +88,7 @@ public class Localization2EImpl implements Localization {
         double newY = xDiff * sinHeading + yDiff * cosHeading;
 
         position = new Pose2d(position.getX() + newX, position.getY() + newY,
-                new Rotation2d(storedRotation.getRadians() + heading));
+                new Rotation2d(heading));
 
         oldReadX = xInt;
         oldReadY = yInt;
@@ -96,6 +96,6 @@ public class Localization2EImpl implements Localization {
     }
 
     private double getYaw() {
-        return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS) + storedRotation.getRadians();
     }
 }
