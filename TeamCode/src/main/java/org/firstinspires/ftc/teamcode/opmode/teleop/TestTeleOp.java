@@ -20,7 +20,7 @@ public class TestTeleOp extends CommandOpMode {
         driver1 = new GamepadEx(gamepad1);
         driver2 = new GamepadEx(gamepad2);
 
-        swerveDrive = new SwerveDriveSubsystem(hardwareMap);
+        swerveDrive = new SwerveDriveSubsystem(hardwareMap, true);
         swerveDrive.setDefaultCommand(new PerpetualCommand(
                 new DefaultSwerveDriveCommand(
                         swerveDrive,
