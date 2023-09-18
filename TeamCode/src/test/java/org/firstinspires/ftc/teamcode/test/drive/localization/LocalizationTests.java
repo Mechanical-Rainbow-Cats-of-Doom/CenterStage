@@ -39,7 +39,18 @@ public class LocalizationTests {
                 1, 1, 0, 0
         );
 
-        localization.updatePosition(0,1,0);
+        localization.updatePosition(0,1, Math.toRadians(45));
         assertEquals(new Pose2d(new Translation2d(Math.sqrt(2)/2,Math.sqrt(2)/2), Rotation2d.fromDegrees(45)), localization.getPosition());
+    }
+
+    @Test
+    public void rotationDriveTest() {
+        Localization2EImpl localization = new Localization2EImpl(
+                new Pose2d(new Translation2d(0,0), Rotation2d.fromDegrees(-45)),
+                1, 1, 0, 0
+        );
+
+        localization.updatePosition(0,1, Math.toRadians(45));
+        assertEquals(new Pose2d(new Translation2d(0,1), Rotation2d.fromDegrees(45)), localization.getPosition());
     }
 }

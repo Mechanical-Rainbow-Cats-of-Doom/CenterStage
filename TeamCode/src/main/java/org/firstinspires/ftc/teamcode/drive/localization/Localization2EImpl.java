@@ -82,7 +82,7 @@ public class Localization2EImpl implements Localization {
     }
 
     public void updatePosition(int xEncoderPos, int yEncoderPos, double heading) {
-        internalUpdatePosition(xEncoderPos, yEncoderPos, heading + storedRotation.getRadians());
+        internalUpdatePosition(xEncoderPos, yEncoderPos, heading);
     }
 
     public void internalUpdatePosition(int xEncoderPos, int yEncoderPos, double heading) {
