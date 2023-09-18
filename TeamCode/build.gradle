@@ -31,5 +31,5 @@ dependencies {
     testImplementation "androidx.test:core:$androidXTestVersion"
     testImplementation "org.mockito:mockito-core:$mockitoVersion"
     testImplementation "io.mockk:mockk:$mockkVersion"
-
 }
+
