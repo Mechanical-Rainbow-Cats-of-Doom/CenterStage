@@ -7,10 +7,5 @@ import org.jetbrains.annotations.TestOnly;
 public interface Localization {
     Pose2d getPosition();
 
-    void setPosition(Pose2d pose);
-
     void updatePosition();
-
-    @TestOnly
-    void updatePosition(int xEncoderPos, int yEncoderPos, double imuRotation);
 }

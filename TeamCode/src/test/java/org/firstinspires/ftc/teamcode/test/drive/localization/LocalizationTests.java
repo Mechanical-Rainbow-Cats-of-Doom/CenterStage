@@ -4,15 +4,27 @@ import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.arcrobotics.ftclib.geometry.Translation2d;
 
-import org.firstinspires.ftc.teamcode.drive.localization.Localization2EImpl;
+import org.firstinspires.ftc.teamcode.drive.localization.ContinuousLocalization;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
 public class LocalizationTests {
+    public class TestLocalization extends ContinuousLocalization {
+        public TestLocalization(Pose2d initialPosition, double xMultiplier, double yMultiplier,
+                                double xOffset, double yOffset) {
+            super(initialPosition, xMultiplier, yMultiplier, xOffset, yOffset);
+        }
+
+        @Override
+        public void updatePosition() {
+
+        }
+    }
+
     @Test
     public void driveStraightTest() {
-        Localization2EImpl localization = new Localization2EImpl(
+        TestLocalization localization = new TestLocalization(
                 new Pose2d(new Translation2d(0,0), new Rotation2d(0)),
                 1, 1, 0, 0
         );
@@ -23,7 +35,7 @@ public class LocalizationTests {
 
     @Test
     public void driveRightTest() {
-        Localization2EImpl localization = new Localization2EImpl(
+        TestLocalization localization = new TestLocalization(
                 new Pose2d(new Translation2d(0,0), new Rotation2d(0)),
                 1, 1, 0, 0
         );
@@ -34,7 +46,7 @@ public class LocalizationTests {
 
     @Test
     public void driveAtAngle() {
-        Localization2EImpl localization = new Localization2EImpl(
+        TestLocalization localization = new TestLocalization(
                 new Pose2d(new Translation2d(0,0), Rotation2d.fromDegrees(45)),
                 1, 1, 0, 0
         );
@@ -45,12 +57,12 @@ public class LocalizationTests {
 
     @Test
     public void rotationDriveTest() {
-        Localization2EImpl localization = new Localization2EImpl(
+        TestLocalization localization = new TestLocalization(
                 new Pose2d(new Translation2d(0,0), Rotation2d.fromDegrees(-45)),
                 1, 1, 0, 0
         );
 
         localization.updatePosition(0,1, Math.toRadians(45));
-        assertEquals(new Pose2d(new Translation2d(0,1), Rotation2d.fromDegrees(45)), localization.getPosition());
+        assertEquals(new Pose2d(new Translation2d(0,Math.sqrt(2)/2), Rotation2d.fromDegrees(45)), localization.getPosition());
     }
 }
