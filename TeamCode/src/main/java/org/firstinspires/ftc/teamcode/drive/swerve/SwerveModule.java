@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDFController;
+import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveModuleState;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.CRServoImplEx;
@@ -131,5 +132,10 @@ public class SwerveModule {
 
     public double getWheelVelocity() {
         return encoderTicksToInches(motor.getVelocity());
+    }
+
+    public void setTargetModuleState(@NonNull SwerveModuleState state) {
+        setMotorPower(state.speedMetersPerSecond);
+        setTargetRotation(state.angle.getRadians());
     }
 }
