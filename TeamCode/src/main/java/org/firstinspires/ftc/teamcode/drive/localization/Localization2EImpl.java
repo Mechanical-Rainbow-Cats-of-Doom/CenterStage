@@ -3,18 +3,15 @@ package org.firstinspires.ftc.teamcode.drive.localization;
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorImpl;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-public class Localization2EImpl implements Localization {
+public class Localization2EImpl extends ContinuousLocalization {
     public Pose2d position;
     public DcMotor xEncoder, yEncoder;
     public Rotation2d storedRotation;
     public IMU imu;
-    public int oldReadX, oldReadY;
-    public double oldReadHeading;
 
     // TODO tune these values
     public static final class Constants {
@@ -22,15 +19,23 @@ public class Localization2EImpl implements Localization {
         public static final double xEncoderOffset = 0, yEncoderOffset = 0;
     }
 
-    public Localization2EImpl(DcMotor xEncoder, DcMotor yEncoder, IMU imu, Pose2d startingPosition) {
+    public Localization2EImpl(DcMotor xEncoder, DcMotor yEncoder, IMU imu, Pose2d startingPosition,
+                              double xMultiplier, double yMultiplier, double xEncoderOffset,
+                              double yEncoderOffset) {
+        super(startingPosition, xEncoder.getCurrentPosition(), yEncoder.getCurrentPosition(),
+                xMultiplier, yMultiplier, xEncoderOffset, yEncoderOffset);
         this.xEncoder = xEncoder;
         this.yEncoder = yEncoder;
         this.imu = imu;
-        oldReadX = this.xEncoder.getCurrentPosition();
-        oldReadY = this.yEncoder.getCurrentPosition();
         position = startingPosition;
         storedRotation = startingPosition.getRotation();
-        imu.resetYaw();
+        if(imu != null)
+            imu.resetYaw();
+    }
+
+    public Localization2EImpl(DcMotor xEncoder, DcMotor yEncoder, IMU imu, Pose2d startingPosition) {
+        this(xEncoder, yEncoder, imu, startingPosition, Constants.xMultiplier,
+                Constants.yMultiplier, Constants.xEncoderOffset, Constants.yEncoderOffset);
     }
 
     public Localization2EImpl(HardwareMap map, String xEncoder, String yEncoder, Pose2d startingPosition) {
@@ -56,30 +61,6 @@ public class Localization2EImpl implements Localization {
     @Override
     public void updatePosition() {
         updatePosition(xEncoder.getCurrentPosition(), yEncoder.getCurrentPosition(), getYaw());
-    }
-
-    @Override
-    public void updatePosition(int xEncoderPos, int yEncoderPos, double heading) {
-        double xDiff = (xEncoderPos - oldReadX) * Constants.xMultiplier;
-        double yDiff = (yEncoderPos - oldReadY) * Constants.yMultiplier;
-
-        double averageHeading = (heading + oldReadHeading) / 2;
-
-        xDiff -= Constants.xEncoderOffset*(heading-oldReadHeading);
-        yDiff -= Constants.yEncoderOffset*(heading-oldReadHeading);
-
-        double sinHeading = Math.sin(averageHeading);
-        double cosHeading = Math.cos(averageHeading);
-
-        double newX = xDiff * cosHeading + yDiff * sinHeading;
-        double newY = xDiff * sinHeading + yDiff * cosHeading;
-
-        position = new Pose2d(position.getX() + newX, position.getY() + newY,
-                new Rotation2d(heading));
-
-        oldReadX = xEncoderPos;
-        oldReadY = yEncoderPos;
-        oldReadHeading = heading;
     }
 
     private double getYaw() {

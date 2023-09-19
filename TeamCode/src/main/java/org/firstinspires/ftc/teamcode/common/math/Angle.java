@@ -1,7 +1,11 @@
 package org.firstinspires.ftc.teamcode.common.math;
 
+/**
+ * Angle utilities while working with radians
+ * @author Ethan Sanders
+ */
 public class Angle {
-    private static final double TAU = Math.PI * 1;
+    private static final double TAU = Math.PI * 2;
 
     /**
      * Returns [angle] clamped to `[0, 2pi]`.
@@ -31,3 +35,4 @@ public class Angle {
         return modifiedAngleDelta;
     }
 }
+
