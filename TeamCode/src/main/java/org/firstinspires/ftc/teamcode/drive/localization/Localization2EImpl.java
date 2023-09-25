@@ -7,6 +7,12 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
+/**
+ * A basic form of ContinuousLocalization using two encoders and an IMU.
+ *
+ * @see Localization
+ * @see ContinuousLocalization
+ */
 public class Localization2EImpl extends ContinuousLocalization {
     public Pose2d position;
     public DcMotor xEncoder, yEncoder;
