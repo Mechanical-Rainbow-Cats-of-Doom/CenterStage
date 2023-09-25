@@ -17,6 +17,7 @@ import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.common.hardware.AbsoluteAnalogEncoder;
 
 import java.util.Locale;
@@ -28,8 +29,6 @@ public class SwerveModule {
 
     public static double MAX_SERVO = 1, MAX_MOTOR = 1;
 
-    public static boolean MOTOR_FLIPPING = true;
-
     public static double WHEEL_RADIUS = 1.41732; // TODO: MEASURE ACCURATELY
     public static final double GEAR_RATIO = 1 / ((42D / 12D) * (36D / 24D) * (2D)); // output (wheel) speed / input (motor) speed
     public static final double TICKS_PER_REV = 28;
@@ -39,8 +38,7 @@ public class SwerveModule {
     private final AbsoluteAnalogEncoder encoder;
     private PIDFController rotationController;
 
-    public boolean wheelFlipped = false;
-    public double lastMotorPower = 0;
+    private double lastMotorPower = 0;
     private double target = 0.0;
     private double position = 0.0;
 
@@ -74,12 +72,6 @@ public class SwerveModule {
         double target = getTargetRotation(), current = getModuleRotation();
 
         double error = normalizeRadians(target - current);
-        if (MOTOR_FLIPPING && Math.abs(error) > Math.PI / 2) {
-            target = normalizeRadians(target - Math.PI);
-            wheelFlipped = true;
-        } else {
-            wheelFlipped = false;
-        }
 
         error = normalizeRadians(target - current);
         double power = Range.clip(rotationController.calculate(0, error), -MAX_SERVO, MAX_SERVO);
@@ -96,7 +88,6 @@ public class SwerveModule {
     }
 
     public void setMotorPower(double power) {
-        if (wheelFlipped) power *= -1;
         lastMotorPower = power;
         motor.setPower(power);
     }
@@ -105,13 +96,13 @@ public class SwerveModule {
         this.target = normalizeRadians(target);
     }
 
-    public String getTelemetry(String name) {
-        return String.format(Locale.ENGLISH, "%s: Motor Flipped: %b \ncurrent position %.2f target position %.2f flip modifer = %d motor power = %.2f", name, wheelFlipped, getModuleRotation(), getTargetRotation(), flipModifier(), lastMotorPower);
+    public void runTelemetry(@NonNull String name, @NonNull Telemetry telemetry) {
+        final String caption = "module " + name;
+        telemetry.addData(caption + " curr rotation", getModuleRotation());
+        telemetry.addData(caption + " motor power", lastMotorPower);
+        telemetry.addData(caption + " target rotation", getTargetRotation());
     }
 
-    public int flipModifier() {
-        return wheelFlipped ? -1 : 1;
-    }
 
     public void setMode(DcMotor.RunMode runMode) {
         motor.setMode(runMode);

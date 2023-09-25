@@ -37,7 +37,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
      *                          likely want to use true for driver controlled and false for auto
      */
     public SwerveDriveSubsystem(final HardwareMap hMap, final Telemetry telemetry, final boolean driveAsPercentage) {
-        this.frontL = new SwerveModule(hMap,"frontRightMotor", "frontLeftServo", "frontRightEncoder");
+        this.frontL = new SwerveModule(hMap,"frontLeftMotor", "frontLeftServo", "frontRightEncoder");
         this.frontR = new SwerveModule(hMap,"frontRightMotor", "frontRightServo", "frontRightEncoder");
         this.backL = new SwerveModule(hMap,"backLeftMotor", "backLeftServo", "backLeftEncoder");
         this.backR = new SwerveModule(hMap,"backRightMotor", "backRightServo", "backRightEncoder");
@@ -93,8 +93,9 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
             SwerveModule module = swerveModules[i];
             module.read();
             module.update();
-            telemetry.addLine(module.getTelemetry(Integer.toString(i)));
+            module.runTelemetry(Integer.toString(i), telemetry);
         }
+        //telemetry.update();
     }
 
     public boolean isDrivingAsPercentage() {
