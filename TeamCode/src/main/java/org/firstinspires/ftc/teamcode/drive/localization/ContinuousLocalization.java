@@ -3,6 +3,15 @@ package org.firstinspires.ftc.teamcode.drive.localization;
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
 
+/**
+ * ContinuousLocalization is the type of localization used by encoders. It starts at a set position,
+ * finds the distance moved by the robot, and puts the robot there. It's continuous because it must
+ * be run as often as possible to have an accurate estimate.
+ *
+ * @see DiscreteLocalization
+ * @see Localization
+ * @see Localization2EImpl
+ */
 public abstract class ContinuousLocalization implements Localization {
     public Pose2d position;
     public int oldReadX, oldReadY;
@@ -32,17 +41,23 @@ public abstract class ContinuousLocalization implements Localization {
     }
 
     public void updatePosition(int xEncoderPos, int yEncoderPos, double heading) {
-        double xDiff = (xEncoderPos - oldReadX) * xMultiplier;
-        double yDiff = (yEncoderPos - oldReadY) * yMultiplier;
+        double deltaX = (xEncoderPos - oldReadX) * xMultiplier;
+        double deltaY = (yEncoderPos - oldReadY) * yMultiplier;
 
-        xDiff -= xOffset * (heading-oldReadHeading);
-        yDiff -= yOffset * (heading-oldReadHeading);
+        deltaX -= xOffset * (heading-oldReadHeading);
+        deltaY -= yOffset * (heading-oldReadHeading);
 
-        double sinAverage = (Math.sin(heading)+Math.sin(oldReadHeading))/2;
-        double cosAverage = (Math.cos(heading)+Math.cos(oldReadHeading))/2;
+        double avgHeading = (heading+oldReadHeading)/2;
+        double deltaHeading = heading - oldReadHeading;
 
-        double newX = xDiff * cosAverage + yDiff * sinAverage;
-        double newY = xDiff * sinAverage + yDiff * cosAverage;
+        if(deltaHeading != 0) {
+            // TODO implement math in whiteboard channel
+        }
+        double sinAverage = Math.sin(avgHeading);
+        double cosAverage = Math.cos(avgHeading);
+
+        double newX = deltaX * cosAverage + deltaY * sinAverage;
+        double newY = deltaX * sinAverage + deltaY * cosAverage;
 
         position = new Pose2d(position.getX() + newX, position.getY() + newY,
                 new Rotation2d(heading));
