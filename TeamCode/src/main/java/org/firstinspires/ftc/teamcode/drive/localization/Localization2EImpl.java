@@ -61,7 +61,7 @@ public class Localization2EImpl extends ContinuousLocalization {
     @Override
     public void setPosition(Pose2d position) {
         this.position = position;
-        storedRotation = new Rotation2d(-getYaw() + position.getHeading());
+        storedRotation = new Rotation2d(-getYaw().getRadians() + position.getHeading());
     }
 
     @Override
@@ -69,7 +69,7 @@ public class Localization2EImpl extends ContinuousLocalization {
         updatePosition(xEncoder.getCurrentPosition(), yEncoder.getCurrentPosition(), getYaw());
     }
 
-    private double getYaw() {
-        return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS) + storedRotation.getRadians();
+    private Rotation2d getYaw() {
+        return new Rotation2d(imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS) + storedRotation.getRadians());
     }
 }

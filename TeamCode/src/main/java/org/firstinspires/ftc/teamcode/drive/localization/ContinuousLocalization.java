@@ -15,7 +15,7 @@ import com.arcrobotics.ftclib.geometry.Rotation2d;
 public abstract class ContinuousLocalization implements Localization {
     public Pose2d position;
     public int oldReadX, oldReadY;
-    public double oldReadHeading;
+    public Rotation2d oldRotation;
     public final double xMultiplier, yMultiplier;
     public final double xOffset, yOffset;
 
@@ -28,7 +28,8 @@ public abstract class ContinuousLocalization implements Localization {
         this.yOffset = yOffset;
         this.oldReadX = initialReadX;
         this.oldReadY = initialReadY;
-        this.oldReadHeading = initialPosition.getRotation().getRadians();
+        this.oldRotation = initialPosition.getRotation();
+        this.position = initialPosition;
     }
 
     public ContinuousLocalization(Pose2d initialPosition, double xMultiplier, double yMultiplier, double xOffset,
@@ -40,18 +41,32 @@ public abstract class ContinuousLocalization implements Localization {
         this.position = pose;
     }
 
-    public void updatePosition(int xEncoderPos, int yEncoderPos, double heading) {
+    public void updatePosition(int xEncoderPos, int yEncoderPos, Rotation2d rotation) {
         double deltaX = (xEncoderPos - oldReadX) * xMultiplier;
         double deltaY = (yEncoderPos - oldReadY) * yMultiplier;
 
-        deltaX -= xOffset * (heading-oldReadHeading);
-        deltaY -= yOffset * (heading-oldReadHeading);
+        double heading = rotation.getRadians();
+        double oldHeading = oldRotation.getRadians();
+        double minHeading = Math.min(heading, oldHeading);
+        double maxHeading = Math.max(heading, oldHeading);
 
-        double avgHeading = (heading+oldReadHeading)/2;
-        double deltaHeading = heading - oldReadHeading;
+        deltaX -= xOffset * (heading - oldHeading);
+        deltaY -= yOffset * (heading - oldHeading);
+
+        double rawDeltaHeading = Math.abs(heading - oldHeading);
+        // normalize between 0 and 2pi
+        rawDeltaHeading -= 2*Math.PI * Math.floor(rawDeltaHeading/(2*Math.PI));
+        // We don't know what direction we rotated in, but this makes a good guess!
+        // if the angle is larger than pi, chances are we're going in the wrong direction!
+        double deltaHeading = rawDeltaHeading - (Math.PI * Math.floor(rawDeltaHeading/Math.PI));
+        double avgHeading = (rawDeltaHeading > Math.PI) ? maxHeading + deltaHeading : minHeading + deltaHeading;
+        // normalize between 0 and 2pi
+        avgHeading -= 2*Math.PI*Math.floor(avgHeading/(2*Math.PI));
 
         if(deltaHeading != 0) {
-            // TODO implement math in whiteboard channel
+            double rotationFactor = 2*Math.sin(deltaHeading/2);
+            deltaX *= rotationFactor * deltaX/deltaHeading;
+            deltaY *= rotationFactor * deltaY/deltaHeading;
         }
         double sinAverage = Math.sin(avgHeading);
         double cosAverage = Math.cos(avgHeading);
@@ -59,12 +74,11 @@ public abstract class ContinuousLocalization implements Localization {
         double newX = deltaX * cosAverage + deltaY * sinAverage;
         double newY = deltaX * sinAverage + deltaY * cosAverage;
 
-        position = new Pose2d(position.getX() + newX, position.getY() + newY,
-                new Rotation2d(heading));
+        position = new Pose2d(position.getX() + newX, position.getY() + newY, rotation);
 
         oldReadX = xEncoderPos;
         oldReadY = yEncoderPos;
-        oldReadHeading = heading;
+        oldRotation = rotation;
     }
 
     @Override

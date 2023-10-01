@@ -37,10 +37,10 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
      *                          likely want to use true for driver controlled and false for auto
      */
     public SwerveDriveSubsystem(final HardwareMap hMap, final Telemetry telemetry, final boolean driveAsPercentage) {
-        this.frontL = new SwerveModule(hMap,"frontRightMotor", "frontLeftServo", "frontRightEncoder");
-        this.frontR = new SwerveModule(hMap,"frontRightMotor", "frontRightServo", "frontRightEncoder");
-        this.backL = new SwerveModule(hMap,"backLeftMotor", "backLeftServo", "backLeftEncoder");
-        this.backR = new SwerveModule(hMap,"backRightMotor", "backRightServo", "backRightEncoder");
+        this.frontL = new SwerveModule(hMap,"frontRightMotor", "frontLeftServo", "frontRightEncoder", SwerveModule.Wheel.FRONT_LEFT);
+        this.frontR = new SwerveModule(hMap,"frontRightMotor", "frontRightServo", "frontRightEncoder", SwerveModule.Wheel.FRONT_RIGHT);
+        this.backL = new SwerveModule(hMap,"backLeftMotor", "backLeftServo", "backLeftEncoder", SwerveModule.Wheel.BACK_LEFT);
+        this.backR = new SwerveModule(hMap,"backRightMotor", "backRightServo", "backRightEncoder", SwerveModule.Wheel.BACK_RIGHT);
         this.swerveModules = new SwerveModule[] {frontL, frontR, backL, backR};
         this.telemetry = telemetry;
         this.driveAsPercentage = driveAsPercentage;

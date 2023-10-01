@@ -23,6 +23,19 @@ import java.util.Locale;
 
 @Config
 public class SwerveModule {
+    public enum Wheel {
+        FRONT_LEFT(0D),
+        FRONT_RIGHT(0D),
+        BACK_LEFT(0D),
+        BACK_RIGHT(0D);
+
+        public final double tickOffset;
+
+        Wheel(double tickOffset) {
+            this.tickOffset = tickOffset;
+        }
+    }
+
     public static double P = 0.6, I = 0, D = 0.1;
     public static double K_STATIC = 0.03;
 
@@ -33,6 +46,7 @@ public class SwerveModule {
     public static double WHEEL_RADIUS = 1.41732; // TODO: MEASURE ACCURATELY
     public static final double GEAR_RATIO = 1 / ((42D / 12D) * (36D / 24D) * (2D)); // output (wheel) speed / input (motor) speed
     public static final double TICKS_PER_REV = 28;
+    private final Wheel wheel;
 
     private final DcMotorEx motor;
     private final CRServo servo;
@@ -44,7 +58,7 @@ public class SwerveModule {
     private double target = 0.0;
     private double position = 0.0;
 
-    public SwerveModule(DcMotorEx m, CRServo s, AbsoluteAnalogEncoder e) {
+    public SwerveModule(DcMotorEx m, CRServo s, AbsoluteAnalogEncoder e, Wheel wheel) {
         motor = m;
         MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
         motorConfigurationType.setAchieveableMaxRPMFraction(MAX_MOTOR);
@@ -57,16 +71,19 @@ public class SwerveModule {
         encoder = e;
         rotationController = new PIDFController(P, I, D, 0);
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        this.wheel = wheel;
     }
 
-    public SwerveModule(@NonNull HardwareMap hardwareMap, String motorName, String servoName, String encoderName) {
-        this(hardwareMap.get(DcMotorEx.class, motorName),
-                hardwareMap.get(CRServo.class, servoName),
-                new AbsoluteAnalogEncoder(hardwareMap.get(AnalogInput.class, encoderName)));
+    public SwerveModule(@NonNull HardwareMap hardwareMap, String motorName, String servoName, String encoderName, Wheel wheel) {
+        this(hardwareMap.get(DcMotorEx.class, motorName), hardwareMap.get(CRServo.class, servoName),
+                new AbsoluteAnalogEncoder(hardwareMap.get(AnalogInput.class, encoderName)),
+                wheel
+        );
     }
 
     public void read() {
-        position = encoder.getCurrentPosition();
+        position = encoder.getCurrentPosition() - wheel.tickOffset;
     }
 
     public void update() {

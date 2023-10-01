@@ -29,7 +29,7 @@ public class LocalizationTests {
                 1, 1, 0, 0
         );
 
-        localization.updatePosition(0,10,0);
+        localization.updatePosition(0,10,Rotation2d.fromDegrees(0));
         assertEquals(new Pose2d(new Translation2d(0,10), new Rotation2d(0)), localization.getPosition());
     }
 
@@ -40,7 +40,7 @@ public class LocalizationTests {
                 1, 1, 0, 0
         );
 
-        localization.updatePosition(10,0,0);
+        localization.updatePosition(10,0,Rotation2d.fromDegrees(0));
         assertEquals(new Pose2d(new Translation2d(10,0), new Rotation2d(0)), localization.getPosition());
     }
 
@@ -51,18 +51,18 @@ public class LocalizationTests {
                 1, 1, 0, 0
         );
 
-        localization.updatePosition(0,1, Math.toRadians(45));
+        localization.updatePosition(0,1, Rotation2d.fromDegrees(45));
         assertEquals(new Pose2d(new Translation2d(Math.sqrt(2)/2,Math.sqrt(2)/2), Rotation2d.fromDegrees(45)), localization.getPosition());
     }
 
     @Test
     public void rotationDriveTest() {
         TestLocalization localization = new TestLocalization(
-                new Pose2d(new Translation2d(0,0), Rotation2d.fromDegrees(-45)),
+                new Pose2d(new Translation2d(0,0), Rotation2d.fromDegrees(-90)),
                 1, 1, 0, 0
         );
 
-        localization.updatePosition(0,1, Math.toRadians(45));
-        assertEquals(new Pose2d(new Translation2d(0,Math.sqrt(2)/2), Rotation2d.fromDegrees(45)), localization.getPosition());
+        localization.updatePosition(0,1, Rotation2d.fromDegrees(90));
+        assertEquals(new Pose2d(new Translation2d(0,2/Math.PI), Rotation2d.fromDegrees(90)), localization.getPosition());
     }
 }
