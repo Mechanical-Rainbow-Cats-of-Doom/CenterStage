@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.drive.swerve;
 
 import androidx.annotation.NonNull;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Translation2d;
@@ -14,14 +15,20 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.HolonomicDrive;
 import org.opencv.core.Mat;
 
+@Config
 public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDrive {
     private static final double MAX_XY_VELOCITY = 1e+10; // temp value, i/s
     private static final double MAX_ROTATIONAL_VELOCITY = 1e+10 * Math.PI; // temp value, radians/s
 
-    private final SwerveModule frontL, frontR, backL, backR;
+    public static double flP = 0.6, flI = 0, flD = 0.1, frP = 0.6, frI = 0, frD = 0.1, blP = 0.6, blI = 0, blD = 0.1, brP = 0.6, brI = 0, brD = 0.1;
+    private static double[][] pidConstants;
     private final SwerveModule[] swerveModules;
     private final Telemetry telemetry;
     private boolean driveAsPercentage;
+
+    private static void fillPIDConstants() {
+        SwerveDriveSubsystem.pidConstants = new double[][] {{flP, flI, flD}, {frP, frI, frD}, {blP, blI, blD}, {brP, brI, brD}};
+    }
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
             new Translation2d(0.14785, 0.13459),
@@ -37,13 +44,14 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
      *                          likely want to use true for driver controlled and false for auto
      */
     public SwerveDriveSubsystem(final HardwareMap hMap, final Telemetry telemetry, final boolean driveAsPercentage) {
-        this.frontL = new SwerveModule(hMap,"frontLeftMotor", "frontLeftServo", "frontLeftEncoder", SwerveModule.Wheel.FRONT_LEFT);
-        this.frontR = new SwerveModule(hMap,"frontRightMotor", "frontRightServo", "frontRightEncoder", SwerveModule.Wheel.FRONT_RIGHT);
-        this.backL = new SwerveModule(hMap,"backLeftMotor", "backLeftServo", "backLeftEncoder", SwerveModule.Wheel.BACK_LEFT);
-        this.backR = new SwerveModule(hMap,"backRightMotor", "backRightServo", "backRightEncoder", SwerveModule.Wheel.BACK_RIGHT);
+        final SwerveModule frontL = new SwerveModule(hMap,"frontLeftMotor", "frontLeftServo", "frontLeftEncoder", SwerveModule.Wheel.FRONT_LEFT);
+        final SwerveModule frontR = new SwerveModule(hMap,"frontRightMotor", "frontRightServo", "frontRightEncoder", SwerveModule.Wheel.FRONT_RIGHT);
+        final SwerveModule backL = new SwerveModule(hMap,"backLeftMotor", "backLeftServo", "backLeftEncoder", SwerveModule.Wheel.BACK_LEFT);
+        final SwerveModule backR = new SwerveModule(hMap,"backRightMotor", "backRightServo", "backRightEncoder", SwerveModule.Wheel.BACK_RIGHT);
         this.swerveModules = new SwerveModule[] {frontL, frontR, backL, backR};
         this.telemetry = telemetry;
         this.driveAsPercentage = driveAsPercentage;
+        fillPIDConstants();
     }
 
     //THIS METHOD BAD
@@ -89,10 +97,11 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
 
     @Override
     public void periodic() {
+        fillPIDConstants();
         for (int i = 0, swerveModulesLength = swerveModules.length; i < swerveModulesLength; i++) {
             SwerveModule module = swerveModules[i];
             module.read();
-            module.update();
+            module.update(pidConstants[i][0], pidConstants[i][1], pidConstants[i][2]);
             module.runTelemetry(Integer.toString(i), telemetry);
         }
         //telemetry.update();

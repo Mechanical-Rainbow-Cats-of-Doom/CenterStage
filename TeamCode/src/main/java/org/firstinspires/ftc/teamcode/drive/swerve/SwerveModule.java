@@ -67,7 +67,7 @@ public class SwerveModule {
         ((CRServoImplEx) servo).setPwmRange(new PwmControl.PwmRange(500, 2500, 5000)); //TODO: figure out what to set framing rate to
 
         encoder = e;
-        rotationController = new PIDFController(P, I, D, 0);
+        rotationController = new PIDFController(-1,-1,-1, 0);
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         this.wheel = wheel;
@@ -84,8 +84,8 @@ public class SwerveModule {
         position = encoder.getCurrentPosition() - wheel.tickOffset;
     }
 
-    public void update() {
-        rotationController.setPIDF(P, I, D, 0);
+    public void update(double p, double i, double d) {
+        rotationController.setPIDF(p, i, d, 0);
         double target = getTargetRotation(), current = getModuleRotation();
 
         double error = normalizeRadians(target - current);
@@ -116,6 +116,7 @@ public class SwerveModule {
     public void runTelemetry(@NonNull String name, @NonNull Telemetry telemetry) {
         final String caption = "module " + name;
         telemetry.addData(caption + " curr rotation", getModuleRotation());
+        telemetry.addData(caption + " raw rotation", position);
         telemetry.addData(caption + " motor power", lastMotorPower);
         telemetry.addData(caption + " target rotation", getTargetRotation());
     }
