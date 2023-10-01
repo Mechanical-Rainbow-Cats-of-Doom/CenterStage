@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.opmode.teleop;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.command.CommandOpMode;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.PerpetualCommand;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
@@ -15,6 +18,7 @@ import org.firstinspires.ftc.teamcode.drive.swerve.SwerveDriveSubsystem;
 public class TestTeleOp extends CommandOpMode {
     private SwerveDriveSubsystem swerveDrive;
     private GamepadEx driver1, driver2;
+   // private final MultipleTelemetry telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry(), super.telemetry);
 
     @Override
     public void initialize() {
@@ -25,8 +29,19 @@ public class TestTeleOp extends CommandOpMode {
         swerveDrive.setDefaultCommand(new PerpetualCommand(
                 new DefaultSwerveDriveCommand(
                         swerveDrive,
-                        () -> new ChassisSpeeds(driver1.getLeftY(), driver1.getLeftX(), driver1.getRightX())
+                        () -> {
+                            telemetry.addData("gamepad1 y", driver1.getLeftY());
+                            telemetry.addData("gamepad1 x", driver1.getLeftX());
+                            telemetry.addData("gamepad1 rightx", driver1.getRightX());
+                            return new ChassisSpeeds(driver1.getLeftY(), driver1.getLeftX(), driver1.getRightX());
+                        }
                 )
         ));
     }
+    
+    @Override
+    public void runOpMode() throws InterruptedException {
+        super.runOpMode();
+    }
+    
 }
