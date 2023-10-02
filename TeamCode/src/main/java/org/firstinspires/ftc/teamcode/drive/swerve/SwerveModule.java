@@ -38,8 +38,8 @@ public class SwerveModule {
 
     public static double P = 0.6, I = 0, D = 0.1;
     public static double K_STATIC = 0.03;
-
     public static double MAX_SERVO = 1, MAX_MOTOR = 1;
+    public static double EPSILON_TO_TURN = 0.07D;
 
     public static double WHEEL_RADIUS = 1.41732; // TODO: MEASURE ACCURATELY
     public static final double MOTOR_GEAR_RATIO = 1 / ((42D / 12D) * (36D / 24D) * (2D)); // output (wheel) speed / input (motor) speed
@@ -69,7 +69,7 @@ public class SwerveModule {
         } catch (InterruptedException ex) {
             ex.printStackTrace();
         }
-        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         servo = s;
         ((CRServoImplEx) servo).setPwmRange(new PwmControl.PwmRange(500, 2500, 5000)); //TODO: figure out what to set framing rate to
 
@@ -92,11 +92,10 @@ public class SwerveModule {
 
     public void update(double p, double i, double d) {
         rotationController.setPIDF(p, i, d, 0);
-        double target = getTargetRotation(), current = getModuleRotation();
+        double inputTarget = getTargetRotation(), current = getModuleRotation();
+        final double outputTarget = Math.abs(inputTarget - current) / Math.abs(current) > EPSILON_TO_TURN ? inputTarget : current;
 
-        double error = normalizeRadians(target - current);
-
-        error = normalizeRadians(target - current);
+        double error = normalizeRadians(outputTarget - current);
         double power = Range.clip(rotationController.calculate(0, error), -MAX_SERVO, MAX_SERVO);
         if (Double.isNaN(power)) power = 0;
         servo.setPower(power + (Math.abs(error) > 0.02 ? K_STATIC : 0) * Math.signum(power));
