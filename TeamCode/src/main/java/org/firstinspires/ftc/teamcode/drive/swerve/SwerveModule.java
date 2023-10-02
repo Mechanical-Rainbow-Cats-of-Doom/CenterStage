@@ -20,20 +20,19 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.common.hardware.AbsoluteAnalogEncoder;
 
-import java.util.Locale;
-
 @Config
 public class SwerveModule {
     public enum Wheel {
-        FRONT_LEFT(0D),
-        FRONT_RIGHT(0D),
-        BACK_LEFT(0D),
-        BACK_RIGHT(0D);
+        FRONT_LEFT(1.278D, true),
+        FRONT_RIGHT(4.098D, false),
+        BACK_LEFT(5.301D, true),
+        BACK_RIGHT(4.098D, false);
 
         public final double tickOffset;
-
-        Wheel(double tickOffset) {
+        public final boolean inverse;
+        Wheel(double tickOffset, boolean inverse) {
             this.tickOffset = tickOffset;
+            this.inverse = inverse;
         }
     }
 
@@ -43,8 +42,10 @@ public class SwerveModule {
     public static double MAX_SERVO = 1, MAX_MOTOR = 1;
 
     public static double WHEEL_RADIUS = 1.41732; // TODO: MEASURE ACCURATELY
-    public static final double GEAR_RATIO = 1 / ((42D / 12D) * (36D / 24D) * (2D)); // output (wheel) speed / input (motor) speed
+    public static final double MOTOR_GEAR_RATIO = 1 / ((42D / 12D) * (36D / 24D) * (2D)); // output (wheel) speed / input (motor) speed
     public static final double TICKS_PER_REV = 28;
+    public static double POD_GEAR_RATIO = 1.01;
+
     private final Wheel wheel;
 
     private final DcMotorEx motor;
@@ -60,15 +61,20 @@ public class SwerveModule {
         motor = m;
         MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
         motorConfigurationType.setAchieveableMaxRPMFraction(MAX_MOTOR);
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setMotorType(motorConfigurationType);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         servo = s;
         ((CRServoImplEx) servo).setPwmRange(new PwmControl.PwmRange(500, 2500, 5000)); //TODO: figure out what to set framing rate to
 
         encoder = e;
         rotationController = new PIDFController(-1,-1,-1, 0);
-        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         this.wheel = wheel;
     }
@@ -97,16 +103,16 @@ public class SwerveModule {
     }
 
     public double getTargetRotation() {
-        return normalizeRadians(target - Math.PI);
+        return normalizeRadians((target * POD_GEAR_RATIO) - Math.PI);
     }
 
     public double getModuleRotation() {
-        return normalizeRadians(position - Math.PI);
+        return normalizeRadians((position  * POD_GEAR_RATIO) - Math.PI);
     }
 
     public void setMotorPower(double power) {
         lastMotorPower = power;
-        motor.setPower(power);
+        motor.setPower(power * (wheel.inverse ? -1 : 1));
     }
 
     public void setTargetRotation(double target) {
@@ -132,7 +138,7 @@ public class SwerveModule {
     }
 
     public double encoderTicksToInches(double ticks) {
-        return WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV;
+        return WHEEL_RADIUS * 2 * Math.PI * MOTOR_GEAR_RATIO * ticks / TICKS_PER_REV;
     }
 
     public double getWheelPosition() {
