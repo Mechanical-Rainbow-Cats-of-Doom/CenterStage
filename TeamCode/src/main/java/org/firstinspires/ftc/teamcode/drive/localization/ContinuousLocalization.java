@@ -53,13 +53,17 @@ public abstract class ContinuousLocalization implements Localization {
         deltaX -= xOffset * (heading - oldHeading);
         deltaY -= yOffset * (heading - oldHeading);
 
-        double rawDeltaHeading = Math.abs(heading - oldHeading);
+        double rawDeltaHeading = Math.abs(maxHeading - minHeading);
         // normalize between 0 and 2pi
         rawDeltaHeading -= 2*Math.PI * Math.floor(rawDeltaHeading/(2*Math.PI));
         // We don't know what direction we rotated in, but this makes a good guess!
         // if the angle is larger than pi, chances are we're going in the wrong direction!
-        double deltaHeading = rawDeltaHeading - (Math.PI * Math.floor(rawDeltaHeading/Math.PI));
-        double avgHeading = (rawDeltaHeading > Math.PI) ? maxHeading + deltaHeading : minHeading + deltaHeading;
+        // edge case: if rawDeltaHeading is Math.PI, we would prefer to keep that. this edge case
+        // should never happen in the real world but this made my unit tests nicer.
+        double deltaHeading = (rawDeltaHeading == Math.PI) ? Math.PI :
+                rawDeltaHeading - (Math.PI * Math.floor(rawDeltaHeading/Math.PI));
+        double avgHeading = (rawDeltaHeading > Math.PI) ? maxHeading + (deltaHeading/2) :
+                minHeading + (deltaHeading/2);
         // normalize between 0 and 2pi
         avgHeading -= 2*Math.PI*Math.floor(avgHeading/(2*Math.PI));
 

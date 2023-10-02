@@ -65,4 +65,26 @@ public class LocalizationTests {
         localization.updatePosition(0,1, Rotation2d.fromDegrees(90));
         assertEquals(new Pose2d(new Translation2d(0,2/Math.PI), Rotation2d.fromDegrees(90)), localization.getPosition());
     }
+
+    @Test
+    public void reverseRotationDriveTest() {
+        TestLocalization localization = new TestLocalization(
+                new Pose2d(new Translation2d(0,0), Rotation2d.fromDegrees(90)),
+                1, 1, 0, 0
+        );
+
+        localization.updatePosition(0,1, Rotation2d.fromDegrees(-90));
+        assertEquals(new Pose2d(new Translation2d(0,2/Math.PI), Rotation2d.fromDegrees(-90)), localization.getPosition());
+    }
+
+    @Test
+    public void diagonalRotationDriveTest() {
+        TestLocalization localization = new TestLocalization(
+                new Pose2d(new Translation2d(0,0), Rotation2d.fromDegrees(-45)),
+                1, 1, 0, 0
+        );
+
+        localization.updatePosition(0,1, Rotation2d.fromDegrees(45));
+        assertEquals(new Pose2d(new Translation2d(0, 2/Math.PI*Math.sqrt(2)), Rotation2d.fromDegrees(45)), localization.getPosition());
+    }
 }

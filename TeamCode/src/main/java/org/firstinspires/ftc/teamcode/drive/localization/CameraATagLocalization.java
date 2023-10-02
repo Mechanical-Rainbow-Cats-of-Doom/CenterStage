@@ -15,18 +15,21 @@ public class CameraATagLocalization implements DiscreteLocalization {
     public final AprilTagProcessor processor;
     public final Pose2d[] featureList;
     public Pose2d lastReadPosition = null;
+    public Pose2d cameraOffset;
     public long lastReadTime;
 
     /**
      * Creates a new AprilTag localizer. List length MUST be
      */
-    public CameraATagLocalization(AprilTagProcessor processor, Pose2d[] featureList) {
+    public CameraATagLocalization(AprilTagProcessor processor, Pose2d[] featureList,
+                                  Pose2d cameraOffset) {
         this.processor = processor;
         this.featureList = featureList;
         if(featureList.length != 587) {
             throw new RuntimeException("ERROR! featureList input into CameraATagLocalization MUST " +
                     "have 587 elements!");
         }
+        this.cameraOffset = cameraOffset;
     }
 
     /**
@@ -55,9 +58,7 @@ public class CameraATagLocalization implements DiscreteLocalization {
     public void updatePosition() {
         boolean positionUpdated = false;
         for (AprilTagDetection detection : processor.getDetections()) {
-            if(detection.id < 0 || detection.id > 586) {
-                continue;
-            }
+            if(detection.id < 0 || detection.id > 586) continue;
             // TODO: Pose math.
         }
         if(positionUpdated) {
