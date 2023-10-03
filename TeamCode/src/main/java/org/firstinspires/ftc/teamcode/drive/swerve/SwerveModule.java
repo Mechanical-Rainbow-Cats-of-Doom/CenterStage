@@ -38,9 +38,9 @@ public class SwerveModule {
         }
     }
 
-    public static double P = 0.6, I = 0, D = 0.1;
+    public static double motorP = 0.6, motorI = 0, motorD = 0.1;
     public static double K_STATIC = 0.03;
-    public static double MAX_SERVO = 1, MAX_MOTOR_TPS = 55D;
+    public static double MAX_SERVO = 1, MAX_MOTOR = 1, MAX_MOTOR_TPS = 55D;
 
     public static double EPSILON = 0.0001D;
     public static double WHEEL_RADIUS = 1.41732; // TODO: MEASURE ACCURATELY
@@ -53,7 +53,7 @@ public class SwerveModule {
     private final DcMotorEx motor;
     private final CRServo servo;
     private final AbsoluteAnalogEncoder encoder;
-    private PIDFController rotationController;
+    private final PIDFController rotationController, motorPowerController;
 
     private double lastMotorPower = 0;
     private double lastRotationTarget = 0D;
@@ -79,7 +79,7 @@ public class SwerveModule {
 
         encoder = e;
         rotationController = new PIDFController(-1,-1,-1, 0);
-
+        motorPowerController = new PIDFController(-1, -1, -1, 0);
         this.wheel = wheel;
     }
 
@@ -112,8 +112,10 @@ public class SwerveModule {
     }
 
     public void setMotorPower(double power) {
-        lastMotorPower = power;
-        motor.setVelocity(power * MAX_MOTOR_TPS);
+        motorPowerController.setPIDF(motorP, motorI, motorD, 0);
+        final double outputPower = Range.clip(rotationController.calculate(motor.getVelocity(), power * MAX_MOTOR_TPS), -MAX_MOTOR, MAX_MOTOR);
+        lastMotorPower = outputPower;
+        motor.setPower(outputPower);
     }
 
     public void setTargetRotation(double target) {
