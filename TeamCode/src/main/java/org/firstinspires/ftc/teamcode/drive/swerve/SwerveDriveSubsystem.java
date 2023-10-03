@@ -75,7 +75,6 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
             }
             moduleStates = kinematics.toSwerveModuleStates(chassisSpeeds);
             SwerveDriveKinematics.normalizeWheelSpeeds(moduleStates, 1.0D); // TODO Does this work for 1.0?
-
         } else {
             moduleStates = null;
             throw new RuntimeException("Not implemented");
