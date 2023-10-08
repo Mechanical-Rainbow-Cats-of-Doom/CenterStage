@@ -55,7 +55,7 @@ public class SwerveModule {
     private final AbsoluteAnalogEncoder encoder;
     private final PIDFController rotationController, motorPowerController;
 
-    private double lastMotorPower = 0;
+    private double lastMotorPower = 0, targetVelocity = 0D;
     private double lastRotationTarget = 0D;
     private double target = 0.0;
     private double outputTarget = 0D;
@@ -73,7 +73,7 @@ public class SwerveModule {
         } catch (InterruptedException ex) {
             ex.printStackTrace();
         }
-        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         servo = s;
         ((CRServoImplEx) servo).setPwmRange(new PwmControl.PwmRange(500, 2500, 5000)); //TODO: figure out what to set framing rate to
 
@@ -113,9 +113,10 @@ public class SwerveModule {
 
     public void setMotorPower(double power) {
         motorPowerController.setPIDF(motorP, motorI, motorD, 0);
-        final double outputPower = Range.clip(rotationController.calculate(motor.getVelocity(), power * MAX_MOTOR_TPS), -MAX_MOTOR, MAX_MOTOR);
-        lastMotorPower = outputPower;
-        motor.setPower(outputPower);
+        final double outputPower = Range.clip(motorPowerController.calculate(motor.getVelocity(), power * MAX_MOTOR_TPS), 0, MAX_MOTOR_TPS);
+        targetVelocity = outputPower;
+        lastMotorPower = outputPower / MAX_MOTOR_TPS;
+        motor.setPower(outputPower / MAX_MOTOR_TPS);
     }
 
     public void setTargetRotation(double target) {
@@ -127,6 +128,9 @@ public class SwerveModule {
         telemetry.addData(caption + " curr rotation", getModuleRotation());
         telemetry.addData(caption + " raw rotation", position);
         telemetry.addData(caption + " motor power", lastMotorPower);
+        telemetry.addData(caption + " raw velocity", motor.getVelocity());
+        telemetry.addData(caption + " target velocity", targetVelocity);
+        telemetry.addData(caption + " power from motor", motor.getPower());
         telemetry.addData(caption + " motor velocity", getWheelVelocity());
         telemetry.addData(caption + " motor position", getWheelPosition());
         telemetry.addData(caption + " target rotation", getTargetRotation());
