@@ -15,7 +15,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
-import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -58,7 +57,7 @@ public class SwerveModule {
     private double lastMotorPower = 0;
     private double lastRotationTarget = 0D;
     private double target = 0.0;
-    private double outputTarget = 0D;
+    private double outputRotationTarget = 0D;
     private double position = 0.0;
 
 
@@ -94,13 +93,13 @@ public class SwerveModule {
 
     public void update(double p, double i, double d) {
         rotationController.setPIDF(p, i, d, 0);
-        double inputTarget = getTargetRotation(), current = getModuleRotation();
-        outputTarget = Math.abs(lastMotorPower) > EPSILON ? inputTarget : lastRotationTarget;
-        double error = normalizeRadians(outputTarget - current);
+        double inputRotationTarget = getTargetRotation(), current = getModuleRotation();
+        outputRotationTarget = Math.abs(lastMotorPower) > EPSILON ? inputRotationTarget : lastRotationTarget;
+        double error = normalizeRadians(outputRotationTarget - current);
         double power = Range.clip(rotationController.calculate(0, error), -MAX_SERVO, MAX_SERVO);
         if (Double.isNaN(power)) power = 0;
         servo.setPower(power + (Math.abs(error) > 0.02 ? K_STATIC : 0) * Math.signum(power));
-        lastRotationTarget = outputTarget;
+        lastRotationTarget = outputRotationTarget;
     }
 
     public double getTargetRotation() {
@@ -130,7 +129,7 @@ public class SwerveModule {
         telemetry.addData(caption + " motor velocity", getWheelVelocity());
         telemetry.addData(caption + " motor position", getWheelPosition());
         telemetry.addData(caption + " target rotation", getTargetRotation());
-        telemetry.addData(caption + " output target rotation", outputTarget);
+        telemetry.addData(caption + " output target rotation", outputRotationTarget);
         telemetry.addData(caption + " servo power", getServoPower());
     }
 
