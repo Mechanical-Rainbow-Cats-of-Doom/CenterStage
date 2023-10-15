@@ -37,6 +37,7 @@ public class SwerveModule {
         }
     }
 
+    public static double motorP = 0.6, motorI = 0, motorD = 0.1;
     public static double K_STATIC = 0.03;
     public static double MAX_SERVO = 1, MAX_MOTOR = 1;
 

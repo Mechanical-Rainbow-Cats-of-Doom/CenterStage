@@ -13,7 +13,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.HolonomicDrive;
-import org.opencv.core.Mat;
 
 @Config
 public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDrive {
@@ -77,7 +76,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
             SwerveDriveKinematics.normalizeWheelSpeeds(moduleStates, 1.0D); // TODO Does this work for 1.0?
         } else {
             moduleStates = null;
-            throw new RuntimeException("Not implemented");
+            throw new UnsupportedOperationException("Not implemented");
         }
         for (int i = 0; i < swerveModules.length; i++) {
             swerveModules[i].setTargetModuleState(moduleStates[i]);
