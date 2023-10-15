@@ -15,7 +15,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
-import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -38,9 +37,8 @@ public class SwerveModule {
         }
     }
 
-    public static double motorP = 0.6, motorI = 0, motorD = 0.1;
     public static double K_STATIC = 0.03;
-    public static double MAX_SERVO = 1, MAX_MOTOR = 1, MAX_MOTOR_TPS = 55D;
+    public static double MAX_SERVO = 1, MAX_MOTOR = 1;
 
     public static double EPSILON = 0.0001D;
     public static double WHEEL_RADIUS = 1.41732; // TODO: MEASURE ACCURATELY
@@ -53,13 +51,15 @@ public class SwerveModule {
     private final DcMotorEx motor;
     private final CRServo servo;
     private final AbsoluteAnalogEncoder encoder;
-    private final PIDFController rotationController, motorPowerController;
+    private final PIDFController rotationController;
 
-    private double lastMotorPower = 0, targetVelocity = 0D;
+    private double lastMotorPower = 0;
     private double lastRotationTarget = 0D;
     private double target = 0.0;
     private double outputTarget = 0D;
     private double position = 0.0;
+    private double power = 0D;
+    private boolean flip = false;
 
 
     public SwerveModule(DcMotorEx m, CRServo s, AbsoluteAnalogEncoder e, Wheel wheel) {
@@ -73,13 +73,12 @@ public class SwerveModule {
         } catch (InterruptedException ex) {
             ex.printStackTrace();
         }
-        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         servo = s;
         ((CRServoImplEx) servo).setPwmRange(new PwmControl.PwmRange(500, 2500, 5000)); //TODO: figure out what to set framing rate to
 
         encoder = e;
         rotationController = new PIDFController(-1,-1,-1, 0);
-        motorPowerController = new PIDFController(-1, -1, -1, 0);
         this.wheel = wheel;
     }
 
@@ -97,27 +96,34 @@ public class SwerveModule {
         double inputTarget = getTargetRotation(), current = getModuleRotation();
         outputTarget = Math.abs(lastMotorPower) > EPSILON ? inputTarget : lastRotationTarget;
         double error = normalizeRadians(outputTarget - current);
+        if (Math.abs(error) > Math.PI/2D) {
+            outputTarget = normalizeRadians(outputTarget + Math.PI);
+            flip = !flip;
+        }
         double power = Range.clip(rotationController.calculate(0, error), -MAX_SERVO, MAX_SERVO);
         if (Double.isNaN(power)) power = 0;
         servo.setPower(power + (Math.abs(error) > 0.02 ? K_STATIC : 0) * Math.signum(power));
         lastRotationTarget = outputTarget;
+        updateMotor();
     }
 
     public double getTargetRotation() {
-        return normalizeRadians((target * POD_GEAR_RATIO));
+        return normalizeRadians((target * POD_GEAR_RATIO) + (flip ? Math.PI : 0));
     }
 
     public double getModuleRotation() {
-        return normalizeRadians((position * POD_GEAR_RATIO));
+        return normalizeRadians((position * POD_GEAR_RATIO) + (flip ? Math.PI : 0));
     }
 
     public void setMotorPower(double power) {
-        motorPowerController.setPIDF(motorP, motorI, motorD, 0);
-        final double outputPower = Range.clip(motorPowerController.calculate(motor.getVelocity(), power * MAX_MOTOR_TPS), 0, MAX_MOTOR_TPS);
-        targetVelocity = outputPower;
-        lastMotorPower = outputPower / MAX_MOTOR_TPS;
-        motor.setPower(outputPower / MAX_MOTOR_TPS);
+        this.power = power;
     }
+
+    public void updateMotor() {
+        lastMotorPower = power * MAX_MOTOR * (flip ? -1 : 1);
+        motor.setPower(lastMotorPower);
+    }
+
 
     public void setTargetRotation(double target) {
         this.target = normalizeRadians(target);
@@ -129,7 +135,6 @@ public class SwerveModule {
         telemetry.addData(caption + " raw rotation", position);
         telemetry.addData(caption + " motor power", lastMotorPower);
         telemetry.addData(caption + " raw velocity", motor.getVelocity());
-        telemetry.addData(caption + " target velocity", targetVelocity);
         telemetry.addData(caption + " power from motor", motor.getPower());
         telemetry.addData(caption + " motor velocity", getWheelVelocity());
         telemetry.addData(caption + " motor position", getWheelPosition());
