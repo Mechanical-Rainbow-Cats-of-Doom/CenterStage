@@ -5,10 +5,17 @@ import android.util.Pair;
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
-import org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc;
+import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
+import org.firstinspires.ftc.vision.apriltag.AprilTagLibrary;
+import org.firstinspires.ftc.vision.apriltag.AprilTagMetadata;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,37 +24,39 @@ import javax.annotation.Nullable;
 /**
  * CameraATagLocalization is a form of (non-continuous) Localization which uses AprilTags to
  * find the current position.
+ *
+ * Heed the deprecation mark below, this does not actually work
  */
+// DO NOT REMOVE! THIS IS NOT FULLY FINSIHED AND IS COMPLETE DOGHSIT:(
+@Deprecated
 public class CameraATagLocalization implements DiscreteLocalization {
     public final AprilTagProcessor processor;
-    public final Pose2d[] featureList;
-    public Pose2d lastReadPosition = null;
+    public Pose2d position = null;
     public Pose2d cameraOffset;
     public static final float minDetectDistance = 15;
     public static final float multiplier = 1;
     public long lastReadTime;
+    public @Nullable Telemetry telemetry;
+    public final AprilTagLibrary library;
 
     /**
      * Creates a new AprilTag localizer. List length MUST be
      */
-    public CameraATagLocalization(AprilTagProcessor processor, Pose2d[] featureList,
-                                  Pose2d cameraOffset) {
+    public CameraATagLocalization(AprilTagProcessor processor, Pose2d cameraOffset,
+                                  @Nullable Telemetry telemetry, AprilTagLibrary library) {
         this.processor = processor;
-        this.featureList = featureList;
-        if(featureList.length != 587) {
-            throw new RuntimeException("ERROR! featureList input into CameraATagLocalization MUST " +
-                    "have 587 elements!");
-        }
         this.cameraOffset = cameraOffset;
+        this.telemetry = telemetry;
+        this.library = library;
     }
 
-    /**
-     * Adds a new AprilTag feature with an ID and a pose.
-     * @param id The ID of the AprilTag.
-     * @param pose The pose of the AprilTag as a {@link Pose2d}.
-     */
-    public void setFeature(int id, Pose2d pose) {
-        featureList[id] = pose;
+    public CameraATagLocalization(AprilTagProcessor processor, Pose2d cameraOffset,
+                                  @Nullable Telemetry telemetry) {
+        this(processor, cameraOffset, telemetry, AprilTagGameDatabase.getCenterStageTagLibrary());
+    }
+
+    public CameraATagLocalization(AprilTagProcessor processor, Pose2d cameraOffset) {
+        this(processor, cameraOffset, null);
     }
 
     /**
@@ -55,7 +64,7 @@ public class CameraATagLocalization implements DiscreteLocalization {
      */
     @Override @Nullable
     public Pose2d getPosition() {
-        return lastReadPosition;
+        return position;
     }
 
     @Override
@@ -67,9 +76,19 @@ public class CameraATagLocalization implements DiscreteLocalization {
     public void updatePosition() {
         boolean positionUpdated = false;
 
-        List<Pair<Pose2d, Double>> poses = processor.getDetections().stream()
-                .filter((d) -> d.id > 0 && d.id < 586).map((d) -> estimatePose(d, featureList[d.id]))
-                .collect(Collectors.toList());
+
+        List<Pair<Pose2d, Double>> poses = new ArrayList<>();
+        for (AprilTagDetection d : processor.getDetections()) {
+            if(d.id < 0 || d.id > 586 || d.rawPose == null) continue;
+
+            Pair<Pose2d, Double> poseEstimate = convertToPose2D(d, library.lookupTag(d.id));
+            if(telemetry != null) {
+                telemetry.addData("Distance " + d.id, poseEstimate.second);
+                telemetry.addData("Est. Position" + d.id, poseEstimate.first.toString());
+            }
+
+            poses.add(poseEstimate);
+        }
         if(poses.size() == 0) return;
         double minDistance = poses.stream().mapToDouble((a) -> a.second).min().getAsDouble();
         if(minDistance < minDetectDistance) return;
@@ -86,7 +105,10 @@ public class CameraATagLocalization implements DiscreteLocalization {
         xPos /= distanceSum;
         yPos /= distanceSum;
 
-        lastReadPosition = new Pose2d(xPos, yPos, rotation);
+        position = new Pose2d(xPos, yPos, rotation);
+        if(telemetry != null) {
+            telemetry.addData("Estimated Position:", position);
+        }
 
         if(positionUpdated) {
             lastReadTime = System.currentTimeMillis();
@@ -96,19 +118,13 @@ public class CameraATagLocalization implements DiscreteLocalization {
     /**
      * returns the estimated pose based on the detection,
      */
-    public static Pair<Pose2d, Double> estimatePose(AprilTagDetection detection, Pose2d referencePose) {
-        // TODO make this work
-        final double twoSeventy = Math.toRadians(270);
-        double distance = Math.hypot(detection.ftcPose.x, detection.ftcPose.y) * multiplier;
+    public static Pair<Pose2d, Double> convertToPose2D(AprilTagDetection detection,
+                                                       AprilTagMetadata metadata) {
+        // TODO math
 
-        Rotation2d vectorAngle = new Rotation2d(Math.atan(detection.ftcPose.y/detection.ftcPose.x));
-        Rotation2d robotRotation = new Rotation2d(detection.ftcPose.pitch +
-                referencePose.getHeading() - twoSeventy - vectorAngle.getRadians());
-
-        Pose2d pose = new Pose2d(-distance * vectorAngle.getCos(),
-                -distance * vectorAngle.getSin(), robotRotation);
-
-        return new Pair<>(pose, distance);
-
+        return new Pair<>(new Pose2d(detection.ftcPose.x, detection.ftcPose.y,
+                new Rotation2d(metadata.fieldOrientation.toOrientation(AxesReference.EXTRINSIC,
+                        AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle -
+                        detection.ftcPose.yaw)), detection.ftcPose.range);
     }
 }
