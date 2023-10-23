@@ -1,30 +1,28 @@
 package org.firstinspires.ftc.teamcode.opmode.teleop;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.drive.swerve.SwerveDriveSubsystem;
 import org.firstinspires.ftc.teamcode.drive.swerve.SwerveModule;
 
+@Config
 @TeleOp
 public class SwerveEncoderTester extends LinearOpMode {
     final MultipleTelemetry telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry(), super.telemetry);
+    public static double RADIANS = 0D;
     @Override
     public void runOpMode() throws InterruptedException {
-        final SwerveModule frontL = new SwerveModule(hardwareMap, "frontLeftMotor", "frontLeftServo", "frontLeftEncoder", SwerveModule.Wheel.FRONT_LEFT);
-        final SwerveModule frontR = new SwerveModule(hardwareMap, "frontRightMotor", "frontRightServo", "frontRightEncoder", SwerveModule.Wheel.FRONT_RIGHT);
-        final SwerveModule backL = new SwerveModule(hardwareMap, "backLeftMotor", "backLeftServo", "backLeftEncoder", SwerveModule.Wheel.BACK_LEFT);
-        final SwerveModule backR = new SwerveModule(hardwareMap, "backRightMotor", "backRightServo", "backRightEncoder", SwerveModule.Wheel.BACK_RIGHT);
-        final SwerveModule[] swerveModules = new SwerveModule[] {frontL, frontR, backL, backR};
+        final SwerveDriveSubsystem drive = new SwerveDriveSubsystem(hardwareMap, telemetry, true);
         waitForStart();
+        drive.setPowerForAllPods(SwerveModule.EPSILON * 2);
         while (opModeIsActive()) {
-        for (int i = 0, swerveModulesLength = swerveModules.length; i < swerveModulesLength; i++) {
-            SwerveModule module = swerveModules[i];
-            module.read();
-            module.runTelemetry(Integer.toString(i), telemetry);
+            drive.setDirectionForAllPods(RADIANS);
+            drive.periodic();
+            telemetry.update();
         }
-        telemetry.update();
-    }
     }
 }

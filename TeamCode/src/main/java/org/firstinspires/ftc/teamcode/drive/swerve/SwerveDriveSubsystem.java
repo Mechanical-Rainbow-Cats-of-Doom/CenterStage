@@ -19,7 +19,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
     private static final double MAX_XY_VELOCITY = 1e+10; // temp value, i/s
     private static final double MAX_ROTATIONAL_VELOCITY = 1e+10 * Math.PI; // temp value, radians/s
 
-    public static double flP = 1.7, flI = 0.2, flD = 0.7, frP = 0.6, frI = 0, frD = 0.1, blP = 0.6, blI = 0, blD = 0.1, brP = 0.6, brI = 0, brD = 0.1;
+    public static double flP = 1, flI = 0, flD = 0.1, frP = 1, frI = 0, frD = 0.1, blP = 1, blI = 0, blD = 0.1, brP = 1, brI = 0, brD = 0.1;
     private static double[][] pidConstants;
     private final SwerveModule[] swerveModules;
     private final Telemetry telemetry;
@@ -30,10 +30,10 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
     }
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
-            new Translation2d(0.14785, 0.13459),
             new Translation2d(0.14785, -0.13459),
-            new Translation2d(-0.14785, 0.13459),
-            new Translation2d(-0.14785, -0.13459)
+            new Translation2d(0.14785, 0.13459),
+            new Translation2d(-0.14785, -0.13459),
+            new Translation2d(-0.14785, 0.13459)
     );
 
     /**
@@ -80,6 +80,18 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
             swerveModules[i].setTargetModuleState(moduleStates[i]);
         }
     }
+    public void setPowerForAllPods(double power) {
+        for (SwerveModule swerveModule : swerveModules) {
+            swerveModule.setMotorPower(power);
+        }
+    }
+
+    public void setDirectionForAllPods(double radians) {
+        for (SwerveModule swerveModule : swerveModules) {
+            swerveModule.setTargetRotation(radians);
+        }
+    }
+
 
     @Override
     public ChassisSpeeds getMeasuredVelocity() {

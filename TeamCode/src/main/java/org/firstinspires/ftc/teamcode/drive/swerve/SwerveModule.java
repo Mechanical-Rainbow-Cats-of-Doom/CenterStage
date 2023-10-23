@@ -23,10 +23,10 @@ import org.firstinspires.ftc.teamcode.common.hardware.AbsoluteAnalogEncoder;
 @Config
 public class SwerveModule {
     public enum Wheel {
-        FRONT_LEFT(1.278D, DcMotorSimple.Direction.REVERSE),
-        FRONT_RIGHT(4.098D, DcMotorSimple.Direction.FORWARD),
-        BACK_LEFT(5.301D, DcMotorSimple.Direction.FORWARD),
-        BACK_RIGHT(4.098D, DcMotorSimple.Direction.FORWARD);
+        FRONT_LEFT(1.278D + 0.135D, DcMotorSimple.Direction.REVERSE),
+        FRONT_RIGHT(4.098D - 1.01, DcMotorSimple.Direction.FORWARD),
+        BACK_LEFT(5.301D + 0.04, DcMotorSimple.Direction.FORWARD),
+        BACK_RIGHT(4.098D - 0.077, DcMotorSimple.Direction.FORWARD);
 
         public final double tickOffset;
         public final DcMotorSimple.Direction direction;
@@ -37,15 +37,14 @@ public class SwerveModule {
         }
     }
 
-    public static double motorP = 0.6, motorI = 0, motorD = 0.1;
     public static double K_STATIC = 0.03;
     public static double MAX_SERVO = 1, MAX_MOTOR = 1;
 
-    public static double EPSILON = 0.0001D;
+    public static final double EPSILON = 1e-5;
     public static double WHEEL_RADIUS = 1.41732; // TODO: MEASURE ACCURATELY
     public static final double MOTOR_GEAR_RATIO = 1 / ((42D / 12D) * (36D / 24D) * (2D)); // output (wheel) speed / input (motor) speed
     public static final double TICKS_PER_REV = 28;
-    public static double POD_GEAR_RATIO = 1.01;
+    public static double POD_GEAR_RATIO = 1.0;
 
     private final Wheel wheel;
 
@@ -60,8 +59,8 @@ public class SwerveModule {
     private double outputTarget = 0D;
     private double position = 0.0;
     private double power = 0D;
-    private boolean flip = false;
-
+    //private boolean flip = false;
+    private double error = 0;
 
     public SwerveModule(DcMotorEx m, CRServo s, AbsoluteAnalogEncoder e, Wheel wheel) {
         motor = m;
@@ -95,12 +94,15 @@ public class SwerveModule {
     public void update(double p, double i, double d) {
         rotationController.setPIDF(p, i, d, 0);
         double inputTarget = getTargetRotation(), current = getModuleRotation();
-        outputTarget = Math.abs(lastMotorPower) > EPSILON ? inputTarget : lastRotationTarget;
-        double error = normalizeRadians(outputTarget - current);
+        outputTarget = Math.abs(power) > EPSILON ? inputTarget : lastRotationTarget;
+        error = normalizeRadians(outputTarget - current);
+        /*
         if (Math.abs(error) > Math.PI/2D) {
             outputTarget = normalizeRadians(outputTarget + Math.PI);
+            error = normalizeRadians(outputTarget - current);
             flip = !flip;
         }
+         */
         double power = Range.clip(rotationController.calculate(0, error), -MAX_SERVO, MAX_SERVO);
         if (Double.isNaN(power)) power = 0;
         servo.setPower(power + (Math.abs(error) > 0.02 ? K_STATIC : 0) * Math.signum(power));
@@ -109,11 +111,11 @@ public class SwerveModule {
     }
 
     public double getTargetRotation() {
-        return normalizeRadians((target * POD_GEAR_RATIO) + (flip ? Math.PI : 0));
+        return normalizeRadians((target * POD_GEAR_RATIO)/* + (flip ? Math.PI : 0)*/);
     }
 
     public double getModuleRotation() {
-        return normalizeRadians((position * POD_GEAR_RATIO) + (flip ? Math.PI : 0));
+        return normalizeRadians((position * POD_GEAR_RATIO)/* + (flip ? Math.PI : 0)*/);
     }
 
     public void setMotorPower(double power) {
@@ -121,7 +123,7 @@ public class SwerveModule {
     }
 
     public void updateMotor() {
-        lastMotorPower = power * MAX_MOTOR * (flip ? -1 : 1);
+        lastMotorPower = power * MAX_MOTOR/* * (flip ? -1 : 1)*/;
         motor.setPower(lastMotorPower);
     }
 
@@ -142,6 +144,7 @@ public class SwerveModule {
         telemetry.addData(caption + " target rotation", getTargetRotation());
         telemetry.addData(caption + " output target rotation", outputTarget);
         telemetry.addData(caption + " servo power", getServoPower());
+        telemetry.addData(caption + " error", error);
     }
 
 
