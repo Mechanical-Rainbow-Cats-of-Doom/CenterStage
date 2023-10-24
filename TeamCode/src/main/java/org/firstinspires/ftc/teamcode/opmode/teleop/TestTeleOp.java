@@ -6,6 +6,7 @@ import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.PerpetualCommand;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
+import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -13,6 +14,7 @@ import org.firstinspires.ftc.teamcode.drive.swerve.DefaultSwerveDriveCommand;
 import org.firstinspires.ftc.teamcode.drive.swerve.SwerveDriveSubsystem;
 
 // If you are confused how this works, please see TestAuto for more comments
+// Also i'm confused too cuz this shit is broke, see SwerveDriveTester for a currently working impl
 
 @TeleOp
 public class TestTeleOp extends CommandOpMode {
@@ -25,7 +27,7 @@ public class TestTeleOp extends CommandOpMode {
         driver1 = new GamepadEx(gamepad1);
         driver2 = new GamepadEx(gamepad2);
 
-        swerveDrive = new SwerveDriveSubsystem(hardwareMap, telemetry, true);
+        swerveDrive = new SwerveDriveSubsystem(hardwareMap, telemetry, true, () -> driver1.getButton(GamepadKeys.Button.B));
         swerveDrive.setDefaultCommand(new PerpetualCommand(
                 new DefaultSwerveDriveCommand(
                         swerveDrive,
