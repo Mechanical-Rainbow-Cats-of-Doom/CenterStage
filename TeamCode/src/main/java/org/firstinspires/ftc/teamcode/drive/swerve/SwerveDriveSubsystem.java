@@ -64,6 +64,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
                 RevHubOrientationOnRobot.LogoFacingDirection.UP,
                 RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
         )));
+        imu.resetYaw();
         this.telemetry = telemetry;
         this.driveAsPercentage = driveAsPercentage;
         this.fieldRelativeReader = new ToggleButtonReader(fieldRelativeButton);
