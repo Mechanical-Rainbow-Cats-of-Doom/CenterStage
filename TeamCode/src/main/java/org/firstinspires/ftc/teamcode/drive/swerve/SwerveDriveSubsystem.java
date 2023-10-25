@@ -119,9 +119,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
     @Override
     public void periodic() {
         fieldRelativeReader.readValue();
-        if (fieldRelativeReader.wasJustReleased()) {
-            fieldRelative = !fieldRelative;
-        }
+        fieldRelative = fieldRelativeReader.getState();
         fillPIDConstants();
         for (int i = 0, swerveModulesLength = swerveModules.length; i < swerveModulesLength; i++) {
             SwerveModule module = swerveModules[i];
