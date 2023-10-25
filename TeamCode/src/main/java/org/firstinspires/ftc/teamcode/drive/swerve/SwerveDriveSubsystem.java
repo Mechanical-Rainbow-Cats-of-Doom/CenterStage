@@ -62,7 +62,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
         this.imu = hMap.get(IMU.class, "imu");
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
+                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD
         )));
         imu.resetYaw();
         this.telemetry = telemetry;
