@@ -18,7 +18,7 @@ public class SwerveDriveFromConfig extends LinearOpMode {
     public static double driverY, driverLX, driverRX;
     @Override
     public void runOpMode() {
-        final SwerveDriveSubsystem drive = new SwerveDriveSubsystem(hardwareMap, telemetry, true);
+        final SwerveDriveSubsystem drive = new SwerveDriveSubsystem(hardwareMap, telemetry, true, () -> false);
         waitForStart();
         while (opModeIsActive()) {
             drive.setTargetVelocity(new ChassisSpeeds(driverY, driverLX, driverRX));

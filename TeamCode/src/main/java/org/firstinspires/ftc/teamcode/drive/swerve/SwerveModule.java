@@ -35,7 +35,7 @@ public class SwerveModule {
         }
     }
 
-    public static double K_STATIC = 0.03;
+    public static double FLIP_GAP = 1.1;
     public static double MAX_SERVO = 1, MAX_MOTOR = 1;
 
     public static final double EPSILON = 1e-5;
@@ -101,12 +101,12 @@ public class SwerveModule {
         final double inputTarget = getTargetRotation(), current = getModuleRotation();
         final boolean zeroed = Math.abs(power) <= EPSILON;
         outputTarget =  zeroed ? lastRotationTarget : inputTarget;
-        error = outputTarget - current;
-        if (Math.abs(error) > Math.PI / 2D && !zeroed) {
+        error = normalizeRadians(outputTarget - current);
+        if (Math.abs(error) > (FLIP_GAP * Math.PI / 2D)  && !zeroed) {
             outputTarget = normalizeRadians(outputTarget + Math.PI);
             flip = !flip;
+            error = normalizeRadians(outputTarget - current);
         }
-        error = normalizeRadians(outputTarget - current);
         final double power = Range.clip(rotationController.calculate(0, error), -MAX_SERVO, MAX_SERVO);
         servo.setPower(Double.isNaN(power) ? 0 : power);
         lastRotationTarget = outputTarget;

@@ -16,7 +16,7 @@ public class SwerveEncoderTester extends LinearOpMode {
     public static double RADIANS = 0D;
     @Override
     public void runOpMode() throws InterruptedException {
-        final SwerveDriveSubsystem drive = new SwerveDriveSubsystem(hardwareMap, telemetry, true);
+        final SwerveDriveSubsystem drive = new SwerveDriveSubsystem(hardwareMap, telemetry, true, () -> false);
         waitForStart();
         drive.setPowerForAllPods(SwerveModule.EPSILON * 2);
         while (opModeIsActive()) {
