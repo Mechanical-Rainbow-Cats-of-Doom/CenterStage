@@ -23,29 +23,26 @@ import org.firstinspires.ftc.teamcode.common.hardware.AbsoluteAnalogEncoder;
 @Config
 public class SwerveModule {
     public enum Wheel {
-        FRONT_LEFT(1.278D, DcMotorSimple.Direction.REVERSE),
-        FRONT_RIGHT(4.098D, DcMotorSimple.Direction.FORWARD),
-        BACK_LEFT(5.301D, DcMotorSimple.Direction.FORWARD),
-        BACK_RIGHT(4.098D, DcMotorSimple.Direction.FORWARD);
+        FRONT_LEFT(DcMotorSimple.Direction.REVERSE),
+        FRONT_RIGHT(DcMotorSimple.Direction.FORWARD),
+        BACK_LEFT(DcMotorSimple.Direction.FORWARD),
+        BACK_RIGHT(DcMotorSimple.Direction.FORWARD);
 
-        public final double tickOffset;
         public final DcMotorSimple.Direction direction;
 
-        Wheel(double tickOffset, DcMotorSimple.Direction direction) {
-            this.tickOffset = tickOffset;
+        Wheel(DcMotorSimple.Direction direction) {
             this.direction = direction;
         }
     }
 
-    public static double motorP = 0.6, motorI = 0, motorD = 0.1;
-    public static double K_STATIC = 0.03;
+    public static double FLIP_GAP = 1.1;
     public static double MAX_SERVO = 1, MAX_MOTOR = 1;
 
-    public static double EPSILON = 0.0001D;
+    public static final double EPSILON = 1e-5;
     public static double WHEEL_RADIUS = 1.41732; // TODO: MEASURE ACCURATELY
     public static final double MOTOR_GEAR_RATIO = 1 / ((42D / 12D) * (36D / 24D) * (2D)); // output (wheel) speed / input (motor) speed
     public static final double TICKS_PER_REV = 28;
-    public static double POD_GEAR_RATIO = 1.01;
+    public static double POD_GEAR_RATIO = 1.0;
 
     private final Wheel wheel;
 
@@ -53,6 +50,7 @@ public class SwerveModule {
     private final CRServo servo;
     private final AbsoluteAnalogEncoder encoder;
     private final PIDFController rotationController;
+    private final double dynamicTickOffset;
 
     private double lastMotorPower = 0;
     private double lastRotationTarget = 0D;
@@ -61,7 +59,7 @@ public class SwerveModule {
     private double position = 0.0;
     private double power = 0D;
     private boolean flip = false;
-
+    private double error = 0;
 
     public SwerveModule(DcMotorEx m, CRServo s, AbsoluteAnalogEncoder e, Wheel wheel) {
         motor = m;
@@ -81,6 +79,8 @@ public class SwerveModule {
         encoder = e;
         rotationController = new PIDFController(-1,-1,-1, 0);
         this.wheel = wheel;
+
+        dynamicTickOffset = getServoEncoderOutput();
     }
 
     public SwerveModule(@NonNull HardwareMap hardwareMap, String motorName, String servoName, String encoderName, Wheel wheel) {
@@ -88,22 +88,27 @@ public class SwerveModule {
                 new AbsoluteAnalogEncoder(hardwareMap.get(AnalogInput.class, encoderName)), wheel);
     }
 
+    protected double getServoEncoderOutput() {
+        return encoder.getCurrentPosition();
+    }
+
     public void read() {
-        position = encoder.getCurrentPosition() - wheel.tickOffset;
+        position = getServoEncoderOutput() - dynamicTickOffset;
     }
 
     public void update(double p, double i, double d) {
         rotationController.setPIDF(p, i, d, 0);
-        double inputTarget = getTargetRotation(), current = getModuleRotation();
-        outputTarget = Math.abs(lastMotorPower) > EPSILON ? inputTarget : lastRotationTarget;
-        double error = normalizeRadians(outputTarget - current);
-        if (Math.abs(error) > Math.PI/2D) {
+        final double inputTarget = getTargetRotation(), current = getModuleRotation();
+        final boolean zeroed = Math.abs(power) <= EPSILON;
+        outputTarget =  zeroed ? lastRotationTarget : inputTarget;
+        error = normalizeRadians(outputTarget - current);
+        if (Math.abs(error) > (FLIP_GAP * Math.PI / 2D)  && !zeroed) {
             outputTarget = normalizeRadians(outputTarget + Math.PI);
             flip = !flip;
+            error = normalizeRadians(outputTarget - current);
         }
-        double power = Range.clip(rotationController.calculate(0, error), -MAX_SERVO, MAX_SERVO);
-        if (Double.isNaN(power)) power = 0;
-        servo.setPower(power + (Math.abs(error) > 0.02 ? K_STATIC : 0) * Math.signum(power));
+        final double power = Range.clip(rotationController.calculate(0, error), -MAX_SERVO, MAX_SERVO);
+        servo.setPower(Double.isNaN(power) ? 0 : power);
         lastRotationTarget = outputTarget;
         updateMotor();
     }
@@ -113,20 +118,19 @@ public class SwerveModule {
     }
 
     public double getModuleRotation() {
-        return normalizeRadians((position * POD_GEAR_RATIO) + (flip ? Math.PI : 0));
+        return normalizeRadians(position * POD_GEAR_RATIO);
     }
 
-    public void setMotorPower(double power) {
+    protected void setMotorPower(double power) {
         this.power = power;
     }
 
-    public void updateMotor() {
+    private void updateMotor() {
         lastMotorPower = power * MAX_MOTOR * (flip ? -1 : 1);
         motor.setPower(lastMotorPower);
     }
 
-
-    public void setTargetRotation(double target) {
+    protected void setTargetRotation(double target) {
         this.target = normalizeRadians(target);
     }
 
@@ -142,27 +146,27 @@ public class SwerveModule {
         telemetry.addData(caption + " target rotation", getTargetRotation());
         telemetry.addData(caption + " output target rotation", outputTarget);
         telemetry.addData(caption + " servo power", getServoPower());
+        telemetry.addData(caption + " error", error);
     }
 
 
-    public void setMode(DcMotor.RunMode runMode) {
+    private void setMode(DcMotor.RunMode runMode) {
         motor.setMode(runMode);
     }
-
 
     public double getServoPower() {
         return servo.getPower();
     }
 
-    public double encoderTicksToInches(double ticks) {
+    public static double encoderTicksToInches(double ticks) {
         return WHEEL_RADIUS * 2 * Math.PI * MOTOR_GEAR_RATIO * ticks / TICKS_PER_REV;
     }
 
-    public double getWheelPosition() {
+    protected double getWheelPosition() {
         return encoderTicksToInches(motor.getCurrentPosition());
     }
 
-    public double getWheelVelocity() {
+    protected double getWheelVelocity() {
         return encoderTicksToInches(motor.getVelocity());
     }
 
