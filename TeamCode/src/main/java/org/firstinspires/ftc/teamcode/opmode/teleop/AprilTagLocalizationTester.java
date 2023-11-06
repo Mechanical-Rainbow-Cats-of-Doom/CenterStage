@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.drive.localization.CameraATagLocalization;
+import org.firstinspires.ftc.teamcode.drive.localization.AprilTagLocalization;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -25,7 +25,7 @@ public class AprilTagLocalizationTester extends LinearOpMode {
                 hardwareMap.get(WebcamName.class, "Webcam 1"), aprilTagProcessor);
         Pose2d[] features = new Pose2d[587];
 
-        CameraATagLocalization localization = new CameraATagLocalization(aprilTagProcessor,
+        AprilTagLocalization localization = new AprilTagLocalization(aprilTagProcessor,
                 new Pose2d(), telemetry);
         FtcDashboard.getInstance().startCameraStream(OpenCvCameraFactory.getInstance()
                 .createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1")),

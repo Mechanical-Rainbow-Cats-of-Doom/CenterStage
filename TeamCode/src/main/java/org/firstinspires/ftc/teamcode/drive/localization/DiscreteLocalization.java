@@ -7,7 +7,7 @@ package org.firstinspires.ftc.teamcode.drive.localization;
  *
  * @see ContinuousLocalization
  * @see Localization
- * @see CameraATagLocalization
+ * @see AprilTagLocalization
  */
 public interface DiscreteLocalization extends Localization {
     /**
