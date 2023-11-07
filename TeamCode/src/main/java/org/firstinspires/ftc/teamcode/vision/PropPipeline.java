@@ -2,9 +2,6 @@ package org.firstinspires.ftc.teamcode.vision;
 
 import android.util.Pair;
 
-import androidx.annotation.NonNull;
-
-import org.jetbrains.annotations.Contract;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
@@ -15,32 +12,36 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public class PropPipeline extends OpenCvPipeline {
-    private static float CAMERA_WIDTH;
-    private static float CAMERA_HEIGHT;
+    // TODO set these better
+    private static float CAMERA_WIDTH = 320;
+    private static float CAMERA_HEIGHT = 240;
 
     public static final Scalar red = new Scalar(255,0,0);
 
-    //These are red
-    public static double topRectWidthPercentage = 0.4;
-    public static double topRectHeightPercentage = 0.54;
-    public static double redWidthPercent = topRectWidthPercentage;
-    public static double redHeightPercent = topRectHeightPercentage;
-    public static double blueness = 2.75;
-    //The points needed for the rectangles are calculated here
-    public static int rectangleHeight = 10;
-    //The width and height of the rectangles in terms of pixels
-    public static int rectangleWidth = 10;
+    int x1, y1, width1, height1;
+    int x2, y2, width2, height2;
+    int x3, y3, width3, height3;
+
+    public Rect[] rects() {
+        return new Rect[] {
+           new Rect(x1, y1, width1, height1),
+            new Rect(x2, y2, width2, height2),
+            new Rect(x3, y3, width3, height3),
+        };
+    }
+
+    // use in case of low blue levels
+    public static double blueness = 1;
     private boolean running = false;
-    private Pair<Integer, Integer> curRun = new Pair<>(-1, 0), greatestConfidence = new Pair<>(-1, 0);
+    private Pair<Integer, Double> curRun = new Pair<>(-1, 0d),
+            greatestConfidence = new Pair<>(-1, 0d);
     private final ArrayBlockingQueue<Integer> queue;
     private int totalTimesRan = 0;
     private final boolean debug;
+    private final boolean isRed;
 
     public PropPipeline(boolean isRed, boolean debug, ArrayBlockingQueue<Integer> queue) {
-        if (!debug && isRed) {
-            topRectWidthPercentage = redWidthPercent;
-            topRectHeightPercentage = redHeightPercent;
-        }
+        this.isRed = isRed;
         this.debug = debug;
         this.queue = queue;
     }
@@ -48,8 +49,8 @@ public class PropPipeline extends OpenCvPipeline {
     public void reset() {
         running = true;
         totalTimesRan = 0;
-        curRun = new Pair<>(-1, 0);
-        greatestConfidence = new Pair<>(-1, 0);
+        curRun = new Pair<>(-1, 0d);
+        greatestConfidence = new Pair<>(-1, 0d);
     }
 
     public void startPipeline() {
@@ -64,35 +65,34 @@ public class PropPipeline extends OpenCvPipeline {
         return running;
     }
 
-    @NonNull
-    @Contract(value = " -> new", pure = true)
-    public static Rect getRect() {
-        return new Rect(
-                (int) (CAMERA_WIDTH * topRectWidthPercentage),
-                (int) (CAMERA_HEIGHT * topRectHeightPercentage),
-                rectangleWidth,
-                rectangleHeight
-        );
-    }
-
     /**
      * @param input input frame matrix
      */
     @Override
     public synchronized Mat processFrame(Mat input) {
         if (running) {
-            final Rect rect = getRect();
-            Mat rgbMat = input.submat(rect);
-            Mat redMat = new Mat(), greenMat = new Mat(), blueMat = new Mat();
-            Core.extractChannel(rgbMat, redMat, 0);
-            Core.extractChannel(rgbMat, greenMat, 1);
-            Core.extractChannel(rgbMat, blueMat, 2);
+            int pos = 0;
+            double confidence = 0;
+            Rect[] rects = rects();
+            for (int i = 0; i < rects.length; i++) {
+                Mat rgbMat = input.submat(rects[i]);
+                Mat redMat = new Mat(), blueMat = new Mat();
+                Core.extractChannel(rgbMat, redMat, 0);
+                Core.extractChannel(rgbMat, blueMat, 2);
 
-            final double red = Core.mean(redMat).val[0];
-            final double blue = Core.mean(blueMat).val[0] * blueness;
+                final double red = Core.mean(redMat).val[0];
+                final double blue = Core.mean(blueMat).val[0] * blueness;
 
-//            final int pos = getIndexOfMaxOf3Params(red, green, blue);
-//            curRun = new Pair<>(pos, pos == curRun.first ? curRun.second + 1 : 0);
+                final boolean value = (red < blue) ^ isRed;
+                final double singleConfidence = Math.abs(red - blue);
+
+                if(value && singleConfidence > confidence) {
+                    pos = i;
+                    confidence = singleConfidence;
+                }
+            }
+
+            curRun = new Pair<>(pos, confidence);
             if (curRun.second > greatestConfidence.second) {
                 greatestConfidence = curRun;
             }
