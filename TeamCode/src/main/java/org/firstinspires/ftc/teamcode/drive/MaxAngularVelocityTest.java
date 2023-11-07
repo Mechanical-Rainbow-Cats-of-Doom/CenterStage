@@ -8,28 +8,27 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp
-public class MaxVelocityTest extends LinearOpMode {
+public class MaxAngularVelocityTest extends LinearOpMode {
     /**
      * Movint time is in secons
      */
     static int movingTime = 5;
     private ElapsedTime runtime = new ElapsedTime();
-    public double maxVelocity = 0;
+    public double maxAngularVelocity = 0;
     private final MultipleTelemetry telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry(), super.telemetry);
     @Override
     public void runOpMode() throws InterruptedException {
-        telemetry.addData("Max Velocity: ", maxVelocity);
+        telemetry.addData("Max Angular Velocity: ", maxAngularVelocity);
         runtime.reset();
         // TODO: replace all values of this with the chassis speed from localization after fin implements
         ChassisSpeeds placeHolder = new ChassisSpeeds();
-        // TODO: put in code to run the robot forward
+        // TODO: put in code to spin the robot
         while (runtime.seconds() < movingTime) {
             /*
-            The goal is to find the magnitude of the x and y velocity
-            and then update the maximum total velocity
+            the goal is to update the max angular velocity to the max value between the
+            max angular velocity and the current angular velocity
              */
-            double magnitude = Math.abs(Math.sqrt(Math.pow(placeHolder.vxMetersPerSecond, 2) + Math.pow(placeHolder.vxMetersPerSecond, 2)));
-            if(magnitude > maxVelocity) maxVelocity = magnitude;
+            if(Math.abs(placeHolder.omegaRadiansPerSecond) > maxAngularVelocity) maxAngularVelocity = Math.abs(placeHolder.omegaRadiansPerSecond);
             telemetry.update();
         }
         // TODO: put in code to stop the robot
