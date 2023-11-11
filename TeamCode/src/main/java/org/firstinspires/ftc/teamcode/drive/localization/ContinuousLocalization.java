@@ -2,6 +2,9 @@ package org.firstinspires.ftc.teamcode.drive.localization;
 
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
+import com.arcrobotics.ftclib.geometry.Transform2d;
+import com.arcrobotics.ftclib.geometry.Translation2d;
+import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
 
 /**
  * ContinuousLocalization is the type of localization used by encoders. It starts at a set position,
@@ -41,7 +44,7 @@ public abstract class ContinuousLocalization implements Localization {
         this.position = pose;
     }
 
-    public void updatePosition(int xEncoderPos, int yEncoderPos, Rotation2d rotation) {
+    public Transform2d updatePosition(int xEncoderPos, int yEncoderPos, Rotation2d rotation) {
         double deltaX = (xEncoderPos - oldReadX) * xMultiplier;
         double deltaY = (yEncoderPos - oldReadY) * yMultiplier;
 
@@ -80,10 +83,16 @@ public abstract class ContinuousLocalization implements Localization {
 
         position = new Pose2d(position.getX() + newX, position.getY() + newY, rotation);
 
+        Transform2d transform = position.minus(new Pose2d(new Translation2d(oldReadX, oldReadY), oldRotation));
+
         oldReadX = xEncoderPos;
         oldReadY = yEncoderPos;
         oldRotation = rotation;
+
+        return transform;
     }
+
+    public abstract ChassisSpeeds getVelocity();
 
     @Override
     public Pose2d getPosition() {

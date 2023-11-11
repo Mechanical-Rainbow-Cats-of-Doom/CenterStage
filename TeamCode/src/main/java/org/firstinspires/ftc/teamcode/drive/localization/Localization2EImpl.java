@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.drive.localization;
 
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
+import com.arcrobotics.ftclib.geometry.Transform2d;
+import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
@@ -15,9 +17,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
  */
 public class Localization2EImpl extends ContinuousLocalization {
     public Pose2d position;
+    public ChassisSpeeds velocity;
     public DcMotor xEncoder, yEncoder;
     public Rotation2d storedRotation;
     public IMU imu;
+    public long oldReadTime;
 
     // TODO tune these values
     public static final class Constants {
@@ -30,6 +34,7 @@ public class Localization2EImpl extends ContinuousLocalization {
                               double yEncoderOffset) {
         super(startingPosition, xEncoder.getCurrentPosition(), yEncoder.getCurrentPosition(),
                 xMultiplier, yMultiplier, xEncoderOffset, yEncoderOffset);
+        oldReadTime = System.currentTimeMillis();
         this.xEncoder = xEncoder;
         this.yEncoder = yEncoder;
         this.imu = imu;
@@ -65,8 +70,21 @@ public class Localization2EImpl extends ContinuousLocalization {
     }
 
     @Override
+    public ChassisSpeeds getVelocity() {
+        return velocity;
+    }
+
+    @Override
     public void updatePosition() {
-        updatePosition(xEncoder.getCurrentPosition(), yEncoder.getCurrentPosition(), getYaw());
+        long time = System.currentTimeMillis();
+        double deltaTime = (time - oldReadTime)/1000d;
+
+        Transform2d transform = super.updatePosition(xEncoder.getCurrentPosition(), yEncoder.getCurrentPosition(), getYaw());
+        velocity = new ChassisSpeeds(transform.getTranslation().getX() * deltaTime / 39.37,
+                transform.getTranslation().getY() * deltaTime / 39.37,
+                transform.getRotation().getRadians() * deltaTime);
+
+        oldReadTime = time;
     }
 
     private Rotation2d getYaw() {
