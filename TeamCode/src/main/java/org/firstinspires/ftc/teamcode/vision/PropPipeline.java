@@ -12,21 +12,24 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public class PropPipeline extends OpenCvPipeline {
-    // TODO set these better
-    private static float CAMERA_WIDTH = 320;
-    private static float CAMERA_HEIGHT = 240;
 
     public static final Scalar red = new Scalar(255,0,0);
 
-    int x1, y1, width1, height1;
-    int x2, y2, width2, height2;
-    int x3, y3, width3, height3;
+    float x1, y1, width1, height1;
+    float x2, y2, width2, height2;
+    float x3, y3, width3, height3;
 
     public Rect[] rects() {
+        // TODO set these better
+        float CAMERA_WIDTH = 320;
+        float CAMERA_HEIGHT = 240;
         return new Rect[] {
-           new Rect(x1, y1, width1, height1),
-            new Rect(x2, y2, width2, height2),
-            new Rect(x3, y3, width3, height3),
+            new Rect((int) (x1*CAMERA_WIDTH), (int) (y1*CAMERA_HEIGHT), (int) (width1*CAMERA_WIDTH),
+                    (int) (height1*CAMERA_HEIGHT)),
+            new Rect((int) (x2*CAMERA_WIDTH), (int) (y2*CAMERA_HEIGHT), (int) (width2*CAMERA_WIDTH),
+                    (int) (height2*CAMERA_HEIGHT)),
+            new Rect((int) (x3*CAMERA_WIDTH), (int) (y3*CAMERA_HEIGHT), (int) (width3*CAMERA_WIDTH),
+                    (int) (height3*CAMERA_HEIGHT)),
         };
     }
 

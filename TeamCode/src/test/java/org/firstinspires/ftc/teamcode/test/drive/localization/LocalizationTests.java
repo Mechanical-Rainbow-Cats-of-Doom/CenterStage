@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.test.drive.localization;
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.arcrobotics.ftclib.geometry.Translation2d;
+import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
 
 import org.firstinspires.ftc.teamcode.drive.localization.ContinuousLocalization;
 import org.junit.Test;
@@ -14,6 +15,11 @@ public class LocalizationTests {
         public TestLocalization(Pose2d initialPosition, double xMultiplier, double yMultiplier,
                                 double xOffset, double yOffset) {
             super(initialPosition, xMultiplier, yMultiplier, xOffset, yOffset);
+        }
+
+        @Override
+        public ChassisSpeeds getVelocity() {
+            return null;
         }
 
         @Override
