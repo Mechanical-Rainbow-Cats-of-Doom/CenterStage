@@ -96,11 +96,13 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
         final SwerveModuleState[] moduleStates;
         if (driveAsPercentage) {
             chassisSpeeds.omegaRadiansPerSecond *= Math.abs(chassisSpeeds.omegaRadiansPerSecond) <= 0.05 ? 0 : Math.PI * -2D;
-            moduleStates = kinematics.toSwerveModuleStates(chassisSpeeds);
-            SwerveDriveKinematics.normalizeWheelSpeeds(moduleStates, 1D); // TODO Does this work for 1.0?
         } else {
-            throw new UnsupportedOperationException("Not implemented");
+            chassisSpeeds.vxMetersPerSecond /= MAX_XY_VELOCITY;
+            chassisSpeeds.vyMetersPerSecond /= MAX_XY_VELOCITY;
+            chassisSpeeds.omegaRadiansPerSecond /= MAX_ROTATIONAL_VELOCITY;
         }
+        moduleStates = kinematics.toSwerveModuleStates(chassisSpeeds);
+        SwerveDriveKinematics.normalizeWheelSpeeds(moduleStates, 1D); // TODO Does this work for 1.0?
         for (int i = 0; i < swerveModules.length; i++) {
             swerveModules[i].setTargetModuleState(moduleStates[i]);
         }
