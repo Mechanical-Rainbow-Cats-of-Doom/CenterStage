@@ -5,7 +5,10 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.drive.swerve.SwerveDriveSubsystem;
 
 @TeleOp
 public class MaxVelocityTest extends LinearOpMode {
@@ -16,6 +19,7 @@ public class MaxVelocityTest extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     public double maxVelocity = 0;
     private final MultipleTelemetry telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry(), super.telemetry);
+    private SwerveDriveSubsystem drive = new SwerveDriveSubsystem(hardwareMap, telemetry, true, ()->false);
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry.addData("Max Velocity: ", maxVelocity);
