@@ -49,17 +49,35 @@ public class PropDetector {
      * Resets pipeline on call
      * Stalls code until pipeline is done with figuring out (max time of around 0.33 seconds)
      *
-     * @return integer 0 - 2, corresponds to cyan magenta or yellow
+     * @param runnable program to run while waiting
+     * @return integer 0 - 2, corresponds to left, center, and right respectively
      */
-    public synchronized int run() throws InterruptedException {
+    public synchronized int run(Runnable runnable) throws InterruptedException {
         final PropPipeline pipeline = new PropPipeline(isRed, debug, visionVals);
         camera.setPipeline(pipeline);
         pipeline.startPipeline();
+        while(visionVals.peek() == null) {
+            runnable.run();
+        }
         final int output = visionVals.take();
         if (output == -1) {
             System.out.println("something fucked up real bad, vision didn't return val 🐶🐱");
             return new Random().nextInt(3);
         } else return output;
+    }
+
+    /**
+     * Resets pipeline on call
+     * Stalls code until pipeline is done with figuring out (max time of around 0.33 seconds)
+     *
+     * @return integer 0 - 2, corresponds to left, center, and right respectively
+     */
+    public synchronized int run() throws InterruptedException {
+        return run(() -> {});
+    }
+
+    public void reset() {
+        camera.setPipeline(new HighlightSelectionZonePipeline());
     }
 
 }
