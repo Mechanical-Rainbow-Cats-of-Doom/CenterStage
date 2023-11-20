@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.drive.localization;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.arcrobotics.ftclib.geometry.Transform2d;
@@ -16,7 +17,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
  * @see ContinuousLocalization
  */
 public class Localization2EImpl extends ContinuousLocalization {
-    public Pose2d position;
     public ChassisSpeeds velocity;
     public DcMotor xEncoder, yEncoder;
     public Rotation2d storedRotation;
@@ -24,16 +24,38 @@ public class Localization2EImpl extends ContinuousLocalization {
     public long oldReadTime;
 
     // TODO tune these values
-    public static final class Constants {
+    @Config
+    public static final class LocalizationConstants {
         public static final double xMultiplier = 0.1, yMultiplier = 0.1;
         public static final double xEncoderOffset = 0, yEncoderOffset = 0;
     }
 
+    private static class LocalizationConstantProvider implements ContinuousLocalization.ConstantsProvider {
+        @Override
+        public double getXMultiplier() {
+            return LocalizationConstants.xMultiplier;
+        }
+
+        @Override
+        public double getYMultiplier() {
+            return LocalizationConstants.yMultiplier;
+        }
+
+        @Override
+        public double getXOffset() {
+            return LocalizationConstants.xEncoderOffset;
+        }
+
+        @Override
+        public double getYOffset() {
+            return LocalizationConstants.yEncoderOffset;
+        }
+    }
+
     public Localization2EImpl(DcMotor xEncoder, DcMotor yEncoder, IMU imu, Pose2d startingPosition,
-                              double xMultiplier, double yMultiplier, double xEncoderOffset,
-                              double yEncoderOffset) {
+                              LocalizationConstantProvider constantProvider) {
         super(startingPosition, xEncoder.getCurrentPosition(), yEncoder.getCurrentPosition(),
-                xMultiplier, yMultiplier, xEncoderOffset, yEncoderOffset);
+                constantProvider);
         oldReadTime = System.currentTimeMillis();
         this.xEncoder = xEncoder;
         this.yEncoder = yEncoder;
@@ -45,8 +67,7 @@ public class Localization2EImpl extends ContinuousLocalization {
     }
 
     public Localization2EImpl(DcMotor xEncoder, DcMotor yEncoder, IMU imu, Pose2d startingPosition) {
-        this(xEncoder, yEncoder, imu, startingPosition, Constants.xMultiplier,
-                Constants.yMultiplier, Constants.xEncoderOffset, Constants.yEncoderOffset);
+        this(xEncoder, yEncoder, imu, startingPosition, new LocalizationConstantProvider());
     }
 
     public Localization2EImpl(HardwareMap map, String xEncoder, String yEncoder, Pose2d startingPosition) {
@@ -61,6 +82,14 @@ public class Localization2EImpl extends ContinuousLocalization {
     @Override
     public Pose2d getPosition() {
         return position;
+    }
+
+    public int getXEncoderTicks() {
+        return xEncoder.getCurrentPosition();
+    }
+
+    public int getYEncoderTicks() {
+        return yEncoder.getCurrentPosition();
     }
 
     @Override

@@ -19,25 +19,26 @@ public abstract class ContinuousLocalization implements Localization {
     public Pose2d position;
     public int oldReadX, oldReadY;
     public Rotation2d oldRotation;
-    public final double xMultiplier, yMultiplier;
-    public final double xOffset, yOffset;
+    public final ConstantsProvider constantsProvider;
+
+    public interface ConstantsProvider {
+        double getXMultiplier();
+        double getYMultiplier();
+        double getXOffset();
+        double getYOffset();
+    }
 
     public ContinuousLocalization(Pose2d initialPosition, int initialReadX, int initialReadY,
-                                  double xMultiplier, double yMultiplier, double xOffset,
-                                  double yOffset) {
-        this.xMultiplier = xMultiplier;
-        this.yMultiplier = yMultiplier;
-        this.xOffset = xOffset;
-        this.yOffset = yOffset;
+                                  ConstantsProvider constantsProvider) {
+        this.constantsProvider = constantsProvider;
         this.oldReadX = initialReadX;
         this.oldReadY = initialReadY;
         this.oldRotation = initialPosition.getRotation();
         this.position = initialPosition;
     }
 
-    public ContinuousLocalization(Pose2d initialPosition, double xMultiplier, double yMultiplier, double xOffset,
-                                  double yOffset) {
-        this(initialPosition, 0, 0, xMultiplier, yMultiplier, xOffset, yOffset);
+    public ContinuousLocalization(Pose2d initialPosition, ConstantsProvider constantsProvider) {
+        this(initialPosition, 0, 0, constantsProvider);
     }
 
     public void setPosition(Pose2d pose) {
@@ -45,16 +46,16 @@ public abstract class ContinuousLocalization implements Localization {
     }
 
     public Transform2d updatePosition(int xEncoderPos, int yEncoderPos, Rotation2d rotation) {
-        double deltaX = (xEncoderPos - oldReadX) * xMultiplier;
-        double deltaY = (yEncoderPos - oldReadY) * yMultiplier;
+        double deltaX = (xEncoderPos - oldReadX) * constantsProvider.getXMultiplier();
+        double deltaY = (yEncoderPos - oldReadY) * constantsProvider.getYMultiplier();
 
         double heading = rotation.getRadians();
         double oldHeading = oldRotation.getRadians();
         double minHeading = Math.min(heading, oldHeading);
         double maxHeading = Math.max(heading, oldHeading);
 
-        deltaX -= xOffset * (heading - oldHeading);
-        deltaY -= yOffset * (heading - oldHeading);
+        deltaX -= constantsProvider.getXOffset() * (heading - oldHeading);
+        deltaY -= constantsProvider.getYOffset() * (heading - oldHeading);
 
         double rawDeltaHeading = Math.abs(maxHeading - minHeading);
         // normalize between 0 and 2pi
