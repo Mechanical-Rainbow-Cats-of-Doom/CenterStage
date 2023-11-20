@@ -16,7 +16,7 @@ public class GamepadIntake extends Intake {
     public void periodic() {
         toggle.readValue();
         if (toggle.wasJustReleased()) {
-            toggle();
+            toggleState();
         }
         super.periodic();
     }

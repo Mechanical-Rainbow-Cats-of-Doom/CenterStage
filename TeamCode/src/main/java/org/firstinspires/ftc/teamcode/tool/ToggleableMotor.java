@@ -2,10 +2,11 @@ package org.firstinspires.ftc.teamcode.tool;
 
 import androidx.annotation.NonNull;
 
+import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-public class ToggleableMotor {
+public class ToggleableMotor extends SubsystemBase {
     private final double maxMotorPower;
     private final DcMotorSimple motor;
 
@@ -15,7 +16,7 @@ public class ToggleableMotor {
         this.motor = motor;
         this.maxMotorPower = maxMotorPower;
         this.currState = startingState;
-        update();
+        periodic();
     }
 
     public ToggleableMotor(@NonNull HardwareMap hardwareMap, String motorName, double maxMotorPower,
@@ -31,7 +32,8 @@ public class ToggleableMotor {
         this(hardwareMap.get(DcMotorSimple.class, motorName));
     }
 
-    public void update() {
+    @Override
+    public void periodic() {
         if (currState != lastState) updateMotor();
         lastState = currState;
     }
