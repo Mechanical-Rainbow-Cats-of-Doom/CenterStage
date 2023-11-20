@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.drive.localization.Localization2EImpl;
 import org.firstinspires.ftc.teamcode.drive.swerve.SwerveDriveSubsystem;
 
 @TeleOp
-public class LocalizationTestOpMode extends OpMode {
+public class LocalizationTest extends OpMode {
     public Localization2EImpl localization;
     public SwerveDriveSubsystem drive;
     public GamepadEx driver1;
@@ -23,14 +23,15 @@ public class LocalizationTestOpMode extends OpMode {
 
     @Override
     public void init() {
-        localization = new Localization2EImpl(hardwareMap, "xEncoder", "yEncoder");
+        telemetry = new MultipleTelemetry(super.telemetry, FtcDashboard.getInstance().getTelemetry());
+        localization = new Localization2EImpl(hardwareMap);
         driver1 = new GamepadEx(gamepad1);
         drive = new SwerveDriveSubsystem(hardwareMap, telemetry, true, () -> driver1.getButton(GamepadKeys.Button.B));
-        telemetry = new MultipleTelemetry(super.telemetry, FtcDashboard.getInstance().getTelemetry());
     }
 
     @Override
     public void loop() {
+        drive.setTargetVelocity(new ChassisSpeeds(driver1.getLeftY(), driver1.getLeftX(), driver1.getRightX()));
         drive.periodic();
         localization.updatePosition();
 

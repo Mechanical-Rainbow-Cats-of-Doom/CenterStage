@@ -19,7 +19,7 @@ public class SwerveDriveTester extends LinearOpMode {
     @Override
     public void runOpMode() {
         final GamepadEx driver1 = new GamepadEx(gamepad1), driver2 = new GamepadEx(gamepad2);
-        final SwerveDriveSubsystem drive = new SwerveDriveSubsystem(hardwareMap, telemetry, true, () -> driver1.getButton(GamepadKeys.Button.B));
+        final SwerveDriveSubsystem drive = new SwerveDriveSubsystem(hardwareMap, telemetry, true, () -> driver1.getButton(GamepadKeys.Button.B), true);
         final Hanger hanger = new Hanger(hardwareMap, () -> driver1.getButton(GamepadKeys.Button.X));
         waitForStart();
         while (opModeIsActive()) {

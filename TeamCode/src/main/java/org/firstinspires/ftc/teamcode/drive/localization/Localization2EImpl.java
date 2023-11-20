@@ -21,13 +21,14 @@ public class Localization2EImpl extends ContinuousLocalization {
     public DcMotor xEncoder, yEncoder;
     public Rotation2d storedRotation;
     public IMU imu;
+    public int initialXPosition, initialYPosition;
     public long oldReadTime;
 
     // TODO tune these values
     @Config
     public static final class LocalizationConstants {
-        public static final double xMultiplier = 0.1, yMultiplier = 0.1;
-        public static final double xEncoderOffset = 0, yEncoderOffset = 0;
+        public static double xMultiplier = 0.002968434003149607, yMultiplier = 0.002968434003149607;
+        public static double xEncoderOffset = 6.5, yEncoderOffset = 0;
     }
 
     private static class LocalizationConstantProvider implements ContinuousLocalization.ConstantsProvider {
@@ -56,6 +57,8 @@ public class Localization2EImpl extends ContinuousLocalization {
                               LocalizationConstantProvider constantProvider) {
         super(startingPosition, xEncoder.getCurrentPosition(), yEncoder.getCurrentPosition(),
                 constantProvider);
+        initialXPosition = xEncoder.getCurrentPosition();
+        initialYPosition = yEncoder.getCurrentPosition();
         oldReadTime = System.currentTimeMillis();
         this.xEncoder = xEncoder;
         this.yEncoder = yEncoder;
@@ -79,17 +82,21 @@ public class Localization2EImpl extends ContinuousLocalization {
         this(map, xEncoder, yEncoder, new Pose2d());
     }
 
+    public Localization2EImpl(HardwareMap map) {
+        this(map, EncoderNames.xEncoder, EncoderNames.yEncoder);
+    }
+
     @Override
     public Pose2d getPosition() {
         return position;
     }
 
     public int getXEncoderTicks() {
-        return xEncoder.getCurrentPosition();
+        return xEncoder.getCurrentPosition() - initialXPosition;
     }
 
     public int getYEncoderTicks() {
-        return yEncoder.getCurrentPosition();
+        return yEncoder.getCurrentPosition() - initialYPosition;
     }
 
     @Override
