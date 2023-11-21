@@ -6,84 +6,132 @@ import com.arcrobotics.ftclib.geometry.Rotation2d;
 import java.util.ArrayList;
 
 public class Path {
-    private ArrayList<Pose2d> poseArray;
-    private Pose2d startingPose;
-    private Pose2d currentPose;
-    private Pose2d targetPose;
+    private ArrayList<Point> pointList;
+    /**
+     * Used for finding the next goal point
+     * it will be -1 if the list is empty, then it will cause errors if people try to access the list
+     */
     private int targetPoseIdx;
+    /**
+     * Not set yet, will need to be tuned currently 1e-3 as of this comment
+     */
+    public static final double DEFAULT_TOLERANCE = 1e-3; // inches
 
     public Path() {
-        poseArray = new ArrayList<Pose2d>();
-        startingPose = new Pose2d(0,0, new Rotation2d(0));
-        currentPose = startingPose;
-        targetPose = startingPose;
+        pointList = new ArrayList<Point>();
         targetPoseIdx = -1;
     }
 
-    public Pose2d getCurrentPose() {
-        return currentPose;
+    public int size() {
+        return pointList.size();
     }
 
-    public Pose2d getTargetPose() {
-        return targetPose;
-    }
-    public Pose2d getStartingPose() {
-        return startingPose;
-    }
-
-    public void setStartingPose(Pose2d startingPose) {
-        this.startingPose = startingPose;
-        if (poseArray.size() == 0) {
-            currentPose = startingPose;
-            targetPose = startingPose;
+    public void resetTargetPoint() {
+        if (targetPoseIdx != -1) {
+            targetPoseIdx = 0;
         }
     }
 
-    public Path addPose(Pose2d newPose2d) {
-        poseArray.add(newPose2d);
-        return this;
-    }
+    // theoretically people should only be able to access points through the target point, keep unimplemented
+//    public Point get(int index) {
+//        if (index < 0 || index > pointList.size()-1) {
+//            throw new IndexOutOfBoundsException("Index is either less than 0 or greater than the size: " + pointList.size());
+//        }
+//        return pointList.get(index);
+//    }
 
-    public Path addPose(double x, double y, Rotation2d rotation) {
-        poseArray.add(new Pose2d(x, y, rotation));
-        return this;
-    }
-
-    public Path addRotation(Rotation2d rotation) {
-        poseArray.add(new Pose2d(0, 0, rotation));
-        return this;
-    }
-
-    public void advancePoints() {
-        if(targetPoseIdx+1 > poseArray.size()) {
-            return;
+    public Point getTargetPose() {
+        if (targetPoseIdx == -1) {
+            throw new IllegalStateException("Path has no points");
         }
-        if(targetPoseIdx+1 == poseArray.size()) {
-            targetPoseIdx++;
-            currentPose = targetPose;
+        return pointList.get(targetPoseIdx);
+    }
+
+    public void incrementTargetPoint() {
+        if (targetPoseIdx+1 >= pointList.size()) {
             return;
         }
         targetPoseIdx++;
-        currentPose = targetPose;
-        targetPose = poseArray.get(targetPoseIdx);
     }
 
-    public void retreatPoints() {
-        if (targetPoseIdx-1 < -1) {
+    public void decrementTargetPoint() {
+        if (targetPoseIdx-1 < 0) {
             return;
         }
-        if (targetPoseIdx-1 == -1) {
-            targetPoseIdx--;
-
-        }
-        if(targetPoseIdx-1 == 0) {
-            targetPoseIdx--;
-            targetPose = currentPose;
-            currentPose = startingPose;
-        }
         targetPoseIdx--;
-        targetPose = currentPose;
-        currentPose = poseArray.get(targetPoseIdx-1);
     }
 
+    public Path removePose(int index) {
+        if (index < 0 || index > pointList.size()-1) {
+            throw new IndexOutOfBoundsException("Index is either less than 0 or greater than the size: " + pointList.size());
+        }
+        pointList.remove(index);
+        if (pointList.size() == 0) {
+            targetPoseIdx = -1;
+        } else {
+            targetPoseIdx = 0;
+        }
+        return this;
+    }
+
+    public void clear() {
+        pointList.clear();
+        targetPoseIdx = -1;
+    }
+
+    public Path appendPath(Path path) {
+        for (int i = 0; i<path.size(); i++) {
+            addPoint(path.getTargetPose());
+            path.incrementTargetPoint();
+        }
+        return this;
+    }
+
+    /*
+    Various Ways to add individual points, choose your favorite!
+     */
+    public Path addPoint(Point newPoint) {
+        pointList.add(newPoint);
+        targetPoseIdx=0;
+        return this;
+    }
+
+    public Path addPoint(Pose2d pose2d, double tolerance) {
+        pointList.add(new Point(pose2d, tolerance));
+        targetPoseIdx=0;
+        return this;
+    }
+
+    public Path addPoint(Pose2d pose2d) {
+        pointList.add(new Point(pose2d, DEFAULT_TOLERANCE));
+        targetPoseIdx=0;
+        return this;
+    }
+
+    public Path addPoint(double x, double y, double heading, double tolerance) {
+        pointList.add(new Point(new Pose2d(x, y, new Rotation2d(heading)), tolerance));
+        targetPoseIdx=0;
+        return this;
+    }
+
+    public Path addPoint(double x, double y, double heading) {
+        pointList.add(new Point(new Pose2d(x, y, new Rotation2d(heading)), DEFAULT_TOLERANCE));
+        targetPoseIdx=0;
+        return this;
+    }
+
+    public Path addPoint(double x, double y) {
+        pointList.add(new Point(new Pose2d(x, y, new Rotation2d(0)), DEFAULT_TOLERANCE));
+        targetPoseIdx=0;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        String result = "";
+        for (int i=0; i<pointList.size(); i++) {
+            result += (pointList.get(i));
+        }
+        return result;
+    }
 }
