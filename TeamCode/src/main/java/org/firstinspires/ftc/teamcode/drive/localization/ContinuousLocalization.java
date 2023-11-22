@@ -71,27 +71,32 @@ public abstract class ContinuousLocalization implements Localization {
         double minHeading = Math.min(heading, oldHeading);
         double maxHeading = Math.max(heading, oldHeading);
 
-        // position
-        deltaX -= constantsProvider.getXOffset() * (heading - oldHeading);
-        deltaY -= constantsProvider.getYOffset() * (heading - oldHeading);
-        // velocity
-        xVelocity -= constantsProvider.getXOffset() * angularVelocity;
-        yVelocity -= constantsProvider.getYOffset() * angularVelocity;
 
-        double rawDeltaHeading = Math.abs(maxHeading - minHeading);
+        double rawDeltaHeading = maxHeading - minHeading;
         // normalize between 0 and 2pi
         rawDeltaHeading -= 2*Math.PI * Math.floor(rawDeltaHeading/(2*Math.PI));
         // We don't know what direction we rotated in, but this makes a good guess!
         // if the angle is larger than pi, chances are we're going in the wrong direction!
         // edge case: if rawDeltaHeading is Math.PI, we would prefer to keep that. this edge case
         // should never happen in the real world but this made my unit tests nicer.
-        double deltaHeading = (rawDeltaHeading == Math.PI) ? Math.PI :
-                rawDeltaHeading - (Math.PI * Math.floor(rawDeltaHeading/Math.PI));
+        double deltaHeading;
+        if(rawDeltaHeading > Math.PI) {
+            deltaHeading = Math.PI - Math.abs(maxHeading) + Math.PI - Math.abs(minHeading);
+        } else {
+            deltaHeading = heading - oldHeading;
+        }
+
         double avgHeading = (rawDeltaHeading > Math.PI) ? maxHeading + (deltaHeading/2) :
                 minHeading + (deltaHeading/2);
         // normalize between 0 and 2pi
         avgHeading -= 2*Math.PI*Math.floor(avgHeading/(2*Math.PI));
 
+        // position
+        deltaX -= deltaHeading * constantsProvider.getXOffset();
+        deltaY -= deltaHeading * constantsProvider.getYOffset();
+        // velocity
+        xVelocity -= angularVelocity * constantsProvider.getXOffset();
+        yVelocity -= angularVelocity * constantsProvider.getYOffset();
 //        if(deltaHeading != 0) {
 //            double rotationFactor = 2*Math.sin(deltaHeading/2);
 //            deltaX *= rotationFactor * deltaX/deltaHeading;
