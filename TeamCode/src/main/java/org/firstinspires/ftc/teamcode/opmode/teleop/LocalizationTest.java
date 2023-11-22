@@ -9,7 +9,6 @@ import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.arcrobotics.ftclib.geometry.Translation2d;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.drive.localization.Localization2EImpl;
@@ -34,6 +33,7 @@ public class LocalizationTest extends LinearOpMode {
             drive.setTargetVelocity(new ChassisSpeeds(driver1.getLeftY(), driver1.getLeftX(), driver1.getRightX()));
             drive.periodic();
             localization.updatePosition();
+            driver1.readButtons();
 
             Pose2d pose = localization.getPosition();
             ChassisSpeeds speeds = localization.getVelocity();
