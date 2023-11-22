@@ -11,20 +11,53 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class LocalizationTests {
-    public class TestLocalization extends ContinuousLocalization {
-        public TestLocalization(Pose2d initialPosition, double xMultiplier, double yMultiplier,
-                                double xOffset, double yOffset) {
-            super(initialPosition, xMultiplier, yMultiplier, xOffset, yOffset);
+    public static class TestLocalization extends ContinuousLocalization {
+        private static class BasicConstantProvider implements ContinuousLocalization.ConstantsProvider {
+            public double xMultiplier, yMultiplier;
+            public double xOffset, yOffset;
+
+            public BasicConstantProvider(double xMultiplier, double yMultiplier,
+                                         double xOffset, double yOffset) {
+                this.xMultiplier = xMultiplier;
+                this.yMultiplier = yMultiplier;
+                this.xOffset = xOffset;
+                this.yOffset = yOffset;
+            }
+
+            @Override
+            public double getXMultiplier() {
+                return xMultiplier;
+            }
+
+            @Override
+            public double getYMultiplier() {
+                return yMultiplier;
+            }
+
+            @Override
+            public double getXOffset() {
+                return xOffset;
+            }
+
+            @Override
+            public double getYOffset() {
+                return yOffset;
+            }
         }
 
-        @Override
-        public ChassisSpeeds getVelocity() {
-            return null;
+        public TestLocalization(Pose2d initialPosition, double xMultiplier, double yMultiplier,
+                                double xOffset, double yOffset) {
+            super(initialPosition, new BasicConstantProvider(xMultiplier, yMultiplier, xOffset, yOffset));
         }
+
 
         @Override
         public void updatePosition() {
 
+        }
+
+        public void updatePosition(int xEnc, int yEnc, Rotation2d rotation2d) {
+            super.updatePosition(xEnc, yEnc, rotation2d, 0, 0, 0);
         }
     }
 

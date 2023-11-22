@@ -3,9 +3,8 @@ package org.firstinspires.ftc.teamcode.drive.localization;
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
-import com.arcrobotics.ftclib.geometry.Transform2d;
-import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -17,18 +16,18 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
  * @see ContinuousLocalization
  */
 public class Localization2EImpl extends ContinuousLocalization {
-    public ChassisSpeeds velocity;
-    public DcMotor xEncoder, yEncoder;
-    public Rotation2d storedRotation;
-    public IMU imu;
-    public int initialXPosition, initialYPosition;
-    public long oldReadTime;
+    protected DcMotorEx xEncoder, yEncoder;
+    protected Rotation2d storedRotation;
+    protected IMU imu;
+    protected int initialXPosition, initialYPosition;
+    protected long lastCountRunTime;
+    protected long runCounter;
 
     // TODO tune these values
     @Config
     public static final class LocalizationConstants {
-        public static double xMultiplier = 0.002968434003149607, yMultiplier = 0.002968434003149607;
-        public static double xEncoderOffset = 6.5, yEncoderOffset = 0;
+        public static double xMultiplier = 0.0029250457038391, yMultiplier = 0.0029268651639582;
+        public static double xEncoderOffset = 6.375, yEncoderOffset = 0.125;
     }
 
     private static class LocalizationConstantProvider implements ContinuousLocalization.ConstantsProvider {
@@ -53,13 +52,12 @@ public class Localization2EImpl extends ContinuousLocalization {
         }
     }
 
-    public Localization2EImpl(DcMotor xEncoder, DcMotor yEncoder, IMU imu, Pose2d startingPosition,
+    public Localization2EImpl(DcMotorEx xEncoder, DcMotorEx yEncoder, IMU imu, Pose2d startingPosition,
                               LocalizationConstantProvider constantProvider) {
         super(startingPosition, xEncoder.getCurrentPosition(), yEncoder.getCurrentPosition(),
                 constantProvider);
         initialXPosition = xEncoder.getCurrentPosition();
         initialYPosition = yEncoder.getCurrentPosition();
-        oldReadTime = System.currentTimeMillis();
         this.xEncoder = xEncoder;
         this.yEncoder = yEncoder;
         this.imu = imu;
@@ -69,12 +67,12 @@ public class Localization2EImpl extends ContinuousLocalization {
             imu.resetYaw();
     }
 
-    public Localization2EImpl(DcMotor xEncoder, DcMotor yEncoder, IMU imu, Pose2d startingPosition) {
+    public Localization2EImpl(DcMotorEx xEncoder, DcMotorEx yEncoder, IMU imu, Pose2d startingPosition) {
         this(xEncoder, yEncoder, imu, startingPosition, new LocalizationConstantProvider());
     }
 
     public Localization2EImpl(HardwareMap map, String xEncoder, String yEncoder, Pose2d startingPosition) {
-        this(map.get(DcMotor.class, xEncoder), map.get(DcMotor.class, yEncoder),
+        this(map.get(DcMotorEx.class, xEncoder), map.get(DcMotorEx.class, yEncoder),
                 map.get(IMU.class, "imu"), startingPosition);
     }
 
@@ -101,26 +99,29 @@ public class Localization2EImpl extends ContinuousLocalization {
 
     @Override
     public void setPosition(Pose2d position) {
-        this.position = position;
+        super.setPosition(position);
         storedRotation = new Rotation2d(-getYaw().getRadians() + position.getHeading());
     }
 
-    @Override
-    public ChassisSpeeds getVelocity() {
-        return velocity;
+    public long currentRunCountsTime() {
+        return System.currentTimeMillis() - lastCountRunTime;
+    }
+
+    public double getRunFrequency() {
+        long time = System.currentTimeMillis();
+        double runFrequency = runCounter/((time - lastCountRunTime)/1000d);
+        runCounter = 0;
+        lastCountRunTime = time;
+        return runFrequency;
     }
 
     @Override
     public void updatePosition() {
-        long time = System.currentTimeMillis();
-        double deltaTime = (time - oldReadTime)/1000d;
+        runCounter += 1;
 
-        Transform2d transform = super.updatePosition(xEncoder.getCurrentPosition(), yEncoder.getCurrentPosition(), getYaw());
-        velocity = new ChassisSpeeds(transform.getTranslation().getX() * deltaTime / 39.37,
-                transform.getTranslation().getY() * deltaTime / 39.37,
-                transform.getRotation().getRadians() * deltaTime);
-
-        oldReadTime = time;
+        super.updatePosition(xEncoder.getCurrentPosition(), yEncoder.getCurrentPosition(), getYaw(),
+                xEncoder.getVelocity(), yEncoder.getVelocity(),
+                imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate);
     }
 
     private Rotation2d getYaw() {
