@@ -1,8 +1,9 @@
 package org.firstinspires.ftc.teamcode.drive.localization;
 
+import androidx.annotation.NonNull;
+
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
-import com.arcrobotics.ftclib.geometry.Transform2d;
 import com.arcrobotics.ftclib.geometry.Translation2d;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
 
@@ -16,10 +17,12 @@ import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
  * @see Localization2EImpl
  */
 public abstract class ContinuousLocalization implements Localization {
-    public Pose2d position;
-    public int oldReadX, oldReadY;
-    public Rotation2d oldRotation;
-    public final ConstantsProvider constantsProvider;
+    protected Pose2d position;
+    protected int oldReadX, oldReadY;
+    protected Rotation2d oldRotation;
+    protected final ConstantsProvider constantsProvider;
+    protected double Xrobot, Yrobot;
+    protected ChassisSpeeds velocity;
 
     public interface ConstantsProvider {
         double getXMultiplier();
@@ -45,17 +48,35 @@ public abstract class ContinuousLocalization implements Localization {
         this.position = pose;
     }
 
-    public Transform2d updatePosition(int xEncoderPos, int yEncoderPos, Rotation2d rotation) {
+    public void setRobotCoordinates(Translation2d robotCoordinates) {
+        Xrobot = robotCoordinates.getX();
+        Yrobot = robotCoordinates.getY();
+    }
+
+    public Translation2d getRobotCoordinates() {
+        return new Translation2d(Xrobot, Yrobot);
+    }
+
+    public void updatePosition(int xEncoderPos, int yEncoderPos, @NonNull Rotation2d rotation,
+                               double xEncoderVelocity, double yEncoderVelocity,
+                               float angularVelocity) {
         double deltaX = (xEncoderPos - oldReadX) * constantsProvider.getXMultiplier();
         double deltaY = (yEncoderPos - oldReadY) * constantsProvider.getYMultiplier();
+        double xVelocity = xEncoderVelocity * constantsProvider.getXMultiplier();
+        double yVelocity = yEncoderVelocity * constantsProvider.getYMultiplier();
 
+        // position
         double heading = rotation.getRadians();
         double oldHeading = oldRotation.getRadians();
         double minHeading = Math.min(heading, oldHeading);
         double maxHeading = Math.max(heading, oldHeading);
 
+        // position
         deltaX -= constantsProvider.getXOffset() * (heading - oldHeading);
         deltaY -= constantsProvider.getYOffset() * (heading - oldHeading);
+        // velocity
+        xVelocity -= constantsProvider.getXOffset() * angularVelocity;
+        yVelocity -= constantsProvider.getYOffset() * angularVelocity;
 
         double rawDeltaHeading = Math.abs(maxHeading - minHeading);
         // normalize between 0 and 2pi
@@ -71,29 +92,34 @@ public abstract class ContinuousLocalization implements Localization {
         // normalize between 0 and 2pi
         avgHeading -= 2*Math.PI*Math.floor(avgHeading/(2*Math.PI));
 
-        if(deltaHeading != 0) {
-            double rotationFactor = 2*Math.sin(deltaHeading/2);
-            deltaX *= rotationFactor * deltaX/deltaHeading;
-            deltaY *= rotationFactor * deltaY/deltaHeading;
-        }
+//        if(deltaHeading != 0) {
+//            double rotationFactor = 2*Math.sin(deltaHeading/2);
+//            deltaX *= rotationFactor * deltaX/deltaHeading;
+//            deltaY *= rotationFactor * deltaY/deltaHeading;
+//        }
+        Xrobot += deltaX;
+        Yrobot += deltaY;
+
         double sinAverage = Math.sin(avgHeading);
         double cosAverage = Math.cos(avgHeading);
 
         double newX = deltaX * cosAverage + deltaY * sinAverage;
         double newY = deltaX * sinAverage + deltaY * cosAverage;
+        double velX = xVelocity * cosAverage + yVelocity * sinAverage;
+        double velY = xVelocity * sinAverage + yVelocity * cosAverage;
 
         position = new Pose2d(position.getX() + newX, position.getY() + newY, rotation);
-
-        Transform2d transform = position.minus(new Pose2d(new Translation2d(oldReadX, oldReadY), oldRotation));
+        velocity = new ChassisSpeeds(velX/39.3701, velY/39.3701,
+                angularVelocity);
 
         oldReadX = xEncoderPos;
         oldReadY = yEncoderPos;
         oldRotation = rotation;
-
-        return transform;
     }
 
-    public abstract ChassisSpeeds getVelocity();
+    public ChassisSpeeds getVelocity() {
+        return velocity;
+    }
 
     @Override
     public Pose2d getPosition() {

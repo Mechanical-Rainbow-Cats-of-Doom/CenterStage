@@ -19,6 +19,7 @@ public class LocalizationTestWithoutMotors extends OpMode {
     public Localization2EImpl localization;
     public GamepadEx driver1;
     public MultipleTelemetry telemetry;
+    public double lastRunFrequency = 0;
 
     @Override
     public void init() {
@@ -37,6 +38,10 @@ public class LocalizationTestWithoutMotors extends OpMode {
             localization.setPosition(new Pose2d(new Translation2d(0,0), new Rotation2d(0)));
         }
 
+        if(localization.currentRunCountsTime() >= 500) {
+            lastRunFrequency = localization.getRunFrequency();
+        }
+
         telemetry.addLine("Press X to reset position and rotation");
         telemetry.addLine("-----POSITION-----");
         telemetry.addLine("Measured in inches and radians");
@@ -48,9 +53,11 @@ public class LocalizationTestWithoutMotors extends OpMode {
         telemetry.addData("Y Ticks", localization.getYEncoderTicks());
         telemetry.addLine("-----VELOCITY-----");
         telemetry.addLine("Measured in m/s and rads/s");
-        telemetry.addData("X Velocity: ", speeds.vxMetersPerSecond);
-        telemetry.addData("Y Velocity: ", speeds.vyMetersPerSecond);
+        telemetry.addData("X Velocity", speeds.vxMetersPerSecond);
+        telemetry.addData("Y Velocity", speeds.vyMetersPerSecond);
         telemetry.addData("Rotation Velocity: ", speeds.omegaRadiansPerSecond);
+        telemetry.addLine("---MISCELLANEOUS---");
+        telemetry.addData("Run Frequency", lastRunFrequency);
         telemetry.update();
     }
 
