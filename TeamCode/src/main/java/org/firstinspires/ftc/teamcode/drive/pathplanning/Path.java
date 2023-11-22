@@ -5,8 +5,14 @@ import com.arcrobotics.ftclib.geometry.Rotation2d;
 
 import java.util.ArrayList;
 
+/**
+ * Guide for proper use:
+ * 1. Never append to a path while it is being run
+ */
 public class Path {
     private ArrayList<Point> pointList;
+    private boolean pathFinished = false;
+    private Pose2d startingPose;
     /**
      * Used for finding the next goal point
      * it will be -1 if the list is empty, then it will cause errors if people try to access the list
@@ -20,6 +26,21 @@ public class Path {
     public Path() {
         pointList = new ArrayList<Point>();
         targetPoseIdx = -1;
+        startingPose = new Pose2d(0,0,new Rotation2d(0));
+    }
+
+    public Path(Pose2d startingPose) {
+        pointList = new ArrayList<Point>();
+        targetPoseIdx = -1;
+        this.startingPose = startingPose;
+    }
+
+    public void setStartingPose(Pose2d startingPose) {
+        this.startingPose = startingPose;
+    }
+
+    public Pose2d getStartingPose() {
+        return startingPose;
     }
 
     public int size() {
@@ -40,15 +61,16 @@ public class Path {
 //        return pointList.get(index);
 //    }
 
-    public Point getTargetPose() {
+    public Point getTargetPoint() {
         if (targetPoseIdx == -1) {
-            throw new IllegalStateException("Path has no points");
+            throw new IllegalStateException("Path is empty");
         }
         return pointList.get(targetPoseIdx);
     }
 
     public void incrementTargetPoint() {
         if (targetPoseIdx+1 >= pointList.size()) {
+            pathFinished = true;
             return;
         }
         targetPoseIdx++;
@@ -58,7 +80,12 @@ public class Path {
         if (targetPoseIdx-1 < 0) {
             return;
         }
+        pathFinished = false;
         targetPoseIdx--;
+    }
+
+    public boolean isPathFinished() {
+        return pathFinished;
     }
 
     public Path removePose(int index) {
@@ -81,7 +108,7 @@ public class Path {
 
     public Path appendPath(Path path) {
         for (int i = 0; i<path.size(); i++) {
-            addPoint(path.getTargetPose());
+            addPoint(path.getTargetPoint());
             path.incrementTargetPoint();
         }
         return this;
@@ -126,6 +153,10 @@ public class Path {
         return this;
     }
 
+    /**
+     * Should be used for testing purposes
+     * @return a string representation of the path
+     */
     @Override
     public String toString() {
         String result = "";

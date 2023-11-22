@@ -10,7 +10,7 @@ import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
  * It's called monkey because its supposed to be bad
  */
 public class MonkeyPathPlanner implements PathPlanner {
-    private Point targetPoint;
+    public static final String NAME = "Monkey";
 
     // constants for the movement controller
     public static double kpP = 0;
@@ -24,14 +24,13 @@ public class MonkeyPathPlanner implements PathPlanner {
     public static double kdR = 0;
     private static PIDFController rotationPID;
 
-    public MonkeyPathPlanner(Point targetPoint) {
-        this.targetPoint = targetPoint;
+    public MonkeyPathPlanner() {
         pathPID = new PIDFController(kpP, kiP, kdP, 0);
         rotationPID = new PIDFController(kpR, kiR, kdR, 0);
     }
 
-    public void setTargetPoint(Point newPoint) {
-        targetPoint = newPoint;
+    public String getName() {
+        return NAME;
     }
 
     /**
@@ -51,18 +50,19 @@ public class MonkeyPathPlanner implements PathPlanner {
      * @return A VELOCITY IN METERS PER SECOND FOR THE ROBOT TO DRIVE!
      */
     @Override
-    public ChassisSpeeds calculateTargetVelocity(ChassisSpeeds currentVelocity, Pose2d currentPose) {
+    public ChassisSpeeds calculateTargetVelocity(ChassisSpeeds currentVelocity, Pose2d currentPose, Path path) {
         /*
         This code gets the unit vector between the current position and the target point
          */
-        double deltaX = targetPoint.getPose().minus(currentPose).getTranslation().getX(); // inches
-        double deltaY = targetPoint.getPose().minus(currentPose).getTranslation().getY(); // inches
+        double deltaX = path.getTargetPoint().getPose().minus(currentPose).getTranslation().getX(); // inches
+        double deltaY = path.getTargetPoint().getPose().minus(currentPose).getTranslation().getY(); // inches
         double deltaMagnitude = Math.sqrt(Math.pow(deltaX, 2)+Math.pow(deltaY, 2)); // inches
         Vector2d unitVector = new Vector2d(deltaX/deltaMagnitude,deltaY/deltaMagnitude); // no unit, just proportions
 
         // terminate early if the distance is less than a set tolerance
         // the tolerance is set by the target point
-        if (deltaMagnitude < targetPoint.getTolerance()) {
+        if (deltaMagnitude < path.getTargetPoint().getTolerance()) {
+            path.incrementTargetPoint();
             return new ChassisSpeeds(0,0,0);
         }
 
@@ -79,7 +79,7 @@ public class MonkeyPathPlanner implements PathPlanner {
         The first value is the current rotation
         The second value is the target rotation
          */
-        double rotationalVelocity = rotationPID.calculate(currentPose.getHeading(), targetPoint.getPose().getHeading()); // rps
+        double rotationalVelocity = rotationPID.calculate(currentPose.getHeading(), path.getTargetPoint().getPose().getHeading()); // rps
 
         ChassisSpeeds targetVelocity = new ChassisSpeeds(unitVector.getX()*magnitude,
                 unitVector.getY()*magnitude, rotationalVelocity); // be in meters per second
