@@ -77,10 +77,6 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
         this(hMap, telemetry, driveAsPercentage, fieldRelativeButton, false);
     }
 
-    public void setDriveAsPercentage(Boolean value) {
-        driveAsPercentage = value;
-    }
-
     //THIS METHOD BAD
     @NonNull
     public static ChassisSpeeds chassisSpeedFromDriveSpeedPercentages(double xPercent, double yPercent, double rotationPercent) {

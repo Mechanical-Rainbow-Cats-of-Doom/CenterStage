@@ -39,6 +39,10 @@ public class DriveController<planner extends PathPlanner, holonomicChassis exten
         return localization.getPosition();
     }
 
+    public boolean isFinished() {
+        return this.path.isPathFinished();
+    }
+
     /**
      * Needs to be run as fast as possible in the main loop.
      * Makes the robot move towards the next target point on the path.

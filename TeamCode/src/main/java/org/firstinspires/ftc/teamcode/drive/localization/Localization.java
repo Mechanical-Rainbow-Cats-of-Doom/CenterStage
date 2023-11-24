@@ -14,7 +14,7 @@ public interface Localization {
 
     ChassisSpeeds getVelocity();
 
-    void setPostition();
+//    void setPostition();
 
     void updatePosition();
 }

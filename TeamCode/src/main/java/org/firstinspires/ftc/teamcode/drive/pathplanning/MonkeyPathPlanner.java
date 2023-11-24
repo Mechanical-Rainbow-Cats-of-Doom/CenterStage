@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.drive.pathplanning;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Vector2d;
@@ -9,6 +10,7 @@ import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
  * This class is a proof of concept Path planner
  * It's called monkey because its supposed to be bad
  */
+@Config
 public class MonkeyPathPlanner implements PathPlanner {
     public static final String NAME = "Monkey";
 
