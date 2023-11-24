@@ -84,6 +84,8 @@ public abstract class ContinuousLocalization implements Localization {
             deltaHeading = Math.PI - Math.abs(maxHeading) + Math.PI - Math.abs(minHeading);
         } else {
             deltaHeading = heading - oldHeading;
+            while(deltaHeading > Math.PI) deltaHeading -= 2*Math.PI;
+            while(deltaHeading <= -Math.PI) deltaHeading += 2*Math.PI;
         }
 
         double avgHeading = (rawDeltaHeading > Math.PI) ? maxHeading + (deltaHeading/2) :

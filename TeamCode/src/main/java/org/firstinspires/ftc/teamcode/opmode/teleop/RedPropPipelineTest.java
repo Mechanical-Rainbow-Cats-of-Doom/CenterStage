@@ -9,12 +9,12 @@ import org.firstinspires.ftc.teamcode.vision.PropDetector;
 import org.firstinspires.ftc.teamcode.vision.PropPipeline;
 
 @TeleOp
-public class PropPipelineTest extends LinearOpMode {
+public class RedPropPipelineTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         MultipleTelemetry telemetry = new MultipleTelemetry(super.telemetry, FtcDashboard.getInstance().getTelemetry());
         PropDetector detector = new PropDetector(hardwareMap, "webcam", true,
-                false, new PropPipeline.PropPipelineConfig());
+                true, new PropPipeline.PropPipelineConfig());
         int lastResult = -1;
         while(!isStopRequested()) {
             if(gamepad1.a) {

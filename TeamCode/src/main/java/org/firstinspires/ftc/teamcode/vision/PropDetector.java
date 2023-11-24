@@ -19,16 +19,20 @@ public class PropDetector {
     public static int CAMERA_WIDTH = 320, CAMERA_HEIGHT = 240;
     public static OpenCvCameraRotation ORIENTATION = OpenCvCameraRotation.UPRIGHT;
     private final ArrayBlockingQueue<Integer> visionVals = new ArrayBlockingQueue<>(1);
-    public PropDetector(@NonNull HardwareMap hMap, String webcamName, boolean debug, boolean isRed) {
+    private final PropPipeline.PropPipelineRectsProvider rects;
+    public PropDetector(@NonNull HardwareMap hMap, String webcamName, boolean debug, boolean isRed,
+                        PropPipeline.PropPipelineRectsProvider rects) {
         this.isRed = isRed;
         this.debug = debug;
+        this.rects = rects;
+
         OpenCvCameraFactory cameraFactory = OpenCvCameraFactory.getInstance();
         int cameraMonitorViewId = hMap
                 .appContext.getResources()
                 .getIdentifier("cameraMonitorViewId", "id", hMap.appContext.getPackageName());
 
         camera = cameraFactory.createWebcam(hMap.get(WebcamName.class, webcamName), cameraMonitorViewId); //for configurating remove isred from here
-        camera.setPipeline(new HighlightSelectionZonePipeline());
+        camera.setPipeline(new HighlightSelectionZonePipeline(isRed, rects));
         camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
@@ -53,7 +57,7 @@ public class PropDetector {
      * @return integer 0 - 2, corresponds to left, center, and right respectively
      */
     public synchronized int run(Runnable runnable) throws InterruptedException {
-        final PropPipeline pipeline = new PropPipeline(isRed, debug, visionVals);
+        final PropPipeline pipeline = new PropPipeline(isRed, debug, visionVals, rects);
         camera.setPipeline(pipeline);
         pipeline.startPipeline();
         while(visionVals.peek() == null) {
@@ -77,7 +81,7 @@ public class PropDetector {
     }
 
     public void reset() {
-        camera.setPipeline(new HighlightSelectionZonePipeline());
+        camera.setPipeline(new HighlightSelectionZonePipeline(isRed, rects));
     }
 
 }
