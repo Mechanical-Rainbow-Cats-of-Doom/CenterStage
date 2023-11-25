@@ -4,6 +4,7 @@ import android.util.Pair;
 
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
+import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -34,7 +35,7 @@ public class AprilTagLocalization implements DiscreteLocalization {
     public long lastReadTime;
     public @Nullable Telemetry telemetry;
     public final AprilTagLibrary library;
-
+    public ChassisSpeeds getVelocity() {return null;}
     /**
      * Creates a new AprilTag localizer.
      */

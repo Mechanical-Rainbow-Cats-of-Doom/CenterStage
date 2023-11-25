@@ -26,19 +26,22 @@ public class BackAndForwardTest extends LinearOpMode {
         final SwerveDriveSubsystem drive = new SwerveDriveSubsystem(hardwareMap, telemetry, false, () -> false);
         final MonkeyPathPlanner pather = new MonkeyPathPlanner();
         final  DriveController<MonkeyPathPlanner, SwerveDriveSubsystem> auto =
-                new DriveController<MonkeyPathPlanner, SwerveDriveSubsystem>(hardwareMap, pather, drive);
+                new DriveController<MonkeyPathPlanner, SwerveDriveSubsystem>(hardwareMap, pather, drive, telemetry);
 
         Point startingPoint = new Point(new Pose2d(0,0, new Rotation2d(0)), Path.DEFAULT_TOLERANCE);
-        Point endingPoint = new Point(new Pose2d(50,0, new Rotation2d(0)), Path.DEFAULT_TOLERANCE);
+        Point endingPoint = new Point(new Pose2d(80,0, new Rotation2d(0)), Path.DEFAULT_TOLERANCE);
 
         Path forward = new Path().addPoint(endingPoint);
         Path backward = new Path().addPoint(startingPoint);
 
         auto.setPath(forward);
 
-        // TODO: Add an override for correcting the robot position
         waitForStart();
         while (opModeIsActive() && !isStopRequested()) {
+            telemetry.addData("Driving As percentage: ", drive.isDrivingAsPercentage());
+            telemetry.addData("Button B: ", driver1.getButton(GamepadKeys.Button.B));
+            telemetry.update();
+            // allow updating the controllers
             if (driver1.getButton(GamepadKeys.Button.B)) {
                 pather.updateControllers();
             }
@@ -63,7 +66,7 @@ public class BackAndForwardTest extends LinearOpMode {
                         auto.setPath(backward);
                         forwarding = false;
                     } else {
-                        auto.setPath(backward);
+                        auto.setPath(forward);
                         forwarding = true;
                     }
                 }

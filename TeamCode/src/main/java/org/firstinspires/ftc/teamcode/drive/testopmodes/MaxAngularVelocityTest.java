@@ -8,24 +8,34 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.drive.localization.Localization2EImpl;
+import org.firstinspires.ftc.teamcode.drive.swerve.SwerveDriveSubsystem;
 
 @TeleOp
 public class MaxAngularVelocityTest extends LinearOpMode {
     /**
      * Movint time is in secons
      */
-    static int movingTime = 5;
-    private ElapsedTime runtime = new ElapsedTime();
-    public double maxAngularVelocity = 0;
+    static double movingTime = 5;
     private final MultipleTelemetry telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry(), super.telemetry);
+
     @Override
     public void runOpMode() throws InterruptedException {
+        SwerveDriveSubsystem drive = new SwerveDriveSubsystem(hardwareMap, telemetry, true, ()->false);
+        ElapsedTime runtime = new ElapsedTime();
+
+        double maxAngularVelocity = 0;
+
         Localization2EImpl localization = new Localization2EImpl(hardwareMap);
         waitForStart();
         telemetry.addData("Max Angular Velocity: ", maxAngularVelocity);
         runtime.reset();
-        // TODO: put in code to spin the robot
-        while (runtime.seconds() < movingTime) {
+
+        drive.setTargetVelocity(new ChassisSpeeds(0,0,1)); // this is concerning if this works, y should not be left and right on gamepad
+        while (runtime.seconds() < movingTime && opModeIsActive() && !isStopRequested()) {
+            telemetry.addData("Max Angular Velocity: ", maxAngularVelocity);
+            telemetry.addData("Time: ", runtime.seconds());
+            drive.periodic();
+            localization.updatePosition();
             /*
             the goal is to update the max angular velocity to the max value between the
             max angular velocity and the current angular velocity
@@ -35,6 +45,10 @@ public class MaxAngularVelocityTest extends LinearOpMode {
             telemetry.update();
 
         }
-        // TODO: put in code to stop the robot
+        drive.setTargetVelocity(new ChassisSpeeds(0,0,0)); // this is concerning if this works, y should not be left and right on gamepad
+        while (opModeIsActive() && !isStopRequested()) {
+            drive.periodic();
+            telemetry.update();
+        }
     }
 }
