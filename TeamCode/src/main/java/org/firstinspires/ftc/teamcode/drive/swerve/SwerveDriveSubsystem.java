@@ -4,14 +4,19 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.SubsystemBase;
+import com.arcrobotics.ftclib.drivebase.DifferentialDrive;
 import com.arcrobotics.ftclib.gamepad.ToggleButtonReader;
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.arcrobotics.ftclib.geometry.Translation2d;
+import com.arcrobotics.ftclib.hardware.motors.Motor;
+import com.arcrobotics.ftclib.hardware.motors.MotorEx;
+import com.arcrobotics.ftclib.hardware.motors.MotorGroup;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveDriveKinematics;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveModuleState;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 
@@ -138,5 +143,22 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
 
     public void setDriveAsPercentage(boolean driveAsPercentage) {
         this.driveAsPercentage = driveAsPercentage;
+    }
+
+    public static DifferentialDrive getDifferentialSwerve(HardwareMap hMap) {
+        final MotorEx frontLeft = new MotorEx(hMap, "frontLeftMotor", Motor.GoBILDA.BARE);
+        frontLeft.setInverted(true);
+        final MotorGroup left = new MotorGroup(frontLeft, new MotorEx(hMap, "backLeftMotor", Motor.GoBILDA.BARE)),
+                right = new MotorGroup(new MotorEx(hMap, "frontRightMotor", Motor.GoBILDA.BARE), new MotorEx(hMap, "backRightMotor", Motor.GoBILDA.BARE));
+
+        left.setRunMode(Motor.RunMode.VelocityControl);
+        right.setRunMode(Motor.RunMode.VelocityControl);
+
+        hMap.get(CRServo.class, "frontLeftServo").setPower(0);
+        hMap.get(CRServo.class, "backLeftServo").setPower(0);
+        hMap.get(CRServo.class, "frontRightServo").setPower(0);
+        hMap.get(CRServo.class, "backRightServo").setPower(0);
+
+        return new DifferentialDrive(false, left, right);
     }
 }

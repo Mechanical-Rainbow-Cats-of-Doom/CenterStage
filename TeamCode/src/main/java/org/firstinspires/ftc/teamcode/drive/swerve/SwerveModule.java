@@ -6,6 +6,8 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDFController;
+import com.arcrobotics.ftclib.hardware.motors.Motor;
+import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveModuleState;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -23,25 +25,24 @@ import org.firstinspires.ftc.teamcode.common.hardware.AbsoluteAnalogEncoder;
 @Config
 public class SwerveModule {
     public enum Wheel {
-        FRONT_LEFT(1.278D, DcMotorSimple.Direction.REVERSE),
-        FRONT_RIGHT(4.098D, DcMotorSimple.Direction.FORWARD),
-        BACK_LEFT(5.301D, DcMotorSimple.Direction.FORWARD),
-        BACK_RIGHT(4.098D, DcMotorSimple.Direction.FORWARD);
+        FRONT_LEFT(1.278D, true),
+        FRONT_RIGHT(4.098D, false),
+        BACK_LEFT(5.301D, false),
+        BACK_RIGHT(4.098D,false);
 
         public final double tickOffset;
-        public final DcMotorSimple.Direction direction;
+        public final boolean inverted;
 
-        Wheel(double tickOffset, DcMotorSimple.Direction direction) {
+        Wheel(double tickOffset, boolean inverted) {
             this.tickOffset = tickOffset;
-            this.direction = direction;
+            this.inverted = inverted;
         }
     }
 
-    public static double motorP = 0.6, motorI = 0, motorD = 0.1;
     public static double K_STATIC = 0.03;
     public static double MAX_SERVO = 1, MAX_MOTOR = 1;
 
-    public static double EPSILON = 0.0001D;
+    public static final double EPSILON = 1e-5;
     public static double WHEEL_RADIUS = 1.41732; // TODO: MEASURE ACCURATELY
     public static final double MOTOR_GEAR_RATIO = 1 / ((42D / 12D) * (36D / 24D) * (2D)); // output (wheel) speed / input (motor) speed
     public static final double TICKS_PER_REV = 28;
@@ -49,7 +50,7 @@ public class SwerveModule {
 
     private final Wheel wheel;
 
-    private final DcMotorEx motor;
+    private final MotorEx motor;
     private final CRServo servo;
     private final AbsoluteAnalogEncoder encoder;
     private final PIDFController rotationController;
@@ -63,20 +64,14 @@ public class SwerveModule {
     private boolean flip = false;
 
 
-    public SwerveModule(DcMotorEx m, CRServo s, AbsoluteAnalogEncoder e, Wheel wheel) {
-        motor = m;
-        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motor.setDirection(wheel.direction);
+    public SwerveModule(HardwareMap hMap, String motorName, CRServo s, AbsoluteAnalogEncoder e, Wheel wheel) {
+        motor = new MotorEx(hMap, motorName, Motor.GoBILDA.BARE);
+        motor.setRunMode(Motor.RunMode.VelocityControl);
+        motor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        motor.setInverted(wheel.inverted);
 
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
-        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         servo = s;
-        ((CRServoImplEx) servo).setPwmRange(new PwmControl.PwmRange(500, 2500, 5000)); //TODO: figure out what to set framing rate to
+        ((CRServoImplEx) servo).setPwmRange(new PwmControl.PwmRange(500, 2500, 5000));
 
         encoder = e;
         rotationController = new PIDFController(-1,-1,-1, 0);
@@ -84,7 +79,7 @@ public class SwerveModule {
     }
 
     public SwerveModule(@NonNull HardwareMap hardwareMap, String motorName, String servoName, String encoderName, Wheel wheel) {
-        this(hardwareMap.get(DcMotorEx.class, motorName), hardwareMap.get(CRServo.class, servoName),
+        this(hardwareMap, motorName, hardwareMap.get(CRServo.class, servoName),
                 new AbsoluteAnalogEncoder(hardwareMap.get(AnalogInput.class, encoderName)), wheel);
     }
 
@@ -122,7 +117,7 @@ public class SwerveModule {
 
     public void updateMotor() {
         lastMotorPower = power * MAX_MOTOR * (flip ? -1 : 1);
-        motor.setPower(lastMotorPower);
+        motor.set(lastMotorPower);
     }
 
 
@@ -136,19 +131,13 @@ public class SwerveModule {
         telemetry.addData(caption + " raw rotation", position);
         telemetry.addData(caption + " motor power", lastMotorPower);
         telemetry.addData(caption + " raw velocity", motor.getVelocity());
-        telemetry.addData(caption + " power from motor", motor.getPower());
+        telemetry.addData(caption + " power from motor", motor.get());
         telemetry.addData(caption + " motor velocity", getWheelVelocity());
         telemetry.addData(caption + " motor position", getWheelPosition());
         telemetry.addData(caption + " target rotation", getTargetRotation());
         telemetry.addData(caption + " output target rotation", outputTarget);
         telemetry.addData(caption + " servo power", getServoPower());
     }
-
-
-    public void setMode(DcMotor.RunMode runMode) {
-        motor.setMode(runMode);
-    }
-
 
     public double getServoPower() {
         return servo.getPower();
