@@ -10,18 +10,20 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.drive.swerve.SwerveDriveSubsystem;
+import org.firstinspires.ftc.teamcode.tool.Hanger;
 
 @TeleOp
 @Config
 public class SwerveDriveTester extends LinearOpMode {
     private final MultipleTelemetry telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry(), super.telemetry);
-    public static double driverY, driverLX, driverRX;
     @Override
     public void runOpMode() {
         final GamepadEx driver1 = new GamepadEx(gamepad1), driver2 = new GamepadEx(gamepad2);
-        final SwerveDriveSubsystem drive = new SwerveDriveSubsystem(hardwareMap, telemetry, true, () -> driver1.getButton(GamepadKeys.Button.B));
+        final SwerveDriveSubsystem drive = new SwerveDriveSubsystem(hardwareMap, telemetry, true, () -> driver1.getButton(GamepadKeys.Button.B), true);
+        final Hanger hanger = new Hanger(hardwareMap, () -> driver1.getButton(GamepadKeys.Button.X));
         waitForStart();
         while (opModeIsActive()) {
+            hanger.periodic();
             drive.setTargetVelocity(new ChassisSpeeds(driver1.getLeftY(), driver1.getLeftX(), driver1.getRightY())); // this is concerning if this works, y should not be left and right on gamepad
             drive.periodic();
 
@@ -30,7 +32,6 @@ public class SwerveDriveTester extends LinearOpMode {
             telemetry.addData("gamepad1 rightx", driver1.getRightX());
             telemetry.update();
         }
-
     }
 
 }

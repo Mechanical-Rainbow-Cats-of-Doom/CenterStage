@@ -1,11 +1,15 @@
 package org.firstinspires.ftc.teamcode.drive.localization;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 
 /**
  * A basic form of ContinuousLocalization using two encoders and an IMU.
@@ -14,22 +18,48 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
  * @see ContinuousLocalization
  */
 public class Localization2EImpl extends ContinuousLocalization {
-    public Pose2d position;
-    public DcMotor xEncoder, yEncoder;
-    public Rotation2d storedRotation;
-    public IMU imu;
+    protected DcMotorEx xEncoder, yEncoder;
+    protected Rotation2d storedRotation;
+    protected IMU imu;
+    protected int initialXPosition, initialYPosition;
+    protected long lastCountRunTime;
+    protected long runCounter;
 
     // TODO tune these values
-    public static final class Constants {
-        public static final double xMultiplier = 0.1, yMultiplier = 0.1;
-        public static final double xEncoderOffset = 0, yEncoderOffset = 0;
+    @Config
+    public static final class LocalizationConstants {
+        public static double xMultiplier = 0.0029250457038391, yMultiplier = 0.0029268651639582;
+        public static double xEncoderOffset = 6.375, yEncoderOffset = 0.125;
     }
 
-    public Localization2EImpl(DcMotor xEncoder, DcMotor yEncoder, IMU imu, Pose2d startingPosition,
-                              double xMultiplier, double yMultiplier, double xEncoderOffset,
-                              double yEncoderOffset) {
+    private static class LocalizationConstantProvider implements ContinuousLocalization.ConstantsProvider {
+        @Override
+        public double getXMultiplier() {
+            return LocalizationConstants.xMultiplier;
+        }
+
+        @Override
+        public double getYMultiplier() {
+            return LocalizationConstants.yMultiplier;
+        }
+
+        @Override
+        public double getXOffset() {
+            return LocalizationConstants.xEncoderOffset;
+        }
+
+        @Override
+        public double getYOffset() {
+            return LocalizationConstants.yEncoderOffset;
+        }
+    }
+
+    public Localization2EImpl(DcMotorEx xEncoder, DcMotorEx yEncoder, IMU imu, Pose2d startingPosition,
+                              LocalizationConstantProvider constantProvider) {
         super(startingPosition, xEncoder.getCurrentPosition(), yEncoder.getCurrentPosition(),
-                xMultiplier, yMultiplier, xEncoderOffset, yEncoderOffset);
+                constantProvider);
+        initialXPosition = xEncoder.getCurrentPosition();
+        initialYPosition = yEncoder.getCurrentPosition();
         this.xEncoder = xEncoder;
         this.yEncoder = yEncoder;
         this.imu = imu;
@@ -39,13 +69,12 @@ public class Localization2EImpl extends ContinuousLocalization {
             imu.resetYaw();
     }
 
-    public Localization2EImpl(DcMotor xEncoder, DcMotor yEncoder, IMU imu, Pose2d startingPosition) {
-        this(xEncoder, yEncoder, imu, startingPosition, Constants.xMultiplier,
-                Constants.yMultiplier, Constants.xEncoderOffset, Constants.yEncoderOffset);
+    public Localization2EImpl(DcMotorEx xEncoder, DcMotorEx yEncoder, IMU imu, Pose2d startingPosition) {
+        this(xEncoder, yEncoder, imu, startingPosition, new LocalizationConstantProvider());
     }
 
     public Localization2EImpl(HardwareMap map, String xEncoder, String yEncoder, Pose2d startingPosition) {
-        this(map.get(DcMotor.class, xEncoder), map.get(DcMotor.class, yEncoder),
+        this(map.get(DcMotorEx.class, xEncoder), map.get(DcMotorEx.class, yEncoder),
                 map.get(IMU.class, "imu"), startingPosition);
     }
 
@@ -53,23 +82,53 @@ public class Localization2EImpl extends ContinuousLocalization {
         this(map, xEncoder, yEncoder, new Pose2d());
     }
 
+    public Localization2EImpl(HardwareMap map) {
+        this(map, EncoderNames.xEncoder, EncoderNames.yEncoder);
+    }
+
     @Override
     public Pose2d getPosition() {
         return position;
     }
 
+    public int getXEncoderTicks() {
+        return xEncoder.getCurrentPosition() - initialXPosition;
+    }
+
+    public int getYEncoderTicks() {
+        return yEncoder.getCurrentPosition() - initialYPosition;
+    }
+
     @Override
     public void setPosition(Pose2d position) {
-        this.position = position;
+        super.setPosition(position);
         storedRotation = new Rotation2d(-getYaw().getRadians() + position.getHeading());
+    }
+
+    public long currentRunCountsTime() {
+        return System.currentTimeMillis() - lastCountRunTime;
+    }
+
+    public double getRunFrequency() {
+        long time = System.currentTimeMillis();
+        double runFrequency = runCounter/((time - lastCountRunTime)/1000d);
+        runCounter = 0;
+        lastCountRunTime = time;
+        return runFrequency;
     }
 
     @Override
     public void updatePosition() {
-        updatePosition(xEncoder.getCurrentPosition(), yEncoder.getCurrentPosition(), getYaw());
+        runCounter += 1;
+
+        super.updatePosition(xEncoder.getCurrentPosition(), yEncoder.getCurrentPosition(), getYaw(),
+                xEncoder.getVelocity(), yEncoder.getVelocity(),
+                imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate);
     }
 
     private Rotation2d getYaw() {
-        return new Rotation2d(imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS) + storedRotation.getRadians());
+        return new Rotation2d(
+                imu.getRobotOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle +
+                        storedRotation.getRadians());
     }
 }

@@ -4,6 +4,7 @@ import android.util.Pair;
 
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
+import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -17,45 +18,41 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
 /**
- * CameraATagLocalization is a form of (non-continuous) Localization which uses AprilTags to
+ * AprilTagLocalization is a form of (non-continuous) Localization which uses AprilTags to
  * find the current position.
  *
  * Heed the deprecation mark below, this does not actually work
  */
-// DO NOT REMOVE! THIS IS NOT FULLY FINSIHED AND IS COMPLETE DOGHSIT:(
-@Deprecated
-public class CameraATagLocalization implements DiscreteLocalization {
+public class AprilTagLocalization implements DiscreteLocalization {
     public final AprilTagProcessor processor;
     public Pose2d position = null;
     public Pose2d cameraOffset;
     public static final float minDetectDistance = 15;
-    public static final float multiplier = 1;
     public long lastReadTime;
     public @Nullable Telemetry telemetry;
     public final AprilTagLibrary library;
-
+    public ChassisSpeeds getVelocity() {return null;}
     /**
-     * Creates a new AprilTag localizer. List length MUST be
+     * Creates a new AprilTag localizer.
      */
-    public CameraATagLocalization(AprilTagProcessor processor, Pose2d cameraOffset,
-                                  @Nullable Telemetry telemetry, AprilTagLibrary library) {
+    public AprilTagLocalization(AprilTagProcessor processor, Pose2d cameraOffset,
+                                @Nullable Telemetry telemetry, AprilTagLibrary library) {
         this.processor = processor;
         this.cameraOffset = cameraOffset;
         this.telemetry = telemetry;
         this.library = library;
     }
 
-    public CameraATagLocalization(AprilTagProcessor processor, Pose2d cameraOffset,
-                                  @Nullable Telemetry telemetry) {
+    public AprilTagLocalization(AprilTagProcessor processor, Pose2d cameraOffset,
+                                @Nullable Telemetry telemetry) {
         this(processor, cameraOffset, telemetry, AprilTagGameDatabase.getCenterStageTagLibrary());
     }
 
-    public CameraATagLocalization(AprilTagProcessor processor, Pose2d cameraOffset) {
+    public AprilTagLocalization(AprilTagProcessor processor, Pose2d cameraOffset) {
         this(processor, cameraOffset, null);
     }
 
@@ -75,7 +72,6 @@ public class CameraATagLocalization implements DiscreteLocalization {
     @Override
     public void updatePosition() {
         boolean positionUpdated = false;
-
 
         List<Pair<Pose2d, Double>> poses = new ArrayList<>();
         for (AprilTagDetection d : processor.getDetections()) {
@@ -121,7 +117,6 @@ public class CameraATagLocalization implements DiscreteLocalization {
     public static Pair<Pose2d, Double> convertToPose2D(AprilTagDetection detection,
                                                        AprilTagMetadata metadata) {
         // TODO math
-
         return new Pair<>(new Pose2d(detection.ftcPose.x, detection.ftcPose.y,
                 new Rotation2d(metadata.fieldOrientation.toOrientation(AxesReference.EXTRINSIC,
                         AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle -
