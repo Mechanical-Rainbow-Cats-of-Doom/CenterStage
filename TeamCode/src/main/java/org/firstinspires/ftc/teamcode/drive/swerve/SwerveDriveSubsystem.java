@@ -31,6 +31,8 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
     public static final double MAX_XY_VELOCITY = 1e+10; // temp value, i/s
     public static final double MAX_ROTATIONAL_VELOCITY = 1e+10 * Math.PI; // temp value, radians/s
 
+    public static boolean DEBUG = true;
+
     public static double flP = 1, flI = 0, flD = 0.1, frP = 1, frI = 0, frD = 0.1, blP = 1, blI = 0, blD = 0.1, brP = 1, brI = 0, brD = 0.1;
     private static double[][] pidConstants;
     private final IMU imu;
@@ -40,7 +42,6 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
 
     private boolean driveAsPercentage;
     private boolean fieldRelative;
-    private boolean debug;
 
     private static void fillPIDConstants() {
         SwerveDriveSubsystem.pidConstants = new double[][] {{flP, flI, flD}, {frP, frI, frD}, {blP, blI, blD}, {brP, brI, brD}};
@@ -59,7 +60,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
      * @param driveAsPercentage if true, drives as percentage. if false, drives with m/s.
      *                          likely want to use true for driver controlled and false for auto
      */
-    public SwerveDriveSubsystem(final HardwareMap hMap, final Telemetry telemetry, final boolean driveAsPercentage, final BooleanSupplier fieldRelativeButton, final boolean debug) {
+    public SwerveDriveSubsystem(final HardwareMap hMap, final Telemetry telemetry, final boolean driveAsPercentage, final BooleanSupplier fieldRelativeButton) {
         final SwerveModule frontL = new SwerveModule(hMap,"frontLeftMotor", "frontLeftServo", "frontLeftEncoder", SwerveModule.Wheel.FRONT_LEFT);
         final SwerveModule frontR = new SwerveModule(hMap,"frontRightMotor", "frontRightServo", "frontRightEncoder", SwerveModule.Wheel.FRONT_RIGHT);
         final SwerveModule backL = new SwerveModule(hMap,"backLeftMotor", "backLeftServo", "backLeftEncoder", SwerveModule.Wheel.BACK_LEFT);
@@ -72,14 +73,9 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
         )));
         imu.resetYaw();
         this.telemetry = telemetry;
-        this.debug = debug;
         this.driveAsPercentage = driveAsPercentage;
         this.fieldRelativeReader = new ToggleButtonReader(fieldRelativeButton);
         fillPIDConstants();
-    }
-
-    public SwerveDriveSubsystem(final HardwareMap hMap, final Telemetry telemetry, final boolean driveAsPercentage, final BooleanSupplier fieldRelativeButton) {
-        this(hMap, telemetry, driveAsPercentage, fieldRelativeButton, false);
     }
 
     //THIS METHOD BAD
@@ -150,7 +146,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
             SwerveModule module = swerveModules[i];
             module.read();
             module.update(pidConstants[i][0], pidConstants[i][1], pidConstants[i][2]);
-            if(debug) {
+            if(DEBUG) {
                 module.runTelemetry(Integer.toString(i), telemetry);
             }
         }
