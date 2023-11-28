@@ -33,6 +33,8 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
 
     public static boolean DEBUG = true;
 
+    public static double flMult = .945, frMult = 1, blMult = .94, brMult = .95;
+
     public static double flP = 1, flI = 0, flD = 0.1, frP = 1, frI = 0, frD = 0.1, blP = 1, blI = 0, blD = 0.1, brP = 1, brI = 0, brD = 0.1;
     private static double[][] pidConstants;
     private final IMU imu;
@@ -44,7 +46,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
     private boolean fieldRelative;
 
     private static void fillPIDConstants() {
-        SwerveDriveSubsystem.pidConstants = new double[][] {{flP, flI, flD}, {frP, frI, frD}, {blP, blI, blD}, {brP, brI, brD}};
+        SwerveDriveSubsystem.pidConstants = new double[][] {{flP, flI, flD, flMult}, {frP, frI, frD, frMult}, {blP, blI, blD, blMult}, {brP, brI, brD, brMult}};
     }
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
@@ -146,7 +148,8 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
             SwerveModule module = swerveModules[i];
             module.read();
             module.update(pidConstants[i][0], pidConstants[i][1], pidConstants[i][2]);
-            if(DEBUG) {
+            module.setMotorMultiplier(pidConstants[i][3]);
+            if (DEBUG) {
                 module.runTelemetry(Integer.toString(i), telemetry);
             }
         }

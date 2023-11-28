@@ -35,13 +35,20 @@ public class SwerveModule {
     }
 
     public static double FLIP_GAP = 1.1;
+    public static double WHEEL_PULL = 0;
+    public static boolean PULL_PROPORTIONAL = false;
+    public static double WHEEL_PULL_PROPORTIONALITY = 0.01;
     public static double MAX_SERVO = 1, MAX_MOTOR = 1;
+    public static double K_STATIC = 0;
+    public static double ERROR_CUTOFF = 0.02;
+
+    public static double ANGLE_PROPORTIONAL = 0.01;
 
     public static final double EPSILON = 1e-5;
-    public static double WHEEL_RADIUS = 1.41732; // TODO: MEASURE ACCURATELY
+    public static final double WHEEL_RADIUS = 1.41732; // TODO: MEASURE ACCURATELY
     public static final double MOTOR_GEAR_RATIO = 1 / ((42D / 12D) * (36D / 24D) * (2D)); // output (wheel) speed / input (motor) speed
     public static final double TICKS_PER_REV = 28;
-    public static double POD_GEAR_RATIO = 1.0;
+    public static final double POD_GEAR_RATIO = 1.0;
 
     private final Wheel wheel;
 
@@ -59,6 +66,7 @@ public class SwerveModule {
     private double power = 0D;
     private boolean flip = false;
     private double error = 0;
+    private double motorMultiplier = 1;
 
     public SwerveModule(HardwareMap hMap, String motorName, CRServo s, AbsoluteAnalogEncoder e, Wheel wheel) {
         motor = new MotorEx(hMap, motorName, Motor.GoBILDA.BARE);
@@ -93,7 +101,7 @@ public class SwerveModule {
         rotationController.setPIDF(p, i, d, 0);
         final double inputTarget = getTargetRotation(), current = getModuleRotation();
         final boolean zeroed = Math.abs(power) <= EPSILON;
-        outputTarget =  zeroed ? lastRotationTarget : inputTarget;
+        outputTarget =  zeroed ? lastRotationTarget : inputTarget + (Math.abs(getWheelVelocity()) * ANGLE_PROPORTIONAL);
         error = normalizeRadians(outputTarget - current);
         if (Math.abs(error) > (FLIP_GAP * Math.PI / 2D)  && !zeroed) {
             outputTarget = normalizeRadians(outputTarget + Math.PI);
@@ -101,9 +109,13 @@ public class SwerveModule {
             error = normalizeRadians(outputTarget - current);
         }
         final double power = Range.clip(rotationController.calculate(0, error), -MAX_SERVO, MAX_SERVO);
-        servo.setPower(Double.isNaN(power) ? 0 : power);
+        servo.setPower(Double.isNaN(power) ? 0 : (Math.abs(error) > ERROR_CUTOFF) ? power + (Math.signum(power) * K_STATIC) : WHEEL_PULL * (PULL_PROPORTIONAL ? motor.getCorrectedVelocity() * WHEEL_PULL_PROPORTIONALITY : 1));
         lastRotationTarget = outputTarget;
         updateMotor();
+    }
+
+    public void setMotorMultiplier(double motorMultiplier) {
+        this.motorMultiplier = motorMultiplier;
     }
 
     public double getTargetRotation() {
@@ -119,7 +131,7 @@ public class SwerveModule {
     }
 
     private void updateMotor() {
-        lastMotorPower = power * MAX_MOTOR * (flip ? -1 : 1);
+        lastMotorPower = power * MAX_MOTOR * (flip ? -1 : 1) * motorMultiplier;
         motor.set(lastMotorPower);
     }
 
