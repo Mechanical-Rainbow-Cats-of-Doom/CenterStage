@@ -28,10 +28,12 @@ import java.util.function.BooleanSupplier;
 
 @Config
 public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDrive {
-    public static final double MAX_XY_VELOCITY = 1e+10; // temp value, i/s
-    public static final double MAX_ROTATIONAL_VELOCITY = 1e+10 * Math.PI; // temp value, radians/s
 
-    public static boolean DEBUG = true;
+    // these are currently about halved
+    public static final double MAX_XY_VELOCITY = 0.55; // temp value, i/s
+    public static final double MAX_ROTATIONAL_VELOCITY = 1.5; // temp value, radians/s
+
+    public static boolean DEBUG = false;
 
     public static double flMult = .945, frMult = 1, blMult = .94, brMult = .95;
 

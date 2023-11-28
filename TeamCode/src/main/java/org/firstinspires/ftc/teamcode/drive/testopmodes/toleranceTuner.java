@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.drive.localization.Localization2EImpl;
 
 /**
  * The goal of this op mode is to find the optimal default tolerance of a point
+ * As of 11/27 0.1 inches is a fine tolerance
  */
 @TeleOp
 public class toleranceTuner extends LinearOpMode {

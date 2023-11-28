@@ -21,7 +21,7 @@ public class Path {
     /**
      * Not set yet, will need to be tuned currently 1e-3 as of this comment
      */
-    public static final double DEFAULT_TOLERANCE = 1e-3; // inches
+    public static final double DEFAULT_TOLERANCE = 0.2; // inches
 
     public Path() {
         pointList = new ArrayList<Point>();

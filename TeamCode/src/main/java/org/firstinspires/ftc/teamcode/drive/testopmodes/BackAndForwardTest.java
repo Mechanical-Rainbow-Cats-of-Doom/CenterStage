@@ -36,11 +36,15 @@ public class BackAndForwardTest extends LinearOpMode {
 
         auto.setPath(forward);
 
+        boolean aPressing = false;
+
         waitForStart();
         while (opModeIsActive() && !isStopRequested()) {
             telemetry.addData("Driving As percentage: ", drive.isDrivingAsPercentage());
             telemetry.addData("Button B: ", driver1.getButton(GamepadKeys.Button.B));
+            telemetry.addData("Is forwarding: ", forwarding);
             telemetry.update();
+            if (!driver1.getButton(GamepadKeys.Button.A)) aPressing = false;
             // allow updating the controllers
             if (driver1.getButton(GamepadKeys.Button.B)) {
                 pather.updateControllers();
@@ -48,7 +52,8 @@ public class BackAndForwardTest extends LinearOpMode {
             // different behavior if you are controlling with gamepad or doing the pather
             if (drive.isDrivingAsPercentage()) {
                 // press A to switch modes
-                if (driver1.getButton(GamepadKeys.Button.A)) {
+                if (driver1.getButton(GamepadKeys.Button.A) && !aPressing) {
+                    aPressing = true;
                     drive.setDriveAsPercentage(false);
                 }
                 // default moving code, ripped from SwerveDriveTester
@@ -56,7 +61,8 @@ public class BackAndForwardTest extends LinearOpMode {
                 drive.periodic();
             } else {
                 // press A to switch modes
-                if (driver1.getButton(GamepadKeys.Button.A)) {
+                if (driver1.getButton(GamepadKeys.Button.A) && !aPressing) {
+                    aPressing = true;
                     drive.setDriveAsPercentage(true);
                 }
                 // Weird auto stuff to switch directions correctly as well as be interruptible

@@ -42,7 +42,7 @@ public class SwerveModule {
     public static double K_STATIC = 0;
     public static double ERROR_CUTOFF = 0.02;
 
-    public static double ANGLE_PROPORTIONAL = 0.01;
+    public static double ANGLE_PROPORTIONAL = 0.002;
 
     public static final double EPSILON = 1e-5;
     public static final double WHEEL_RADIUS = 1.41732; // TODO: MEASURE ACCURATELY
@@ -146,7 +146,7 @@ public class SwerveModule {
         telemetry.addData(caption + " motor power", lastMotorPower);
         telemetry.addData(caption + " raw velocity", motor.getVelocity());
         telemetry.addData(caption + " power from motor", motor.get());
-        telemetry.addData(caption + " motor velocity", getWheelVelocity());
+        telemetry.addData(caption + " motor velocity", Math.abs(getWheelVelocity()));
         telemetry.addData(caption + " motor position", getWheelPosition());
         telemetry.addData(caption + " target rotation", getTargetRotation());
         telemetry.addData(caption + " output target rotation", outputTarget);
