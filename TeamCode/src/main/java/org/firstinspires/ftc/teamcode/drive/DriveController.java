@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.drive;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.Subsystem;
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.teamcode.drive.localization.Localization2EImpl;
 import org.firstinspires.ftc.teamcode.drive.pathplanning.Path;
 import org.firstinspires.ftc.teamcode.drive.pathplanning.PathPlanner;
 
+@Config
 public class DriveController<planner extends PathPlanner, holonomicChassis extends HolonomicDrive & Subsystem> {
     public planner pathPlanner;
     public holonomicChassis chassis;
@@ -18,6 +20,7 @@ public class DriveController<planner extends PathPlanner, holonomicChassis exten
     public Localization2EImpl localization;
     public Path path;
     public Telemetry telemetry;
+    public static double SPEEDMULTIPLIER = 0.5;
 
 //    public DriveController(HardwareMap hmap, planner pathPlanner, holonomicChassis holonomicChassis, Telemetry t, Path path) {
 //        this.pathPlanner = pathPlanner;
@@ -54,6 +57,10 @@ public class DriveController<planner extends PathPlanner, holonomicChassis exten
         return this.path.isPathFinished();
     }
 
+    public void setPosition(Pose2d newPose) {
+        localization.setPosition(newPose);
+    }
+
     /**
      * Needs to be run as fast as possible in the main loop.
      * Makes the robot move towards the next target point on the path.
@@ -66,6 +73,9 @@ public class DriveController<planner extends PathPlanner, holonomicChassis exten
         telemetry.addData("R/s: ", targetVelocity.omegaRadiansPerSecond);
         telemetry.addData("vx: ", targetVelocity.vxMetersPerSecond);
         telemetry.addData("vy: ", targetVelocity.vyMetersPerSecond);
+//        targetVelocity = new ChassisSpeeds(targetVelocity.vxMetersPerSecond*SPEEDMULTIPLIER,
+//                targetVelocity.vyMetersPerSecond*SPEEDMULTIPLIER,
+//                targetVelocity.omegaRadiansPerSecond*SPEEDMULTIPLIER);
         // moves the robot by the optimal velocity. X, Y, THETA
         chassis.setTargetVelocity(targetVelocity);
     }
