@@ -45,6 +45,7 @@ public abstract class ContinuousLocalization implements Localization {
     }
 
     public void setPosition(Pose2d pose) {
+        this.oldRotation = pose.getRotation();
         this.position = pose;
     }
 
