@@ -102,7 +102,7 @@ public class Localization2EImpl extends ContinuousLocalization {
     @Override
     public void setPosition(Pose2d position) {
         super.setPosition(position);
-        storedRotation = new Rotation2d(-getYaw().getRadians() - storedRotation.getRadians() + position.getRotation().getRadians());
+        storedRotation = new Rotation2d(position.getRotation().getRadians() -getYaw().getRadians() + storedRotation.getRadians());
     }
 
     public long currentRunCountsTime() {
