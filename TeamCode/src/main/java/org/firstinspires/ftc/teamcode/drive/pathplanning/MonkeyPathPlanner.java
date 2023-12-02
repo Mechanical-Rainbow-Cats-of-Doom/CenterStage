@@ -6,6 +6,8 @@ import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Vector2d;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 /**
  * This class is a proof of concept Path planner
  * It's called monkey because its supposed to be bad
@@ -13,7 +15,7 @@ import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
 @Config
 public class MonkeyPathPlanner implements PathPlanner {
     public static final String NAME = "Monkey";
-
+    public static final double IN_TO_M = 1/39.701;
     // constants for the movement controller
     public static double kpP = 0;
     public static double kiP = 0;
@@ -25,10 +27,12 @@ public class MonkeyPathPlanner implements PathPlanner {
     public static double kiR = 0;
     public static double kdR = 0;
     private static PIDFController rotationPID;
+    public Telemetry telemetry;
 
-    public MonkeyPathPlanner() {
+    public MonkeyPathPlanner(Telemetry telemetry) {
         pathPID = new PIDFController(kpP, kiP, kdP, 0);
         rotationPID = new PIDFController(kpR, kiR, kdR, 0);
+        this.telemetry = telemetry;
     }
 
     public String getName() {
@@ -60,6 +64,11 @@ public class MonkeyPathPlanner implements PathPlanner {
         double deltaY = path.getTargetPoint().getPose().minus(currentPose).getTranslation().getY(); // inches
         double deltaMagnitude = Math.sqrt(Math.pow(deltaX, 2)+Math.pow(deltaY, 2)); // inches
         Vector2d unitVector = new Vector2d(deltaX/deltaMagnitude,deltaY/deltaMagnitude); // no unit, just proportions
+        telemetry.addData("Difference in X: ", deltaX);
+        telemetry.addData("Difference in Y: ", deltaY);
+        telemetry.addData("Difference in distance: ", deltaMagnitude);
+        telemetry.addData("X direction: ", unitVector.getX());
+        telemetry.addData("Y direction: ", unitVector.getY());
 
         // terminate early if the distance is less than a set tolerance
         // the tolerance is set by the target point
@@ -83,9 +92,8 @@ public class MonkeyPathPlanner implements PathPlanner {
          */
         double rotationalVelocity = rotationPID.calculate(currentPose.getHeading(), path.getTargetPoint().getPose().getHeading()); // rps
 
-        ChassisSpeeds targetVelocity = new ChassisSpeeds(unitVector.getX()*magnitude,
-                unitVector.getY()*magnitude, rotationalVelocity); // be in meters per second
-        return targetVelocity;
+        return new ChassisSpeeds(-unitVector.getX()*magnitude*IN_TO_M,
+                -unitVector.getY()*magnitude*IN_TO_M, rotationalVelocity);
     }
 
 }
