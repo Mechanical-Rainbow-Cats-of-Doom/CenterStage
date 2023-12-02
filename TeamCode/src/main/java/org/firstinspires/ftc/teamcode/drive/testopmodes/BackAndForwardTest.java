@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.drive.testopmodes;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.geometry.Pose2d;
@@ -21,6 +22,7 @@ public class BackAndForwardTest extends LinearOpMode {
     private final MultipleTelemetry telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry(), super.telemetry);
     @Override
     public void runOpMode() throws InterruptedException {
+        TelemetryPacket packet = new TelemetryPacket();
         boolean forwarding = true;
         final GamepadEx driver1 = new GamepadEx(gamepad1), driver2 = new GamepadEx(gamepad2);
         final SwerveDriveSubsystem drive = new SwerveDriveSubsystem(hardwareMap, telemetry, false, () -> false);
@@ -44,6 +46,9 @@ public class BackAndForwardTest extends LinearOpMode {
             telemetry.addData("Button B: ", driver1.getButton(GamepadKeys.Button.B));
             telemetry.addData("Is forwarding: ", forwarding);
             telemetry.update();
+            packet.fieldOverlay()
+                    .setFill("blue")
+                    .fillCircle(auto.getPose().getX(), auto.getPose().getY(), 0.1);
             if (!driver1.getButton(GamepadKeys.Button.A)) aPressing = false;
             // allow updating the controllers
             if (driver1.getButton(GamepadKeys.Button.B)) {
