@@ -50,8 +50,8 @@ public class PropPipeline extends OpenCvPipeline {
     }
 
     private boolean running = false;
-    private Pair<Integer, Double> curRun = new Pair<>(-1, 0d),
-            greatestConfidence = new Pair<>(-1, 0d);
+    private Pair<Integer, Double> curRun = new Pair<>(-1, Double.NEGATIVE_INFINITY),
+            greatestConfidence = new Pair<>(-1, Double.NEGATIVE_INFINITY);
     private final ArrayBlockingQueue<Integer> queue;
     private int totalTimesRan = 0;
     private final boolean debug;

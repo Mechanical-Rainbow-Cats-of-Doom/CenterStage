@@ -72,7 +72,6 @@ public abstract class ContinuousLocalization implements Localization {
         double minHeading = Math.min(heading, oldHeading);
         double maxHeading = Math.max(heading, oldHeading);
 
-
         double rawDeltaHeading = maxHeading - minHeading;
         // normalize between 0 and 2pi
         rawDeltaHeading -= 2*Math.PI * Math.floor(rawDeltaHeading/(2*Math.PI));
