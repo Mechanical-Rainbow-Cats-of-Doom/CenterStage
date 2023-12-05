@@ -5,7 +5,6 @@ import android.util.Pair;
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.geometry.Pose2d;
 
 import org.jetbrains.annotations.Contract;
 import org.opencv.core.Core;
@@ -21,7 +20,7 @@ public class PropPipeline extends OpenCvPipeline {
     }
 
     @Config
-    public static class PropPipelineConfig implements PropPipelineRectsProvider {
+    public static class PropPipelineDashboardConfig implements PropPipelineRectsProvider {
         public static double x1, y1, width1, height1;
         public static double x2, y2, width2, height2;
 
@@ -97,7 +96,7 @@ public class PropPipeline extends OpenCvPipeline {
                 greatestConfidence = curRun;
             }
             totalTimesRan++;
-            if (totalTimesRan >= 6) {
+            if (totalTimesRan >= 3) {
                 queue.offer(greatestConfidence.first);
                 running = false;
             }

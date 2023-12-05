@@ -28,6 +28,7 @@ public class LocalizationTest extends LinearOpMode {
         driver1 = new GamepadEx(gamepad1);
         drive = new SwerveDriveSubsystem(hardwareMap, telemetry, true, () -> driver1.getButton(GamepadKeys.Button.B));
         waitForStart();
+        localization.initialize();
 
         while (!isStopRequested()) {
             drive.setTargetVelocity(new ChassisSpeeds(driver1.getLeftY(), driver1.getLeftX(), driver1.getRightX()));

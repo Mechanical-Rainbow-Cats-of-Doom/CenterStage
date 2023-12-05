@@ -19,7 +19,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
  */
 public class Localization2EImpl extends ContinuousLocalization {
     protected DcMotorEx xEncoder, yEncoder;
-    protected Rotation2d storedRotation;
+    protected Rotation2d storedRotation = new Rotation2d();
     protected IMU imu;
     protected int initialXPosition, initialYPosition;
     protected long lastCountRunTime;
@@ -63,10 +63,6 @@ public class Localization2EImpl extends ContinuousLocalization {
         this.xEncoder = xEncoder;
         this.yEncoder = yEncoder;
         this.imu = imu;
-        position = startingPosition;
-        storedRotation = startingPosition.getRotation();
-        if(imu != null)
-            imu.resetYaw();
     }
 
     public Localization2EImpl(DcMotorEx xEncoder, DcMotorEx yEncoder, IMU imu, Pose2d startingPosition) {
@@ -82,8 +78,16 @@ public class Localization2EImpl extends ContinuousLocalization {
         this(map, xEncoder, yEncoder, new Pose2d());
     }
 
+    public Localization2EImpl(HardwareMap map, Pose2d startingPosition) {
+        this(map, EncoderNames.xEncoder, EncoderNames.yEncoder, startingPosition);
+    }
+
     public Localization2EImpl(HardwareMap map) {
         this(map, EncoderNames.xEncoder, EncoderNames.yEncoder);
+    }
+
+    public void initialize() {
+        setPosition(position);
     }
 
     @Override
@@ -102,7 +106,7 @@ public class Localization2EImpl extends ContinuousLocalization {
     @Override
     public void setPosition(Pose2d position) {
         super.setPosition(position);
-        storedRotation = new Rotation2d(position.getRotation().getRadians() -getYaw().getRadians() + storedRotation.getRadians());
+        storedRotation = new Rotation2d(position.getRotation().getRadians() - getYaw().getRadians() + storedRotation.getRadians());
     }
 
     public long currentRunCountsTime() {
