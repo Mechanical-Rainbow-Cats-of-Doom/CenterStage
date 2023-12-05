@@ -16,7 +16,19 @@ import org.firstinspires.ftc.teamcode.common.hardware.AbsoluteAnalogEncoder;
 public class stinkyBackup extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        forward(100, 0.2);
+        backRight = new pod("backRightMotor", "backRightServo", "backRightEncoder",
+                false, 1);
+        backLeft =
+                new pod("backLeftMotor", "backLeftServo", "backLeftEncoder",
+                        false, 1);
+        frontRight =
+                new pod("frontRightMotor", "frontRightServo", "frontRightEncoder",
+                        false, 1);
+        frontLeft =
+                new pod("frontLeftMotor", "frontLeftServo", "frontLeftEncoder",
+                        true, 1);
+
+        forward(1000, 0.2);
     }
 
     /*
@@ -46,18 +58,10 @@ public class stinkyBackup extends LinearOpMode {
     Seperate
     Seperate
      */
-    private final pod backRight =
-            new pod("backRightMotor", "backRightServo", "backRightEncoder",
-                    false, 1);
-    private final pod backLeft =
-            new pod("backLeftMotor", "backLeftServo", "backLeftEncoder",
-                    false, 1);
-    private final pod frontRight =
-            new pod("frontRightMotor", "frontRightServo", "frontRightEncoder",
-                    false, 1);
-    private final pod frontLeft =
-            new pod("frontLeftMotor", "frontLeftServo", "frontLeftEncoder",
-                    true, 1);
+    private pod backRight;
+    private pod backLeft;
+    private pod frontRight;
+    private pod frontLeft;
     public void forward(int distance, double power) {
         frontLeft.setDistance(distance);
         frontRight.setDistance(distance);
@@ -71,6 +75,7 @@ public class stinkyBackup extends LinearOpMode {
             backRight.run(power);
         }
     }
+
     public void turn(int distance, double power) {
         frontLeft.setDistance(distance);
         frontRight.setDistance(-distance);
@@ -85,6 +90,9 @@ public class stinkyBackup extends LinearOpMode {
         }
     }
     public class pod {
+        /*
+        ADD IN A WAY TO KEEP THE SERVO CENTERED, A SHITTY TURNING SOLUTION IS CHILL
+         */
         public double multiplier;
         int tickOffset = 0;
         int tickGoal = 0;

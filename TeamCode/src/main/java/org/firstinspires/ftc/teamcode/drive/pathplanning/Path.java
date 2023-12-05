@@ -19,9 +19,9 @@ public class Path {
      */
     private int targetPoseIdx;
     /**
-     * Not set yet, will need to be tuned currently 1e-3 as of this comment
+     * 0.25 seems the lowest our robo can go without wanting to kill itslef with the current localization
      */
-    public static final double DEFAULT_TOLERANCE = 0.2; // inches
+    public static final double DEFAULT_TOLERANCE = 0.25; // inches
 
     public Path() {
         pointList = new ArrayList<Point>();

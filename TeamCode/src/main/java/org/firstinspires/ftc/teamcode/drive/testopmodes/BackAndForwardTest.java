@@ -42,7 +42,8 @@ public class BackAndForwardTest extends LinearOpMode {
         auto.setPath(forward);
 
         boolean aPressing = false;
-
+        boolean yPressing = false;
+        auto.setPosition(new Pose2d(0,0,new Rotation2d(0)));
         auto.run();
 
         waitForStart();
@@ -53,11 +54,13 @@ public class BackAndForwardTest extends LinearOpMode {
             telemetry.addData("X Position: ", auto.getPose().getX());
             telemetry.addData("Y Position: ", auto.getPose().getY());
             telemetry.addData("Is at spot: ", auto.isFinished());
+            telemetry.addData("Button Y: ", driver1.getButton(GamepadKeys.Button.Y));
             telemetry.update();
             packet.fieldOverlay()
                     .setFill("blue")
-                    .fillCircle(auto.getPose().getX(), auto.getPose().getY(), 0.1);
+                    .fillCircle(auto.getPose().getX(), auto.getPose().getY(), 50);
             if (!driver1.getButton(GamepadKeys.Button.A)) aPressing = false;
+            if (!driver1.getButton(GamepadKeys.Button.Y)) yPressing = false;
             // allow updating the controllers
             if (driver1.getButton(GamepadKeys.Button.B)) {
                 pather.updateControllers();
@@ -83,15 +86,20 @@ public class BackAndForwardTest extends LinearOpMode {
                 }
                 // Weird auto stuff to switch directions correctly as well as be interruptible
                 auto.run();
-//                if (auto.isFinished()) {
-//                    if (forwarding) {
-//                        auto.setPath(backward);
-//                        forwarding = false;
-//                    } else {
-//                        auto.setPath(forward);
-//                        forwarding = true;
-//                    }
-//                }
+
+                if (driver1.getButton(GamepadKeys.Button.Y) && !yPressing) {
+                    yPressing = true;
+                    if (auto.isFinished()) {
+                        if (forwarding) {
+                            auto.setPath(backward);
+                            forwarding = false;
+                        } else {
+                            auto.setPath(forward);
+                            forwarding = true;
+                        }
+                    }
+                }
+
             }
         }
     }

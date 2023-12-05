@@ -127,12 +127,12 @@ public class Localization2EImpl extends ContinuousLocalization {
 
         super.updatePosition(xEncoder.getCurrentPosition(), yEncoder.getCurrentPosition(), getYaw(),
                 xEncoder.getVelocity(), yEncoder.getVelocity(),
-                imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate);
+                imu.getRobotAngularVelocity(AngleUnit.RADIANS).yRotationRate);
     }
 
     private Rotation2d getYaw() {
         return new Rotation2d(
-                imu.getRobotOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle +
+                imu.getRobotOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).secondAngle +
                         storedRotation.getRadians());
     }
 }

@@ -84,6 +84,8 @@ public class MonkeyPathPlanner implements PathPlanner {
         The second value is the optimal distance between the points, always 0
          */
         double magnitude = pathPID.calculate(deltaMagnitude, 0); // mps
+        telemetry.addData("Translation Error: ", magnitude);
+
 
         /*
         this gets the optimal rotational velocity in radians per second
