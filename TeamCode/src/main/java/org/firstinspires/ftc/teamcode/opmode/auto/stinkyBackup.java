@@ -32,31 +32,31 @@ public class stinkyBackup extends LinearOpMode {
     }
 
     /*
-    Seperate
-    Seperate
-    Seperate
-    Seperate
-    Seperate
-    Seperate
-    Seperate
-    Seperate
-    Seperate
-    Seperate
-    Seperate
-    Seperate
-    Seperate
-    Seperate
-    Seperate
-    Seperate
-    Seperate
-    Seperate
-    Seperate
-    Seperate
-    Seperate
-    Seperate
-    Seperate
-    Seperate
-    Seperate
+    Separate
+    Separate
+    Separate
+    Separate
+    Separate
+    Separate
+    Separate
+    Separate
+    Separate
+    Separate
+    Separate
+    Separate
+    Separate
+    Separate
+    Separate
+    Separate
+    Separate
+    Separate
+    Separate
+    Separate
+    Separate
+    Separate
+    Separate
+    Separate
+    Separate
      */
     private pod backRight;
     private pod backLeft;
