@@ -1,13 +1,18 @@
 package org.firstinspires.ftc.teamcode.opmode.auto;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.common.hardware.AbsoluteAnalogEncoder;
+import org.firstinspires.ftc.teamcode.vision.PropDetector;
+import org.firstinspires.ftc.teamcode.vision.PropPipeline;
 
 /**
  * All units are in arbitrary ticks
@@ -16,6 +21,8 @@ import org.firstinspires.ftc.teamcode.common.hardware.AbsoluteAnalogEncoder;
 public class stinkyBackup extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
+        MultipleTelemetry telemetry = new MultipleTelemetry(super.telemetry, FtcDashboard.getInstance().getTelemetry());
+
         backRight = new pod("backRightMotor", "backRightServo", "backRightEncoder",
                 false, 1);
         backLeft =
@@ -28,7 +35,38 @@ public class stinkyBackup extends LinearOpMode {
                 new pod("frontLeftMotor", "frontLeftServo", "frontLeftEncoder",
                         true, 1);
 
+//        intake = new DcMotorEx
+
+        // fin vision here
+        PropDetector detector = new PropDetector(hardwareMap, "webcam", true,
+                true, new PropPipeline.PropPipelineDashboardConfig());
+        int result = -1;
+        float startTime = System.currentTimeMillis() / 1000f;
+
+        waitForStart();
+
+        result = detector.run(() -> {
+            int time = (int)((System.currentTimeMillis() - startTime) / 10f) % 4;
+            telemetry.addLine("Waiting for detector" + (time > 1 ? "." : "") +
+                    (time > 2 ? "." : "") +
+                    (time > 3 ? "." : ""));
+            telemetry.update();
+        });
+        detector.reset();
+
         forward(1000, 0.2);
+        turn(300, 0.2);
+        switch (result) {
+            case -1:
+                return;
+            case 0:
+                break;
+            case 1:
+                break;
+            case 2:
+                break;
+
+        }
     }
 
     /*
@@ -58,6 +96,7 @@ public class stinkyBackup extends LinearOpMode {
     Separate
     Separate
      */
+    private DcMotorEx intake;
     private pod backRight;
     private pod backLeft;
     private pod frontRight;
@@ -96,6 +135,7 @@ public class stinkyBackup extends LinearOpMode {
         public double multiplier;
         int tickOffset = 0;
         int tickGoal = 0;
+        double initialServoPosition;
         MotorEx wheel;
         CRServo servo;
         AbsoluteAnalogEncoder encoder;
@@ -108,12 +148,21 @@ public class stinkyBackup extends LinearOpMode {
             encoder = new AbsoluteAnalogEncoder(hardwareMap.get(AnalogInput.class, encoderName));
             this.multiplier = multiplier;
             tickOffset = wheel.getCurrentPosition();
+            initialServoPosition = encoder.getCurrentPosition();
+        }
+        public double getServoPosition() {
+            return encoder.getCurrentPosition();
         }
         public boolean isComplete() {
             return wheel.getCurrentPosition() - tickOffset >= tickGoal;
         }
         public void run(double power) {
-            servo.setPower(0);
+            if (getServoPosition() - initialServoPosition > 0) {
+                servo.setPower(-0.1);
+            } else if (getServoPosition() - initialServoPosition < 0) {
+                servo.setPower(0.1);
+            } else servo.setPower(0);
+
             if ((tickGoal - (wheel.getCurrentPosition() - tickOffset)) > 0) {
                 wheel.set(power);
             } else wheel.set(0);
