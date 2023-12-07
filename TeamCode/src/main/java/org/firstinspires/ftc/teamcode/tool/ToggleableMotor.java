@@ -6,11 +6,12 @@ import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-public class ToggleableMotor extends SubsystemBase {
+public abstract class ToggleableMotor extends SubsystemBase {
     private final double maxMotorPower;
     private final DcMotorSimple motor;
 
     private boolean currState, lastState = false;
+    private boolean on = true;
 
     public ToggleableMotor(DcMotorSimple motor, double maxMotorPower, boolean startingState) {
         this.motor = motor;
@@ -39,12 +40,20 @@ public class ToggleableMotor extends SubsystemBase {
     }
 
     private void updateMotor() {
-        this.motor.setPower(maxMotorPower * (currState ? 1 : -1));
+        this.motor.setPower(maxMotorPower * (on ? (currState ? 1 : -1) : 0));
     }
 
     public boolean toggleState() {
         this.currState = !currState;
         return !currState;
+    }
+
+    public boolean toggleOn() {
+        on = !on;
+        if(on) {
+            this.currState = true;
+        }
+        return !on;
     }
 
     public void setState(boolean state) {
