@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.common.util;
 
+import com.acmerobotics.dashboard.config.Config;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -7,9 +9,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Detects any changes in static variables of a class.
- *
- * This is particularly useful when using a Config {@link com.acmerobotics.dashboard.config.Config}
+ * Detects any changes in static variables of a class. This is particularly useful when using a
+ * {@linkplain Config}.
  */
 public class ConfigChangeDetector<T> {
     public final Class<T> clazz;
@@ -42,6 +43,7 @@ public class ConfigChangeDetector<T> {
     }
 
     public void update() {
+        hasChanged = false;
         for (int i = 0; i < watching.length; i++) {
             Object newValue = null;
             try {
