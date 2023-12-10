@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmode.teleop;
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.commands.ControllerDriveCommand;
@@ -13,6 +14,7 @@ import org.firstinspires.ftc.teamcode.tool.DroneLauncher;
 import org.firstinspires.ftc.teamcode.tool.Intake;
 import org.firstinspires.ftc.teamcode.tool.Lift;
 
+@TeleOp
 public class DriverOpmode extends CommandOpMode {
     private GamepadEx driver1, driver2;
     private SwerveDriveSubsystem drive;
@@ -31,7 +33,7 @@ public class DriverOpmode extends CommandOpMode {
         lift = new Lift(hardwareMap, driver2);
 //        droneLauncher = new DroneLauncher(hardwareMap, () -> driver2.getButton(GamepadKeys.Button.LEFT_BUMPER));
         intake = new Intake(hardwareMap);
-        Servo lifter = hardwareMap.get(Servo.class, "lifter");
+//        Servo lifter = hardwareMap.get(Servo.class, "lifter");
 
         // schedule all commands
         schedule(new ControllerDriveCommand(drive, driver1));
@@ -39,10 +41,10 @@ public class DriverOpmode extends CommandOpMode {
         driver2.getGamepadButton(GamepadKeys.Button.X).whenPressed(new TogglePowerToggleableMotor(intake));
         driver2.getGamepadButton(GamepadKeys.Button.A).whenPressed(()->lift.toggleClawOpen());
         driver2.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(()->lift.toggleAutomatic());
-        driver2.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(()->{
-            lifter.setPosition(lastLifterPosition ? 0 : 1);
-            lastLifterPosition = !lastLifterPosition;
-        });
+//        driver2.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(()->{
+//            lifter.setPosition(lastLifterPosition ? 0 : 1);
+//            lastLifterPosition = !lastLifterPosition;
+//        });
 
         // register unregistered subsystems
         register(drive, lift, intake);
