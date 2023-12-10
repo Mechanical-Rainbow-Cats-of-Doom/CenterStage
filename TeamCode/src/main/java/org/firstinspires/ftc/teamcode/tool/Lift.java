@@ -242,9 +242,6 @@ public class Lift extends SubsystemBase {
                 if(clawServo.getPosition() != (position.isClawOpen() ? CLAW_OPEN_POSITION : CLAW_CLOSED_POSITION)) break;
                 clawOpen = position.isClawOpen();
                 state = State.AT_POSITION;
-            case AT_POSITION:
-                // TODO make sure this keeps the lift in the right position
-                break;
         }
     }
 
