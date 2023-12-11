@@ -21,14 +21,15 @@ public class LiftPositionFromConfig extends LinearOpMode {
     public static class LiftPositionConfig {
         public static int liftTicks;
         public static double servoPosition;
-        public static boolean clawOpen;
+        public static boolean clawOpen = true;
+        public static boolean forceStartOpen;
 
         private static final ConfigChangeDetector<LiftPositionConfig> changeDetector =
                 new ConfigChangeDetector<>(LiftPositionConfig.class, Collections.singletonList("changeDetector"));
 
 
         public static Lift.LiftPosition.Custom getCustomLiftPosition() {
-            return new Lift.LiftPosition.Custom(liftTicks, (float)servoPosition, clawOpen, false);
+            return new Lift.LiftPosition.Custom(liftTicks, (float)servoPosition, clawOpen, forceStartOpen);
         }
 
         public static boolean changeDetected() {
