@@ -10,8 +10,7 @@ public abstract class ToggleableMotor extends SubsystemBase {
     private final double maxMotorPower;
     private final DcMotorSimple motor;
 
-    private boolean currState, lastState = false;
-    private boolean on = true;
+    private boolean currState, lastState = false, on = true, lastOn = false;
 
     public ToggleableMotor(DcMotorSimple motor, double maxMotorPower, boolean startingState) {
         this.motor = motor;
@@ -26,7 +25,7 @@ public abstract class ToggleableMotor extends SubsystemBase {
     }
 
     public ToggleableMotor(DcMotorSimple motor) {
-        this(motor, 1, false);
+        this(motor, 1, true);
     }
 
     public ToggleableMotor(HardwareMap hardwareMap, String motorName) {
@@ -35,8 +34,9 @@ public abstract class ToggleableMotor extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (currState != lastState) updateMotor();
+        if (currState != lastState || lastOn != on) updateMotor();
         lastState = currState;
+        lastOn = on;
     }
 
     private void updateMotor() {
