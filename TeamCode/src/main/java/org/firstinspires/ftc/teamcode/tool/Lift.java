@@ -124,9 +124,9 @@ public class Lift extends SubsystemBase {
         }
     }
 
-    public static double CLAW_OPEN_POSITION = 0;
-    public static double CLAW_CLOSED_POSITION = 0;
-    public static double LIFT_POWER = 0.5d;
+    public static double CLAW_OPEN_POSITION = 0.14;
+    public static double CLAW_CLOSED_POSITION = 0.12;
+    public static double LIFT_POWER = 1;
     public static double kP = 1e-2;
     public static double positionTolerence = 20;
     public static int positionLimit = 4200;

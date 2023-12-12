@@ -1,12 +1,13 @@
 package org.firstinspires.ftc.teamcode.opmode.teleop;
 
 import com.arcrobotics.ftclib.command.CommandOpMode;
+import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.commands.ControllerDriveCommand;
+import org.firstinspires.ftc.teamcode.commands.LiftSafeCommand;
 import org.firstinspires.ftc.teamcode.commands.ToggleDirectionToggleableMotor;
 import org.firstinspires.ftc.teamcode.commands.TogglePowerToggleableMotor;
 import org.firstinspires.ftc.teamcode.drive.swerve.SwerveDriveSubsystem;
@@ -25,6 +26,8 @@ public class DriverOpmode extends CommandOpMode {
 
     @Override
     public void initialize() {
+        CommandScheduler.getInstance().reset();
+
         // initialize hardware
         driver1 = new GamepadEx(gamepad1);
         driver2 = new GamepadEx(gamepad2);
@@ -37,6 +40,7 @@ public class DriverOpmode extends CommandOpMode {
 
         // schedule all commands
         schedule(new ControllerDriveCommand(drive, driver1));
+        schedule(new LiftSafeCommand(intake, lift));
         driver2.getGamepadButton(GamepadKeys.Button.Y).whenPressed(new ToggleDirectionToggleableMotor(intake));
         driver2.getGamepadButton(GamepadKeys.Button.X).whenPressed(new TogglePowerToggleableMotor(intake));
         driver2.getGamepadButton(GamepadKeys.Button.A).whenPressed(()->lift.toggleClawOpen());

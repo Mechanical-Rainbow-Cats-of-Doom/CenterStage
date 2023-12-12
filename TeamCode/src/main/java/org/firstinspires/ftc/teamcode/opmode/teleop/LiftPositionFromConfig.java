@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmode.teleop;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
@@ -41,6 +42,7 @@ public class LiftPositionFromConfig extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        CommandScheduler.getInstance().reset();
         GamepadEx driver2 = new GamepadEx(gamepad2);
         Lift lift = new Lift(hardwareMap, driver2, true);
         telemetry = new MultipleTelemetry(super.telemetry, FtcDashboard.getInstance().getTelemetry());
