@@ -7,11 +7,10 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public abstract class ToggleableMotor extends SubsystemBase {
-    private final double maxMotorPower;
+    private double maxMotorPower;
     private final DcMotorSimple motor;
 
-    private boolean currState, lastState = false;
-    private boolean on = true;
+    private boolean currState, lastState = false, on = false, lastOn = false, maxMotorSpeedChanged;
 
     public ToggleableMotor(DcMotorSimple motor, double maxMotorPower, boolean startingState) {
         this.motor = motor;
@@ -26,7 +25,7 @@ public abstract class ToggleableMotor extends SubsystemBase {
     }
 
     public ToggleableMotor(DcMotorSimple motor) {
-        this(motor, 1, false);
+        this(motor, 1, true);
     }
 
     public ToggleableMotor(HardwareMap hardwareMap, String motorName) {
@@ -35,8 +34,9 @@ public abstract class ToggleableMotor extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (currState != lastState) updateMotor();
+        if (currState != lastState || lastOn != on || maxMotorSpeedChanged) updateMotor();
         lastState = currState;
+        lastOn = on;
     }
 
     private void updateMotor() {
@@ -60,7 +60,16 @@ public abstract class ToggleableMotor extends SubsystemBase {
         this.currState = state;
     }
 
+    public void setMaxMotorPower(double power) {
+        this.maxMotorPower = power;
+        this.maxMotorSpeedChanged = true;
+    }
+
     public boolean getState() {
         return currState;
+    }
+
+    public boolean getOn() {
+        return on;
     }
 }

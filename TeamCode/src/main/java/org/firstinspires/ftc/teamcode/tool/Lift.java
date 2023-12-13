@@ -5,32 +5,51 @@ import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
-import com.arcrobotics.ftclib.hardware.motors.MotorGroup;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.commands.LiftGoToPositionCommand;
+import org.firstinspires.ftc.teamcode.common.hardware.DebugMotor;
 
 @Config
 public class Lift extends SubsystemBase {
     public interface LiftPosition {
         int getLiftTicks();
-        float getServoPosition();
+        double getClawRotation();
+        boolean rotateClawEarly();
         boolean isClawOpen();
+        boolean shouldForceStartOpen();
+        LiftPosition getNextLiftPosition();
 
 
         enum Default implements LiftPosition {
-            DOWN(0, 0, false),
-            ONE(0, 0, true),
-            TWO(0, 0, true),
-            THREE(0, 0, true);
+            DOWN(0, 0.115f, true, false, true),
+            SAFE(500, 0.115f, false, true, false),
+            ONE(1700, 0.45f, false, true, false),
+            TWO(2900, 0.45f, false, true, false),
+            THREE(4200, 0.45f, false, true, false);
 
             private final int liftTicks;
-            private final float servoPosition;
+            private final double servoPosition;
+            private final boolean rotateClawEarly;
             private final boolean openClaw;
+            private final boolean forceStartOpen;
+            private final LiftPosition next;
 
-            Default(int liftTicks, float servoPosition, boolean openClaw) {
+            Default(int liftTicks, float servoPosition, boolean rotateClawEarly, boolean openClaw,
+                    boolean forceStartOpen, LiftPosition next) {
                 this.liftTicks = liftTicks;
                 this.servoPosition = servoPosition;
+                this.rotateClawEarly = rotateClawEarly;
                 this.openClaw = openClaw;
+                this.forceStartOpen = forceStartOpen;
+                this.next = next;
+            }
+
+            Default(int liftTicks, float servoPosition, boolean rotateClawEarly, boolean openClaw,
+                    boolean forceStartOpen) {
+                this(liftTicks, servoPosition, rotateClawEarly, openClaw, forceStartOpen, null);
             }
 
             @Override
@@ -39,25 +58,52 @@ public class Lift extends SubsystemBase {
             }
 
             @Override
-            public float getServoPosition() {
+            public double getClawRotation() {
                 return servoPosition;
+            }
+
+            @Override
+            public boolean rotateClawEarly() {
+                return rotateClawEarly;
             }
 
             @Override
             public boolean isClawOpen() {
                 return openClaw;
             }
+
+            @Override
+            public boolean shouldForceStartOpen() {
+                return forceStartOpen;
+            }
+
+            @Override
+            public LiftPosition getNextLiftPosition() {
+                return next;
+            }
         }
 
         class Custom implements LiftPosition {
             private final int liftTicks;
-            private final float servoPosition;
+            private final double servoPosition;
+            private final boolean rotateClawEarly;
             private final boolean clawOpen;
+            private final boolean forceStartOpen;
+            private final LiftPosition next;
 
-            public Custom(int liftTicks, float servoPosition, boolean clawOpen) {
+            public Custom(int liftTicks, float servoPosition, boolean rotateClawEarly,
+                          boolean clawOpen, boolean forceStartOpen, LiftPosition next) {
                 this.liftTicks = liftTicks;
                 this.servoPosition = servoPosition;
                 this.clawOpen = clawOpen;
+                this.rotateClawEarly = rotateClawEarly;
+                this.forceStartOpen = forceStartOpen;
+                this.next = next;
+            }
+
+            public Custom(int liftTicks, float servoPosition, boolean rotateClawEarly,
+                          boolean clawOpen, boolean forceStartOpen) {
+                this(liftTicks, servoPosition, rotateClawEarly, clawOpen, forceStartOpen, null);
             }
 
             @Override
@@ -66,19 +112,36 @@ public class Lift extends SubsystemBase {
             }
 
             @Override
-            public float getServoPosition() {
+            public double getClawRotation() {
                 return servoPosition;
+            }
+
+            @Override
+            public boolean rotateClawEarly() {
+                return rotateClawEarly;
             }
 
             @Override
             public boolean isClawOpen() {
                 return clawOpen;
             }
+
+            @Override
+            public boolean shouldForceStartOpen() {
+                return forceStartOpen;
+            }
+
+            @Override
+            public LiftPosition getNextLiftPosition() {
+                return next;
+            }
         }
     }
 
     public enum State {
         STARTING_MOVE(false, false, false),
+        EARLY_RUN_CLAW(false, false, false),
+        EARLY_ROTATE_CLAW(false, false, false),
         RUNNING_LIFT(false, false, false),
         ROTATING_CLAW(true, false, false),
         RUNNING_CLAW(true, true, false),
@@ -107,8 +170,14 @@ public class Lift extends SubsystemBase {
         }
     }
 
-    public static float CLAW_OPEN_POSITION = 0;
-    public static float CLAW_CLOSED_POSITION = 0;
+    public static double CLAW_OPEN_POSITION = 0.144;
+    public static double CLAW_CLOSED_POSITION = 0.12;
+    public static double LIFT_POWER = 1;
+    public static double kP = 1e-2;
+    public static double positionTolerence = 20;
+    public static int positionLimit = 4200;
+    public static double clawRotateRunTimeP = 1000;
+    public static double clawOpenTime = 400;
 
     private final Motor liftMotor;
     private final Servo clawRotationServo, clawServo;
@@ -118,38 +187,68 @@ public class Lift extends SubsystemBase {
     private boolean clawOpen = false;
     private boolean automatic = true;
     private Motor.RunMode runMode = Motor.RunMode.PositionControl;
+    private double lastKP = kP;
+    private double lastPositionTolerence = positionTolerence;
 
-    public Lift(HardwareMap hardwareMap, GamepadEx toolGamepad) {
+    private final ElapsedTime timer = new ElapsedTime();
+    private double calculatedRotationTime;
+
+    public Lift(HardwareMap hardwareMap, GamepadEx toolGamepad, boolean debug) {
         this.toolGamepad = toolGamepad;
-        liftMotor = new MotorGroup(new Motor(hardwareMap, "lift1", Motor.GoBILDA.RPM_435));
+        if(debug) {
+            liftMotor = new DebugMotor(hardwareMap, "lift1", Motor.GoBILDA.RPM_223);
+        } else {
+            liftMotor = new Motor(hardwareMap, "lift1", Motor.GoBILDA.RPM_223);
+        }
+        liftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        liftMotor.setInverted(true);
+        liftMotor.resetEncoder();
+        liftMotor.setPositionCoefficient(kP);
+        liftMotor.setPositionTolerance(positionTolerence);
         clawRotationServo = hardwareMap.get(Servo.class, "clawRotation");
         clawServo = hardwareMap.get(Servo.class, "clawServo");
 
         liftMotor.setRunMode(Motor.RunMode.PositionControl);
         if (toolGamepad != null) {
             toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
-                    .whenPressed(() -> setPosition(LiftPosition.Default.DOWN));
+                    .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.DOWN));
             toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT)
-                    .whenPressed(() -> setPosition(LiftPosition.Default.ONE));
+                    .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.ONE));
             toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT)
-                    .whenPressed(() -> setPosition(LiftPosition.Default.TWO));
+                    .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.TWO));
             toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP)
-                    .whenPressed(() -> setPosition(LiftPosition.Default.THREE));
+                    .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.THREE));
         }
     }
 
+    public Lift(HardwareMap hardwareMap, boolean debug) {
+        this(hardwareMap, null, debug);
+    }
+
     public Lift(HardwareMap hardwareMap) {
-        this(hardwareMap, null);
+        this(hardwareMap, false);
+    }
+
+    public Lift(HardwareMap hardwareMap, GamepadEx toolGamepad) {
+        this(hardwareMap, toolGamepad, false);
     }
 
     @Override
     public void periodic() {
+        if(kP != lastKP) {
+            liftMotor.setPositionCoefficient(kP);
+            lastKP = kP;
+        }
+        if(positionTolerence != lastPositionTolerence) {
+            liftMotor.setPositionTolerance(positionTolerence);
+            lastPositionTolerence = positionTolerence;
+        }
         if(!automatic) {
             if(runMode != Motor.RunMode.RawPower) {
                 liftMotor.setRunMode(Motor.RunMode.RawPower);
                 runMode = Motor.RunMode.RawPower;
             }
-            liftMotor.set(toolGamepad.getLeftY());
+            liftMotor.set(toolGamepad.getLeftY() * LIFT_POWER);
             return;
         }
         if(runMode != Motor.RunMode.PositionControl) {
@@ -160,39 +259,65 @@ public class Lift extends SubsystemBase {
         if(position == null) {
             if(state == State.STARTING_MOVE) {
                 liftMotor.setTargetPosition(liftMotor.getCurrentPosition());
-                liftMotor.set(1);
+                liftMotor.set(LIFT_POWER);
                 state = State.AT_POSITION;
             }
             return;
         }
+        if(liftMotor.atTargetPosition()) {
+            liftMotor.set(0);
+        } else {
+            liftMotor.set(LIFT_POWER);
+        }
         switch(state) {
             case STARTING_MOVE:
-                liftMotor.setTargetPosition(position.getLiftTicks());
-                liftMotor.set(1);
+                state = State.EARLY_RUN_CLAW;
+                if(position.shouldForceStartOpen() && !clawOpen) {
+                    timer.reset();
+                    clawServo.setPosition(CLAW_OPEN_POSITION);
+                }
+            case EARLY_RUN_CLAW:
+                if(position.shouldForceStartOpen() && !clawOpen && timer.milliseconds() < clawOpenTime) break;
+                clawOpen = true;
+                state = State.EARLY_ROTATE_CLAW;
+                if(position.rotateClawEarly()) {
+                    double newPosition = position.getClawRotation();
+                    calculatedRotationTime = Math.abs(newPosition - clawRotationServo.getPosition()) * clawRotateRunTimeP;
+                    clawRotationServo.setPosition(newPosition);
+                    timer.reset();
+                }
+            case EARLY_ROTATE_CLAW:
+                if(position.rotateClawEarly() && timer.milliseconds() < calculatedRotationTime) break;
                 state = State.RUNNING_LIFT;
-                break;
+                liftMotor.setTargetPosition(Math.max(0, Math.min(positionLimit, position.getLiftTicks())));
+                liftMotor.set(LIFT_POWER);
             case RUNNING_LIFT:
                 if(!liftMotor.atTargetPosition()) break;
                 state = State.ROTATING_CLAW;
-                clawRotationServo.setPosition(position.getServoPosition());
-                break;
+                double newPosition = position.getClawRotation();
+                calculatedRotationTime = Math.abs(newPosition - clawRotationServo.getPosition()) * clawRotateRunTimeP;
+                clawRotationServo.setPosition(newPosition);
+                timer.reset();
             case ROTATING_CLAW:
-                if(clawRotationServo.getPosition() != position.getServoPosition()) break;
-                if(position.isClawOpen() == clawOpen) {
-                    state = State.AT_POSITION;
-                    break;
-                }
+                liftMotor.set(0);
+                if(timer.milliseconds() < calculatedRotationTime) break;
                 state = State.RUNNING_CLAW;
                 clawServo.setPosition(position.isClawOpen() ? CLAW_OPEN_POSITION : CLAW_CLOSED_POSITION);
-                break;
+                timer.reset();
             case RUNNING_CLAW:
-                if(clawServo.getPosition() != (position.isClawOpen() ? CLAW_OPEN_POSITION : CLAW_CLOSED_POSITION)) break;
+                if(position.isClawOpen() != clawOpen && timer.milliseconds() < clawOpenTime) break;
                 clawOpen = position.isClawOpen();
                 state = State.AT_POSITION;
             case AT_POSITION:
-                // TODO make sure this keeps the lift in the right position
-                break;
+                LiftPosition next = position.getNextLiftPosition();
+                if(next != null) {
+                    setPosition(next);
+                }
         }
+    }
+
+    public int getCurrentLiftPosition() {
+        return liftMotor.getCurrentPosition();
     }
 
     public void toggleClawOpen() {
@@ -206,8 +331,16 @@ public class Lift extends SubsystemBase {
         this.state = State.STARTING_MOVE;
     }
 
+    public LiftPosition getPosition() {
+        return position;
+    }
+
     public void setAutomatic(boolean automatic) {
         this.automatic = automatic;
+    }
+
+    public boolean isAutomatic() {
+        return this.automatic;
     }
 
     public void toggleAutomatic() {
@@ -216,5 +349,13 @@ public class Lift extends SubsystemBase {
 
     public State getState() {
         return state;
+    }
+
+    public double getError() {
+        return liftMotor instanceof DebugMotor ? ((DebugMotor) liftMotor).getCurrentError() : 0;
+    }
+
+    public double getPower() {
+        return liftMotor.get();
     }
 }
