@@ -9,10 +9,13 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.common.hardware.AbsoluteAnalogEncoder;
+import org.firstinspires.ftc.teamcode.tool.Intake;
 import org.firstinspires.ftc.teamcode.vision.PropDetector;
 import org.firstinspires.ftc.teamcode.vision.PropPipeline;
+import org.opencv.core.Rect;
 
 /**
  * All units are in arbitrary ticks
@@ -22,6 +25,7 @@ public class stinkyBackup extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         MultipleTelemetry telemetry = new MultipleTelemetry(super.telemetry, FtcDashboard.getInstance().getTelemetry());
+        ElapsedTime timer = new ElapsedTime();
 
         backRight = new pod("backRightMotor", "backRightServo", "backRightEncoder",
                 false, 1);
@@ -39,9 +43,16 @@ public class stinkyBackup extends LinearOpMode {
 
         // fin vision here
         PropDetector detector = new PropDetector(hardwareMap, "webcam", true,
-                true, new PropPipeline.PropPipelineDashboardConfig());
+                true, new PropPipeline.BasicPropPipelineRects(
+                        new Rect(),
+                        new Rect(),
+                        new Rect()
+            )
+        );
         int result = -1;
         float startTime = System.currentTimeMillis() / 1000f;
+
+        Intake intake = new Intake(hardwareMap);
 
         waitForStart();
 
@@ -54,16 +65,53 @@ public class stinkyBackup extends LinearOpMode {
         });
         detector.reset();
 
+        // get to middle of the tile in front
         forward(1000, 0.2);
-        turn(300, 0.2);
         switch (result) {
-            case -1:
+            case -1: // shouldn't happen
                 return;
-            case 0:
+            case 0: // left
+                // turn 90 degrees
+                turn(300, 0.2);
+                // move to line
+                forward(200, 0.2);
+                // outtake
+                intake.toggleOn();
+                intake.toggleState();
+                timer.reset();
+                while (timer.seconds() < 2 && opModeIsActive() && !isStopRequested()) {
+                    continue;
+                    //lmao funny wait
+                }
+                intake.toggleOn();
                 break;
-            case 1:
+            case 1: // middle
+                // move to line
+                forward(200, 0.2);
+                // outtake
+                intake.toggleOn();
+                intake.toggleState();
+                timer.reset();
+                while (timer.seconds() < 2 && opModeIsActive() && !isStopRequested()) {
+                    continue;
+                    //lmao funny wait
+                }
+                intake.toggleOn();
                 break;
-            case 2:
+            case 2: // right
+                // turn 90 degrees
+                turn(300, 0.2);
+                // move to line
+                forward(200, 0.2);
+                // outtake
+                intake.toggleOn();
+                intake.toggleState();
+                timer.reset();
+                while (timer.seconds() < 2 && opModeIsActive() && !isStopRequested()) {
+                    continue;
+                    //lmao funny wait
+                }
+                intake.toggleOn();
                 break;
 
         }
