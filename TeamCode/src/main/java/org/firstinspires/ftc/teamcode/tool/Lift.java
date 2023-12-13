@@ -7,34 +7,49 @@ import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.commands.LiftGoToPositionCommand;
 import org.firstinspires.ftc.teamcode.common.hardware.DebugMotor;
 
 @Config
 public class Lift extends SubsystemBase {
     public interface LiftPosition {
         int getLiftTicks();
-        float getServoPosition();
+        double getClawRotation();
+        boolean rotateClawEarly();
         boolean isClawOpen();
         boolean shouldForceStartOpen();
+        LiftPosition getNextLiftPosition();
 
 
         enum Default implements LiftPosition {
-            DOWN(0, 0, false, true),
-            ONE(1700, 0, true, false),
-            TWO(2900, 0, true, false),
-            THREE(4200, 0, true, false);
+            DOWN(0, 0.115f, true, false, true),
+            SAFE(500, 0.115f, false, true, false),
+            ONE(1700, 0.45f, false, true, false),
+            TWO(2900, 0.45f, false, true, false),
+            THREE(4200, 0.45f, false, true, false);
 
             private final int liftTicks;
-            private final float servoPosition;
+            private final double servoPosition;
+            private final boolean rotateClawEarly;
             private final boolean openClaw;
             private final boolean forceStartOpen;
+            private final LiftPosition next;
 
-            Default(int liftTicks, float servoPosition, boolean openClaw, boolean forceStartOpen) {
+            Default(int liftTicks, float servoPosition, boolean rotateClawEarly, boolean openClaw,
+                    boolean forceStartOpen, LiftPosition next) {
                 this.liftTicks = liftTicks;
                 this.servoPosition = servoPosition;
+                this.rotateClawEarly = rotateClawEarly;
                 this.openClaw = openClaw;
                 this.forceStartOpen = forceStartOpen;
+                this.next = next;
+            }
+
+            Default(int liftTicks, float servoPosition, boolean rotateClawEarly, boolean openClaw,
+                    boolean forceStartOpen) {
+                this(liftTicks, servoPosition, rotateClawEarly, openClaw, forceStartOpen, null);
             }
 
             @Override
@@ -43,8 +58,13 @@ public class Lift extends SubsystemBase {
             }
 
             @Override
-            public float getServoPosition() {
+            public double getClawRotation() {
                 return servoPosition;
+            }
+
+            @Override
+            public boolean rotateClawEarly() {
+                return rotateClawEarly;
             }
 
             @Override
@@ -56,19 +76,34 @@ public class Lift extends SubsystemBase {
             public boolean shouldForceStartOpen() {
                 return forceStartOpen;
             }
+
+            @Override
+            public LiftPosition getNextLiftPosition() {
+                return next;
+            }
         }
 
         class Custom implements LiftPosition {
             private final int liftTicks;
-            private final float servoPosition;
+            private final double servoPosition;
+            private final boolean rotateClawEarly;
             private final boolean clawOpen;
             private final boolean forceStartOpen;
+            private final LiftPosition next;
 
-            public Custom(int liftTicks, float servoPosition, boolean clawOpen, boolean forceStartOpen) {
+            public Custom(int liftTicks, float servoPosition, boolean rotateClawEarly,
+                          boolean clawOpen, boolean forceStartOpen, LiftPosition next) {
                 this.liftTicks = liftTicks;
                 this.servoPosition = servoPosition;
                 this.clawOpen = clawOpen;
+                this.rotateClawEarly = rotateClawEarly;
                 this.forceStartOpen = forceStartOpen;
+                this.next = next;
+            }
+
+            public Custom(int liftTicks, float servoPosition, boolean rotateClawEarly,
+                          boolean clawOpen, boolean forceStartOpen) {
+                this(liftTicks, servoPosition, rotateClawEarly, clawOpen, forceStartOpen, null);
             }
 
             @Override
@@ -77,8 +112,13 @@ public class Lift extends SubsystemBase {
             }
 
             @Override
-            public float getServoPosition() {
+            public double getClawRotation() {
                 return servoPosition;
+            }
+
+            @Override
+            public boolean rotateClawEarly() {
+                return rotateClawEarly;
             }
 
             @Override
@@ -90,12 +130,18 @@ public class Lift extends SubsystemBase {
             public boolean shouldForceStartOpen() {
                 return forceStartOpen;
             }
+
+            @Override
+            public LiftPosition getNextLiftPosition() {
+                return next;
+            }
         }
     }
 
     public enum State {
         STARTING_MOVE(false, false, false),
         EARLY_RUN_CLAW(false, false, false),
+        EARLY_ROTATE_CLAW(false, false, false),
         RUNNING_LIFT(false, false, false),
         ROTATING_CLAW(true, false, false),
         RUNNING_CLAW(true, true, false),
@@ -124,12 +170,14 @@ public class Lift extends SubsystemBase {
         }
     }
 
-    public static double CLAW_OPEN_POSITION = 0.14;
+    public static double CLAW_OPEN_POSITION = 0.144;
     public static double CLAW_CLOSED_POSITION = 0.12;
     public static double LIFT_POWER = 1;
     public static double kP = 1e-2;
     public static double positionTolerence = 20;
     public static int positionLimit = 4200;
+    public static double clawRotateRunTimeP = 1000;
+    public static double clawOpenTime = 400;
 
     private final Motor liftMotor;
     private final Servo clawRotationServo, clawServo;
@@ -141,6 +189,9 @@ public class Lift extends SubsystemBase {
     private Motor.RunMode runMode = Motor.RunMode.PositionControl;
     private double lastKP = kP;
     private double lastPositionTolerence = positionTolerence;
+
+    private final ElapsedTime timer = new ElapsedTime();
+    private double calculatedRotationTime;
 
     public Lift(HardwareMap hardwareMap, GamepadEx toolGamepad, boolean debug) {
         this.toolGamepad = toolGamepad;
@@ -160,13 +211,13 @@ public class Lift extends SubsystemBase {
         liftMotor.setRunMode(Motor.RunMode.PositionControl);
         if (toolGamepad != null) {
             toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
-                    .whenPressed(() -> setPosition(LiftPosition.Default.DOWN));
+                    .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.DOWN));
             toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT)
-                    .whenPressed(() -> setPosition(LiftPosition.Default.ONE));
+                    .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.ONE));
             toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT)
-                    .whenPressed(() -> setPosition(LiftPosition.Default.TWO));
+                    .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.TWO));
             toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP)
-                    .whenPressed(() -> setPosition(LiftPosition.Default.THREE));
+                    .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.THREE));
         }
     }
 
@@ -221,27 +272,47 @@ public class Lift extends SubsystemBase {
         switch(state) {
             case STARTING_MOVE:
                 state = State.EARLY_RUN_CLAW;
-            case EARLY_RUN_CLAW:
-                if(position.shouldForceStartOpen() && clawServo.getPosition() != CLAW_OPEN_POSITION) {
+                if(position.shouldForceStartOpen() && !clawOpen) {
+                    timer.reset();
                     clawServo.setPosition(CLAW_OPEN_POSITION);
-                    clawOpen = true;
                 }
+            case EARLY_RUN_CLAW:
+                if(position.shouldForceStartOpen() && !clawOpen && timer.milliseconds() < clawOpenTime) break;
+                clawOpen = true;
+                state = State.EARLY_ROTATE_CLAW;
+                if(position.rotateClawEarly()) {
+                    double newPosition = position.getClawRotation();
+                    calculatedRotationTime = Math.abs(newPosition - clawRotationServo.getPosition()) * clawRotateRunTimeP;
+                    clawRotationServo.setPosition(newPosition);
+                    timer.reset();
+                }
+            case EARLY_ROTATE_CLAW:
+                if(position.rotateClawEarly() && timer.milliseconds() < calculatedRotationTime) break;
                 state = State.RUNNING_LIFT;
                 liftMotor.setTargetPosition(Math.max(0, Math.min(positionLimit, position.getLiftTicks())));
                 liftMotor.set(LIFT_POWER);
             case RUNNING_LIFT:
                 if(!liftMotor.atTargetPosition()) break;
                 state = State.ROTATING_CLAW;
-                clawRotationServo.setPosition(position.getServoPosition());
+                double newPosition = position.getClawRotation();
+                calculatedRotationTime = Math.abs(newPosition - clawRotationServo.getPosition()) * clawRotateRunTimeP;
+                clawRotationServo.setPosition(newPosition);
+                timer.reset();
             case ROTATING_CLAW:
                 liftMotor.set(0);
-                if(clawRotationServo.getPosition() != position.getServoPosition()) break;
+                if(timer.milliseconds() < calculatedRotationTime) break;
                 state = State.RUNNING_CLAW;
                 clawServo.setPosition(position.isClawOpen() ? CLAW_OPEN_POSITION : CLAW_CLOSED_POSITION);
+                timer.reset();
             case RUNNING_CLAW:
-                if(clawServo.getPosition() != (position.isClawOpen() ? CLAW_OPEN_POSITION : CLAW_CLOSED_POSITION)) break;
+                if(position.isClawOpen() != clawOpen && timer.milliseconds() < clawOpenTime) break;
                 clawOpen = position.isClawOpen();
                 state = State.AT_POSITION;
+            case AT_POSITION:
+                LiftPosition next = position.getNextLiftPosition();
+                if(next != null) {
+                    setPosition(next);
+                }
         }
     }
 
@@ -258,6 +329,10 @@ public class Lift extends SubsystemBase {
     public void setPosition(LiftPosition position) {
         this.position = position;
         this.state = State.STARTING_MOVE;
+    }
+
+    public LiftPosition getPosition() {
+        return position;
     }
 
     public void setAutomatic(boolean automatic) {

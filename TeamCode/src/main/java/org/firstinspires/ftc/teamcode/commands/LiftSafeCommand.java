@@ -1,19 +1,23 @@
 package org.firstinspires.ftc.teamcode.commands;
 
-import com.arcrobotics.ftclib.command.Command;
-import com.arcrobotics.ftclib.command.Subsystem;
-
 import org.firstinspires.ftc.teamcode.tool.Intake;
 import org.firstinspires.ftc.teamcode.tool.Lift;
 
-import java.util.Set;
-
-public class LiftSafeCommand implements Command {
+public class LiftSafeCommand extends LiftGoToPositionCommand {
+    private final Intake intake;
     public LiftSafeCommand(Intake intake, Lift lift) {
+        super(lift, Lift.LiftPosition.Default.SAFE);
+        this.intake = intake;
+        this.lift = lift;
     }
 
     @Override
-    public Set<Subsystem> getRequirements() {
-        return null;
+    public void end(boolean interrupted) {
+        lift.setPosition(Lift.LiftPosition.Default.DOWN);
+    }
+
+    @Override
+    public boolean isFinished() {
+        return !intake.getOn() || !intake.getState();
     }
 }

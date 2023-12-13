@@ -22,6 +22,7 @@ public class LiftPositionFromConfig extends LinearOpMode {
     public static class LiftPositionConfig {
         public static int liftTicks;
         public static double servoPosition;
+        public static boolean rotateClawEarly;
         public static boolean clawOpen = true;
         public static boolean forceStartOpen;
 
@@ -30,7 +31,7 @@ public class LiftPositionFromConfig extends LinearOpMode {
 
 
         public static Lift.LiftPosition.Custom getCustomLiftPosition() {
-            return new Lift.LiftPosition.Custom(liftTicks, (float)servoPosition, clawOpen, forceStartOpen);
+            return new Lift.LiftPosition.Custom(liftTicks, (float)servoPosition, rotateClawEarly, clawOpen, forceStartOpen);
         }
 
         public static boolean changeDetected() {
