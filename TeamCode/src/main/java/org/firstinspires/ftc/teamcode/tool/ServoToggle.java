@@ -41,7 +41,7 @@ public class ServoToggle {
         return !currState;
     }
 
-    public boolean getState(boolean state) {
+    public boolean getState() {
         return currState;
     }
 }

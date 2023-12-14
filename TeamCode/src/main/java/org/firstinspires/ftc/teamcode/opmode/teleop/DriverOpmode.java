@@ -38,7 +38,7 @@ public class DriverOpmode extends CommandOpMode {
         drive = new SwerveDriveSubsystem(hardwareMap, telemetry, true,
                 () -> driver1.getButton(GamepadKeys.Button.B));
         lift = new Lift(hardwareMap, driver2);
-        droneLauncher = new DroneLauncher(hardwareMap, () -> driver2.getButton(GamepadKeys.Button.Y));
+        droneLauncher = new DroneLauncher(hardwareMap, () -> driver1.getButton(GamepadKeys.Button.BACK));
         intake = new Intake(hardwareMap);
         Servo lifter = hardwareMap.get(Servo.class, "lifter");
         lifter.setPosition(.2);
@@ -60,7 +60,7 @@ public class DriverOpmode extends CommandOpMode {
         });
 
         // register unregistered subsystems
-        register(drive, lift, intake);
+        register(drive, lift, intake, droneLauncher);
 //        register(droneLauncher);
     }
 }
