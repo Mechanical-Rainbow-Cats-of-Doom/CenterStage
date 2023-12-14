@@ -32,6 +32,8 @@ public class PropPipelineTest extends LinearOpMode {
                 telemetry.addData("Last Result", lastResult);
                 telemetry.addLine();
             }
+            telemetry.addData("Last Volatile Result", detector.getHighlightSelectionZonePipeline().getLastResult());
+            telemetry.addData("Last Volatile Confidence", detector.getHighlightSelectionZonePipeline().getLastConfidence());
             telemetry.addLine("Press A to run detector.");
             telemetry.update();
         }

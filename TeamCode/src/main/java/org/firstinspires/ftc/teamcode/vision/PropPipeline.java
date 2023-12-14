@@ -16,10 +16,10 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 @Config
 public class PropPipeline extends OpenCvPipeline {
-    public static double TIMES_TO_RUN_WIHTOUT_VALID = 10;
+    public static double TIMES_TO_RUN_WITHOUT_VALID = 10;
     public static double TIMES_TO_RUN_WITH_VALID = 3;
-    public static double RED_COMPONENT_THRESHOLD = 125;
-    public static double BLUE_COMPONENT_THRESHOLD = 125;
+    public static double RED_CONFIDENCE_THRESHOLD = 0.6;
+    public static double BLUE_CONFIDENCE_THRESHOLD = 0.6;
 
     public interface PropPipelineRectsProvider {
         Rect[] rects();
@@ -27,15 +27,18 @@ public class PropPipeline extends OpenCvPipeline {
 
     @Config
     public static class PropPipelineDashboardConfig implements PropPipelineRectsProvider {
-        public static double x1, y1, width1, height1;
-        public static double x2, y2, width2, height2;
-
-        public static double x3, y3, width3, height3;
+        public static double x1, y1, width1 = .2, height1 = .2;
+        public static double x2 = .2, y2, width2 = .2, height2 = .2;
+        public boolean hasThirdRectangle = false;
+        public static double x3 = .4, y3, width3 = .2, height3 = .2;
         public Rect[] rects() {
-            return new Rect[] {
+            return (hasThirdRectangle) ? new Rect[] {
                     createRectDecimal(x1, y1, width1, height1),
                     createRectDecimal(x2, y2, width2, height2),
                     createRectDecimal(x3, y3, width3, height3),
+            } : new Rect[] {
+                    createRectDecimal(x1, y1, width1, height1),
+                    createRectDecimal(x2, y2, width2, height2),
             };
         }
 
@@ -102,7 +105,7 @@ public class PropPipeline extends OpenCvPipeline {
                 greatestConfidence = curRun;
             }
 
-            if (++totalTimesRan >= (greatestConfidence.first == -1 ? TIMES_TO_RUN_WIHTOUT_VALID : TIMES_TO_RUN_WITH_VALID)) {
+            if (++totalTimesRan >= (greatestConfidence.first == -1 ? TIMES_TO_RUN_WITHOUT_VALID : TIMES_TO_RUN_WITH_VALID)) {
                 queue.offer(greatestConfidence.first);
                 running = false;
             }
@@ -112,7 +115,7 @@ public class PropPipeline extends OpenCvPipeline {
 
     @NonNull
     @Contract("_, _, _ -> new")
-    public static Pair<Integer, Double> findPositionWithConfidence(Mat input, @NonNull Rect[] rects, boolean isRed) {
+    public static Pair<Integer, Double> findPositionWithConfidence(@NonNull Mat input, @NonNull Rect[] rects, boolean isRed) {
         int pos = 0;
         double confidence = 0;
         Mat componentMat = new Mat(), nonComponentMat = new Mat(), greenMat = new Mat();
@@ -125,7 +128,7 @@ public class PropPipeline extends OpenCvPipeline {
             final double green = Core.mean(greenMat.submat(rects[i])).val[0];
             final double totalConfidence = component / (component + noncomponent + green);
 
-            if (component >= (isRed ? RED_COMPONENT_THRESHOLD : BLUE_COMPONENT_THRESHOLD) && totalConfidence > confidence) {
+            if (totalConfidence >= (isRed ? RED_CONFIDENCE_THRESHOLD : BLUE_CONFIDENCE_THRESHOLD) && totalConfidence > confidence) {
                 pos = i;
                 confidence = totalConfidence;
             }

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.vision;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -12,6 +13,7 @@ import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class PropDetector {
     private final OpenCvCamera camera;
@@ -20,6 +22,8 @@ public class PropDetector {
     public static OpenCvCameraRotation ORIENTATION = OpenCvCameraRotation.UPSIDE_DOWN;
     private final ArrayBlockingQueue<Integer> visionVals = new ArrayBlockingQueue<>(1);
     private final PropPipeline.PropPipelineRectsProvider rects;
+    private HighlightSelectionZonePipeline highlightSelectionZonePipeline;
+
     public PropDetector(@NonNull HardwareMap hMap, String webcamName, boolean debug, boolean isRed,
                         PropPipeline.PropPipelineRectsProvider rects) {
         this.isRed = isRed;
@@ -32,7 +36,8 @@ public class PropDetector {
                 .getIdentifier("cameraMonitorViewId", "id", hMap.appContext.getPackageName());
 
         camera = cameraFactory.createWebcam(hMap.get(WebcamName.class, webcamName), cameraMonitorViewId); //for configurating remove isred from here
-        camera.setPipeline(new HighlightSelectionZonePipeline(isRed, rects));
+        highlightSelectionZonePipeline = new HighlightSelectionZonePipeline(isRed, rects);
+        camera.setPipeline(highlightSelectionZonePipeline);
         camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
@@ -63,11 +68,11 @@ public class PropDetector {
         while(visionVals.peek() == null) {
             runnable.run();
         }
-        final int output = visionVals.take();
+        int output = visionVals.take();
         if (output == -1) {
-            System.out.println("something fucked up real bad, vision didn't return val 🐶🐱");
-            return new Random().nextInt(3);
-        } else return output;
+            output = rects.rects().length;
+        }
+        return output;
     }
 
     /**
@@ -81,7 +86,11 @@ public class PropDetector {
     }
 
     public void reset() {
-        camera.setPipeline(new HighlightSelectionZonePipeline(isRed, rects));
+        highlightSelectionZonePipeline = new HighlightSelectionZonePipeline(isRed, rects);
+        camera.setPipeline(highlightSelectionZonePipeline);
     }
 
+    public HighlightSelectionZonePipeline getHighlightSelectionZonePipeline() {
+        return highlightSelectionZonePipeline;
+    }
 }
