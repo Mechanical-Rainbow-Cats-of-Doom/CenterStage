@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmode.auto;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
@@ -21,7 +22,20 @@ import org.opencv.core.Rect;
  * All units are in arbitrary ticks
  */
 @Autonomous
+@Config
 public class stinkyBackup extends LinearOpMode {
+    public static int r1X = 0;
+    public static int r1Y = 0;
+    public static int r1H = 0;
+    public static int r1W = 0;
+    public static int r2X = 0;
+    public static int r2Y = 0;
+    public static int r2H = 0;
+    public static int r2W = 0;
+    public static int r3X = 0;
+    public static int r3Y = 0;
+    public static int r3H = 0;
+    public static int r3W = 0;
     @Override
     public void runOpMode() throws InterruptedException {
         MultipleTelemetry telemetry = new MultipleTelemetry(super.telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -43,11 +57,7 @@ public class stinkyBackup extends LinearOpMode {
 
         // fin vision here
         PropDetector detector = new PropDetector(hardwareMap, "webcam", true,
-                true, new PropPipeline.BasicPropPipelineRects(
-                        new Rect(),
-                        new Rect(),
-                        new Rect()
-            )
+                true, new PropPipeline.PropPipelineDashboardConfig()
         );
         int result = -1;
         float startTime = System.currentTimeMillis() / 1000f;

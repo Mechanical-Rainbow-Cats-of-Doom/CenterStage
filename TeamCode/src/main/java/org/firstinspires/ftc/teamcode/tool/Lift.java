@@ -178,7 +178,7 @@ public class Lift extends SubsystemBase {
     public static int positionLimit = 4200;
     public static double clawRotateRunTimeP = 1000;
     public static double clawOpenTime = 400;
-
+    private static double clawManualSpeed = 50;
     private final Motor liftMotor;
     private final Servo clawRotationServo, clawServo;
     private final GamepadEx toolGamepad;
@@ -193,7 +193,11 @@ public class Lift extends SubsystemBase {
     private final ElapsedTime timer = new ElapsedTime();
     private double calculatedRotationTime;
 
-    public Lift(HardwareMap hardwareMap, GamepadEx toolGamepad, boolean debug) {
+    private double lastClawRotation = -1;
+
+    private boolean isTeleOp;
+
+    public Lift(HardwareMap hardwareMap, GamepadEx toolGamepad, boolean debug, boolean teleOp) {
         this.toolGamepad = toolGamepad;
         if(debug) {
             liftMotor = new DebugMotor(hardwareMap, "lift1", Motor.GoBILDA.RPM_223);
@@ -219,6 +223,12 @@ public class Lift extends SubsystemBase {
             toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP)
                     .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.THREE));
         }
+
+        this.isTeleOp = teleOp;
+    }
+
+    public Lift(HardwareMap hardwareMap, GamepadEx toolGamepad, boolean debug) {
+        this(hardwareMap, toolGamepad, debug, true);
     }
 
     public Lift(HardwareMap hardwareMap, boolean debug) {
@@ -249,11 +259,14 @@ public class Lift extends SubsystemBase {
                 runMode = Motor.RunMode.RawPower;
             }
             liftMotor.set(toolGamepad.getLeftY() * LIFT_POWER);
+            lastClawRotation = clawRotationServo.getPosition();
+            clawRotationServo.setPosition(clawRotationServo.getPosition() + (((LiftPosition.Default.ONE.servoPosition - LiftPosition.Default.DOWN.servoPosition) / clawManualSpeed) * toolGamepad.getRightY()));
             return;
         }
         if(runMode != Motor.RunMode.PositionControl) {
             liftMotor.setRunMode(Motor.RunMode.PositionControl);
             runMode = Motor.RunMode.PositionControl;
+            clawRotationServo.setPosition(lastClawRotation);
         }
 
         if(position == null) {
@@ -299,6 +312,9 @@ public class Lift extends SubsystemBase {
                 clawRotationServo.setPosition(newPosition);
                 timer.reset();
             case ROTATING_CLAW:
+                if (position.isClawOpen() && isTeleOp && !toolGamepad.isDown(GamepadKeys.Button.Y)) { // wait until confirmed with y
+                    break;
+                }
                 liftMotor.set(0);
                 if(timer.milliseconds() < calculatedRotationTime) break;
                 state = State.RUNNING_CLAW;

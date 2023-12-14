@@ -14,7 +14,13 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.concurrent.ArrayBlockingQueue;
 
+@Config
 public class PropPipeline extends OpenCvPipeline {
+    public static double TIMES_TO_RUN_WIHTOUT_VALID = 10;
+    public static double TIMES_TO_RUN_WITH_VALID = 3;
+    public static double RED_COMPONENT_THRESHOLD = 125;
+    public static double BLUE_COMPONENT_THRESHOLD = 125;
+
     public interface PropPipelineRectsProvider {
         Rect[] rects();
     }
@@ -95,8 +101,8 @@ public class PropPipeline extends OpenCvPipeline {
             if (curRun.second > greatestConfidence.second) {
                 greatestConfidence = curRun;
             }
-            totalTimesRan++;
-            if (totalTimesRan >= 3) {
+
+            if (++totalTimesRan >= (greatestConfidence.first == -1 ? TIMES_TO_RUN_WIHTOUT_VALID : TIMES_TO_RUN_WITH_VALID)) {
                 queue.offer(greatestConfidence.first);
                 running = false;
             }
@@ -119,7 +125,7 @@ public class PropPipeline extends OpenCvPipeline {
             final double green = Core.mean(greenMat.submat(rects[i])).val[0];
             final double totalConfidence = component / (component + noncomponent + green);
 
-            if(totalConfidence > confidence) {
+            if (component >= (isRed ? RED_COMPONENT_THRESHOLD : BLUE_COMPONENT_THRESHOLD) && totalConfidence > confidence) {
                 pos = i;
                 confidence = totalConfidence;
             }
