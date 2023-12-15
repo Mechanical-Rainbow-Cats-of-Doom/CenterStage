@@ -45,7 +45,7 @@ public class LiftPositionFromConfig extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         CommandScheduler.getInstance().reset();
         GamepadEx driver2 = new GamepadEx(gamepad2);
-        Lift lift = new Lift(hardwareMap, driver2, true);
+        Lift lift = new Lift(hardwareMap, driver2, true, false);
         telemetry = new MultipleTelemetry(super.telemetry, FtcDashboard.getInstance().getTelemetry());
         waitForStart();
         long lastPositionTime = System.currentTimeMillis();
