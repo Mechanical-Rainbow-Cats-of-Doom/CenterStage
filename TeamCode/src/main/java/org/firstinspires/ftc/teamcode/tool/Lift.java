@@ -25,7 +25,7 @@ public class Lift extends SubsystemBase {
 
         enum Default implements LiftPosition {
             DOWN(0, 0.115f, true, false, true),
-            SAFE(500, 0.115f, false, true, false),
+            SAFE(500, 0.115f, true, true, true),
             ONE(1750, 0.45f, false, true, false),
             TWO(3000, 0.45f, false, true, false),
             THREE(4300, 0.45f, false, true, false);

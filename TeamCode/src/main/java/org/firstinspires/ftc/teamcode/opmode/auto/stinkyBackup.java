@@ -16,7 +16,6 @@ import org.firstinspires.ftc.teamcode.common.hardware.AbsoluteAnalogEncoder;
 import org.firstinspires.ftc.teamcode.tool.Intake;
 import org.firstinspires.ftc.teamcode.vision.PropDetector;
 import org.firstinspires.ftc.teamcode.vision.PropPipeline;
-import org.opencv.core.Rect;
 
 /**
  * All units are in arbitrary ticks
@@ -57,7 +56,7 @@ public class stinkyBackup extends LinearOpMode {
 
         // fin vision here
         PropDetector detector = new PropDetector(hardwareMap, "webcam", true,
-                true, new PropPipeline.PropPipelineDashboardConfig()
+                true, new PropPipeline.PropPipelineRectsProvider.PropPipelineDashboardConfig()
         );
         int result = -1;
         float startTime = System.currentTimeMillis() / 1000f;

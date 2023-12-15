@@ -14,7 +14,7 @@ public class RedPropPipelineTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         MultipleTelemetry telemetry = new MultipleTelemetry(super.telemetry, FtcDashboard.getInstance().getTelemetry());
         PropDetector detector = new PropDetector(hardwareMap, "webcam", true,
-                true, new PropPipeline.PropPipelineDashboardConfig());
+                true, new PropPipeline.PropPipelineRectsProvider.PropPipelineDashboardConfig());
         int lastResult = -1;
         while(!isStopRequested()) {
             if(gamepad1.a) {
