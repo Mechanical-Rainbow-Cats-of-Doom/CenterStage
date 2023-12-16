@@ -19,22 +19,32 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.common.hardware.AbsoluteAnalogEncoder;
 
+import java.util.HashMap;
+import java.util.function.BooleanSupplier;
+
 @Config
 public class SwerveModule {
     public enum Wheel {
-        FRONT_LEFT(true),
-        FRONT_RIGHT(false),
-        BACK_LEFT(false),
-        BACK_RIGHT(false);
+        FRONT_LEFT(true, 2.7),
+        FRONT_RIGHT(false, 2.6),
+        BACK_LEFT(false, 2.6),
+        BACK_RIGHT(false, 2.6);
 
         public final boolean inverted;
+        public final double presetOffset;
 
-        Wheel(boolean inverted) {
+        Wheel(boolean inverted, double presetOffset) {
             this.inverted = inverted;
+            this.presetOffset = presetOffset;
         }
     }
 
-
+    public static HashMap<Wheel, Integer> wheelAutoPositionMap = new HashMap<Wheel, Integer>(){{
+        put(Wheel.FRONT_LEFT, 0); // avoiding exceptions by initializing with zero
+        put(Wheel.FRONT_RIGHT, 0);
+        put(Wheel.BACK_LEFT, 0);
+        put(Wheel.BACK_RIGHT, 0);
+    }};
     public static double FLIP_GAP = 1.1;
     public static double WHEEL_PULL = 0;
     public static boolean PULL_PROPORTIONAL = false;
@@ -57,7 +67,7 @@ public class SwerveModule {
     private final CRServo servo;
     private final AbsoluteAnalogEncoder encoder;
     private final PIDFController rotationController;
-    private final double dynamicTickOffset;
+    private double dynamicTickOffset;
 
     private double lastMotorPower = 0;
     private double lastRotationTarget = 0D;
@@ -68,8 +78,9 @@ public class SwerveModule {
     private boolean flip = false;
     private double error = 0;
     private double motorMultiplier = 1;
+    private BooleanSupplier presetOffsetToggle;
 
-    public SwerveModule(HardwareMap hMap, String motorName, CRServo s, AbsoluteAnalogEncoder e, Wheel wheel) {
+    public SwerveModule(HardwareMap hMap, String motorName, CRServo s, AbsoluteAnalogEncoder e, Wheel wheel, BooleanSupplier presetOffsetToggle) {
         motor = new MotorEx(hMap, motorName, Motor.GoBILDA.BARE);
         motor.setRunMode(Motor.RunMode.VelocityControl);
         motor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
@@ -82,12 +93,17 @@ public class SwerveModule {
         rotationController = new PIDFController(-1,-1,-1, 0);
         this.wheel = wheel;
 
-        dynamicTickOffset = getServoEncoderOutput();
+        try {
+            dynamicTickOffset = wheelAutoPositionMap.get(this.wheel);
+        } catch (Exception ex) {
+            dynamicTickOffset = getServoEncoderOutput();
+        }
+        this.presetOffsetToggle = presetOffsetToggle;
     }
 
-    public SwerveModule(@NonNull HardwareMap hardwareMap, String motorName, String servoName, String encoderName, Wheel wheel) {
+    public SwerveModule(@NonNull HardwareMap hardwareMap, String motorName, String servoName, String encoderName, Wheel wheel, BooleanSupplier presetOffsetToggle) {
         this(hardwareMap, motorName, hardwareMap.get(CRServo.class, servoName),
-                new AbsoluteAnalogEncoder(hardwareMap.get(AnalogInput.class, encoderName)), wheel);
+                new AbsoluteAnalogEncoder(hardwareMap.get(AnalogInput.class, encoderName)), wheel, presetOffsetToggle);
     }
 
     protected double getServoEncoderOutput() {

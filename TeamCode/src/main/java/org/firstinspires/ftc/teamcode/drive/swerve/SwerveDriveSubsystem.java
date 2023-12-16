@@ -46,7 +46,8 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
 
     private boolean driveAsPercentage;
     private boolean fieldRelative;
-
+    private boolean presetOffset = false;
+    
     private static void fillPIDConstants() {
         SwerveDriveSubsystem.pidConstants = new double[][] {{flP, flI, flD, flMult}, {frP, frI, frD, frMult}, {blP, blI, blD, blMult}, {brP, brI, brD, brMult}};
     }
@@ -65,10 +66,11 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
      *                          likely want to use true for driver controlled and false for auto
      */
     public SwerveDriveSubsystem(final HardwareMap hMap, final Telemetry telemetry, final boolean driveAsPercentage, final BooleanSupplier fieldRelativeButton) {
-        final SwerveModule frontL = new SwerveModule(hMap,"frontLeftMotor", "frontLeftServo", "frontLeftEncoder", SwerveModule.Wheel.FRONT_LEFT);
-        final SwerveModule frontR = new SwerveModule(hMap,"frontRightMotor", "frontRightServo", "frontRightEncoder", SwerveModule.Wheel.FRONT_RIGHT);
-        final SwerveModule backL = new SwerveModule(hMap,"backLeftMotor", "backLeftServo", "backLeftEncoder", SwerveModule.Wheel.BACK_LEFT);
-        final SwerveModule backR = new SwerveModule(hMap,"backRightMotor", "backRightServo", "backRightEncoder", SwerveModule.Wheel.BACK_RIGHT);
+        final BooleanSupplier presetOffsetToggle = () -> presetOffset;
+        final SwerveModule frontL = new SwerveModule(hMap,"frontLeftMotor", "frontLeftServo", "frontLeftEncoder", SwerveModule.Wheel.FRONT_LEFT, presetOffsetToggle);
+        final SwerveModule frontR = new SwerveModule(hMap,"frontRightMotor", "frontRightServo", "frontRightEncoder", SwerveModule.Wheel.FRONT_RIGHT, presetOffsetToggle);
+        final SwerveModule backL = new SwerveModule(hMap,"backLeftMotor", "backLeftServo", "backLeftEncoder", SwerveModule.Wheel.BACK_LEFT, presetOffsetToggle);
+        final SwerveModule backR = new SwerveModule(hMap,"backRightMotor", "backRightServo", "backRightEncoder", SwerveModule.Wheel.BACK_RIGHT, presetOffsetToggle);
         this.swerveModules = new SwerveModule[] {frontL, frontR, backL, backR};
         this.imu = hMap.get(IMU.class, "imu");
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
@@ -80,6 +82,10 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
         this.driveAsPercentage = driveAsPercentage;
         this.fieldRelativeReader = new ToggleButtonReader(fieldRelativeButton);
         fillPIDConstants();
+    }
+
+    public void setUsePresetOffset(boolean usePresetOffset) {
+        this.presetOffset = usePresetOffset;
     }
 
     //THIS METHOD BAD

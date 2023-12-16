@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmode.auto;
 
+import android.util.Pair;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -13,6 +15,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.common.hardware.AbsoluteAnalogEncoder;
+import org.firstinspires.ftc.teamcode.drive.swerve.SwerveModule;
 import org.firstinspires.ftc.teamcode.tool.Intake;
 import org.firstinspires.ftc.teamcode.vision.PropDetector;
 import org.firstinspires.ftc.teamcode.vision.PropPipeline;
@@ -30,16 +33,16 @@ public class stinkyBackup extends LinearOpMode {
         ElapsedTime timer = new ElapsedTime();
 
         backRight = new pod("backRightMotor", "backRightServo", "backRightEncoder",
-                false, 1, turnStrength);
+                false, 1, turnStrength, SwerveModule.Wheel.BACK_RIGHT);
         backLeft =
                 new pod("backLeftMotor", "backLeftServo", "backLeftEncoder",
-                        false, 1, turnStrength);
+                        false, 1, turnStrength, SwerveModule.Wheel.BACK_LEFT);
         frontRight =
                 new pod("frontRightMotor", "frontRightServo", "frontRightEncoder",
-                        false, 1, turnStrength);
+                        false, 1, turnStrength, SwerveModule.Wheel.FRONT_RIGHT);
         frontLeft =
                 new pod("frontLeftMotor", "frontLeftServo", "frontLeftEncoder",
-                        true, 1, turnStrength);
+                        true, 1, turnStrength, SwerveModule.Wheel.FRONT_LEFT);
 
 //        intake = new DcMotorEx
 
@@ -186,7 +189,8 @@ public class stinkyBackup extends LinearOpMode {
         MotorEx wheel;
         CRServo servo;
         AbsoluteAnalogEncoder encoder;
-        pod(String motorName, String servoName, String encoderName, boolean inverted, double multiplier, double turnStrength) {
+        SwerveModule.Wheel whichWheel;
+        pod(String motorName, String servoName, String encoderName, boolean inverted, double multiplier, double turnStrength, SwerveModule.Wheel whichWheel) {
             wheel = new MotorEx(hardwareMap, motorName, Motor.GoBILDA.BARE);
             wheel.setRunMode(Motor.RunMode.VelocityControl);
             wheel.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
@@ -197,6 +201,7 @@ public class stinkyBackup extends LinearOpMode {
             tickOffset = wheel.getCurrentPosition();
             initialServoPosition = encoder.getCurrentPosition();
             this.turnStrength = turnStrength;
+            this.whichWheel = whichWheel;
         }
         public double getServoPosition() {
             return encoder.getCurrentPosition();

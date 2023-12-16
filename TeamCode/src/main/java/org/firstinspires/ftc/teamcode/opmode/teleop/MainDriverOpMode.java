@@ -44,7 +44,7 @@ public class MainDriverOpMode extends CommandOpMode {
         lifter.setPosition(.2);
 
         // schedule all commands
-        schedule(new ControllerDriveCommand(drive, driver1));
+        schedule(new ControllerDriveCommand(drive, driver1, () -> driver1.getButton(GamepadKeys.Button.Y)));
         schedule(new PrepareSafeCommand(intake, lift));
         CommandBase toggleForward = new SetIntakeCommands.SetIntakeForward(intake);
         CommandBase toggleBackward = new SetIntakeCommands.SetIntakeBackward(intake);
