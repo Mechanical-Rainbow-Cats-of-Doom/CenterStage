@@ -110,7 +110,7 @@ public class SwerveModule {
             error = normalizeRadians(outputTarget - current);
         }
         final double power = Range.clip(rotationController.calculate(0, error), -MAX_SERVO, MAX_SERVO);
-        servo.setPower(Double.isNaN(power) ? 0 : (Math.abs(error) > ERROR_CUTOFF) ? power + (Math.signum(power) * K_STATIC) : WHEEL_PULL * (PULL_PROPORTIONAL ? motor.getCorrectedVelocity() * WHEEL_PULL_PROPORTIONALITY : 1));
+        servo.setPower(Double.isNaN(power) ? 0 : power /*(Math.abs(error) > ERROR_CUTOFF) ? power + (Math.signum(power) * K_STATIC) : WHEEL_PULL * (PULL_PROPORTIONAL ? motor.getCorrectedVelocity() * WHEEL_PULL_PROPORTIONALITY : 1)*/);
         lastRotationTarget = outputTarget;
         updateMotor();
     }

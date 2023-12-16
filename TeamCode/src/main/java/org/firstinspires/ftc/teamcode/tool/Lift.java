@@ -26,10 +26,10 @@ public class Lift extends SubsystemBase {
         enum Default implements LiftPosition {
             DOWN(0, 0.115f, true, false, true),
             DOWN_DONT_DROP(0, 0.115f, true, false, false),
-            SAFE(500, 0.115f, true, true, true),
-            ONE(1750, 0.45f, false, true, false),
-            TWO(3000, 0.45f, false, true, false),
-            THREE(4300, 0.45f, false, true, false);
+            SAFE(953, 0.115f, true, true, true),
+            ONE(3335, 0.45f, false, true, false),
+            TWO(5718, 0.45f, false, true, false),
+            THREE(8196, 0.45f, false, true, false);
 
             private final int liftTicks;
             private final double servoPosition;
@@ -176,7 +176,7 @@ public class Lift extends SubsystemBase {
     public static double LIFT_POWER = 1;
     public static double kP = 1.2e-2;
     public static double positionTolerence = 20;
-    public static int positionLimit = 4300;
+    public static int positionLimit = 8196;
     public static double clawRotateRunTimeP = 1000;
     public static double clawOpenTime = 400;
     private static double clawManualSpeed = 50;
@@ -199,11 +199,13 @@ public class Lift extends SubsystemBase {
     private final boolean isTeleOp;
 
     public Lift(HardwareMap hardwareMap, GamepadEx toolGamepad, boolean debug, boolean teleOp) {
+        final Motor.GoBILDA motorType = Motor.GoBILDA.RPM_117;
+        final String id = "lift1";
         this.toolGamepad = toolGamepad;
         if(debug) {
-            liftMotor = new DebugMotor(hardwareMap, "lift1", Motor.GoBILDA.RPM_223);
+            liftMotor = new DebugMotor(hardwareMap, id, motorType);
         } else {
-            liftMotor = new Motor(hardwareMap, "lift1", Motor.GoBILDA.RPM_223);
+            liftMotor = new Motor(hardwareMap, id, motorType);
         }
         liftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         liftMotor.setInverted(true);
