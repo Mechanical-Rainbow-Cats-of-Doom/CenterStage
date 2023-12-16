@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.drive.pathplanning.PathPlanner;
 
 @Config
 public class DriveController<planner extends PathPlanner, holonomicChassis extends HolonomicDrive & Subsystem> {
+    // this should be interface, remember?
     public planner pathPlanner;
     public holonomicChassis chassis;
     // TODO: add a generic for localization, there is 3 wheel, 2 wheel + imu, vision, and more options

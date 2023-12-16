@@ -35,7 +35,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
 
     public static boolean DEBUG = false;
 
-    public static double flMult = .945, frMult = 1, blMult = .94, brMult = .95;
+    public static double flMult = 1, frMult = 1, blMult = 1, brMult = 1;
 
     public static double flP = 1, flI = 0, flD = 0.1, frP = 1, frI = 0, frD = 0.1, blP = 1, blI = 0, blD = 0.1, brP = 1, brI = 0, brD = 0.1;
     private static double[][] pidConstants;

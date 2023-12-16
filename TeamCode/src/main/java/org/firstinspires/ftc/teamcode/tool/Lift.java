@@ -25,6 +25,7 @@ public class Lift extends SubsystemBase {
 
         enum Default implements LiftPosition {
             DOWN(0, 0.115f, true, false, true),
+            DOWN_DONT_DROP(0, 0.115f, true, false, false),
             SAFE(500, 0.115f, true, true, true),
             ONE(1750, 0.45f, false, true, false),
             TWO(3000, 0.45f, false, true, false),
@@ -222,6 +223,8 @@ public class Lift extends SubsystemBase {
                     .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.TWO));
             toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP)
                     .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.THREE));
+            toolGamepad.getGamepadButton(GamepadKeys.Button.X)
+                    .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.DOWN_DONT_DROP));
         }
 
         this.isTeleOp = teleOp;

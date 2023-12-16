@@ -11,7 +11,7 @@ import java.util.function.BooleanSupplier;
 
 @Config
 public class DroneLauncher extends SubsystemBase {
-    public static double HELD_POS = 0.65D, LAUNCHED_POS = 0.74D;
+    public static double HELD_POS = 0.59D, LAUNCHED_POS = 0.7D;
     public static double WAIT_TIME = 1;
     private final ServoToggle rubberBandHolder;
     private final ButtonReader reader;

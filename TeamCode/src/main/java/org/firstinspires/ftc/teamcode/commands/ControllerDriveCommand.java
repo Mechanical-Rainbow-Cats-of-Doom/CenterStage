@@ -18,6 +18,6 @@ public class ControllerDriveCommand extends CommandBase {
 
     @Override
     public void execute() {
-        drive.setTargetVelocity(new ChassisSpeeds(driveGamepad.getLeftY(), driveGamepad.getLeftX(), driveGamepad.getRightY()));
+        drive.setTargetVelocity(new ChassisSpeeds(driveGamepad.getLeftY(), driveGamepad.getLeftX(), driveGamepad.getRightX()));
     }
 }
