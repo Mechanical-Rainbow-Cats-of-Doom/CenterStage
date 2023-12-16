@@ -18,7 +18,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 public class PropPipeline extends OpenCvPipeline {
     public static double TIMES_TO_RUN_WITHOUT_VALID = 5;
     public static double TIMES_TO_RUN_WITH_VALID = 3;
-    public static double RED_CONFIDENCE_THRESHOLD = 0.45;
+    public static double RED_CONFIDENCE_THRESHOLD = 0.4;
     public static double BLUE_CONFIDENCE_THRESHOLD = 0.4;
 
     public interface PropPipelineRectsProvider {
@@ -27,8 +27,8 @@ public class PropPipeline extends OpenCvPipeline {
         enum Default implements PropPipelineRectsProvider {
             RED_BOARD_SIDE(createRectDecimal(0.33, 0.84, 0.15, 0.1),
                     createRectDecimal(0.84, 0.45, 0.15, 0.1)),
-            RED_AUDIENCE_SIDE(createRectDecimal(0.04, 0.45, 0.15, 0.1),
-                    createRectDecimal(0.6, 0.45, 0.15, 0.1)),
+            RED_AUDIENCE_SIDE(createRectDecimal(0, 0.18, 0.12, 0.2),
+                    createRectDecimal(0.47, 0.14, 0.15, 0.1)),
             BLUE_BOARD_SIDE(createRectDecimal(0, 0.15, 0.08, 0.14),
                     createRectDecimal(0.45, 0.15, 0.15, 0.1)),
             BLUE_AUDIENCE_SIDE(createRectDecimal(0.36, 0.14, 0.15, 0.1),
@@ -52,7 +52,7 @@ public class PropPipeline extends OpenCvPipeline {
             public static double x2 = .2, y2, width2 = .2, height2 = .2;
             public boolean hasThirdRectangle = false;
             public static double x3 = .4, y3, width3 = .2, height3 = .2;
-            public static String defaultName;
+            public static String defaultName = "";
             public Rect[] rects() {
                 try {
                     Default defaultObject = Default.valueOf(defaultName);
