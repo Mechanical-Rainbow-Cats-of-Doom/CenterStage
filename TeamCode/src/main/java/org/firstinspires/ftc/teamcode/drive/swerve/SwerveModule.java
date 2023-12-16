@@ -39,11 +39,11 @@ public class SwerveModule {
         }
     }
 
-    public static HashMap<Wheel, Integer> wheelAutoPositionMap = new HashMap<Wheel, Integer>(){{
-        put(Wheel.FRONT_LEFT, 0); // avoiding exceptions by initializing with zero
-        put(Wheel.FRONT_RIGHT, 0);
-        put(Wheel.BACK_LEFT, 0);
-        put(Wheel.BACK_RIGHT, 0);
+    public static HashMap<Wheel, Double> wheelAutoPositionMap = new HashMap<Wheel, Double>(){{
+        put(Wheel.FRONT_LEFT, 0D); // avoiding exceptions by initializing with zero
+        put(Wheel.FRONT_RIGHT, 0D);
+        put(Wheel.BACK_LEFT, 0D);
+        put(Wheel.BACK_RIGHT, 0D);
     }};
     public static double FLIP_GAP = 1.1;
     public static double WHEEL_PULL = 0;

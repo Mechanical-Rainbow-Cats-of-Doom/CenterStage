@@ -202,6 +202,7 @@ public class stinkyBackup extends LinearOpMode {
             initialServoPosition = encoder.getCurrentPosition();
             this.turnStrength = turnStrength;
             this.whichWheel = whichWheel;
+            SwerveModule.wheelAutoPositionMap.put(whichWheel, initialServoPosition);
         }
         public double getServoPosition() {
             return encoder.getCurrentPosition();
