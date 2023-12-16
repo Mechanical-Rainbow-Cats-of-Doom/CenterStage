@@ -23,41 +23,30 @@ import org.firstinspires.ftc.teamcode.vision.PropPipeline;
 @Autonomous
 @Config
 public class stinkyBackup extends LinearOpMode {
-    public static int r1X = 0;
-    public static int r1Y = 0;
-    public static int r1H = 0;
-    public static int r1W = 0;
-    public static int r2X = 0;
-    public static int r2Y = 0;
-    public static int r2H = 0;
-    public static int r2W = 0;
-    public static int r3X = 0;
-    public static int r3Y = 0;
-    public static int r3H = 0;
-    public static int r3W = 0;
+    public static double turnStrength = 0; // heading correction makes things worse
     @Override
     public void runOpMode() throws InterruptedException {
         MultipleTelemetry telemetry = new MultipleTelemetry(super.telemetry, FtcDashboard.getInstance().getTelemetry());
         ElapsedTime timer = new ElapsedTime();
 
         backRight = new pod("backRightMotor", "backRightServo", "backRightEncoder",
-                false, 1);
+                false, 1, turnStrength);
         backLeft =
                 new pod("backLeftMotor", "backLeftServo", "backLeftEncoder",
-                        false, 1);
+                        false, 1, turnStrength);
         frontRight =
                 new pod("frontRightMotor", "frontRightServo", "frontRightEncoder",
-                        false, 1);
+                        false, 1, turnStrength);
         frontLeft =
                 new pod("frontLeftMotor", "frontLeftServo", "frontLeftEncoder",
-                        true, 1);
+                        true, 1, turnStrength);
 
 //        intake = new DcMotorEx
 
         // fin vision here
-        PropDetector detector = new PropDetector(hardwareMap, "webcam", true,
-                true, new PropPipeline.PropPipelineRectsProvider.PropPipelineDashboardConfig()
-        );
+//        PropDetector detector = new PropDetector(hardwareMap, "webcam", true,
+//                true, new PropPipeline.PropPipelineRectsProvider.PropPipelineDashboardConfig()
+//        );
         int result = -1;
         float startTime = System.currentTimeMillis() / 1000f;
 
@@ -65,15 +54,15 @@ public class stinkyBackup extends LinearOpMode {
 
         waitForStart();
 
-        result = detector.run(() -> {
-            int time = (int)((System.currentTimeMillis() - startTime) / 10f) % 4;
-            telemetry.addLine("Waiting for detector" + (time > 1 ? "." : "") +
-                    (time > 2 ? "." : "") +
-                    (time > 3 ? "." : ""));
-            telemetry.update();
-        });
-        detector.reset();
-
+//        result = detector.run(() -> {
+//            int time = (int)((System.currentTimeMillis() - startTime) / 10f) % 4;
+//            telemetry.addLine("Waiting for detector" + (time > 1 ? "." : "") +
+//                    (time > 2 ? "." : "") +
+//                    (time > 3 ? "." : ""));
+//            telemetry.update();
+//        });
+//        detector.reset();
+        result = 0;
         // get to middle of the tile in front
         forward(1000, 0.2);
         switch (result) {
@@ -179,10 +168,10 @@ public class stinkyBackup extends LinearOpMode {
         backRight.setDistance(-distance);
         while (!frontLeft.isComplete() && !frontRight.isComplete()
                 && !backLeft.isComplete() && !backRight.isComplete()) {
-            frontRight.run(-power);
+            frontRight.run(power);
             frontLeft.run(power);
             backLeft.run(power);
-            backRight.run(-power);
+            backRight.run(power);
         }
     }
     public class pod {
@@ -193,10 +182,11 @@ public class stinkyBackup extends LinearOpMode {
         int tickOffset = 0;
         int tickGoal = 0;
         double initialServoPosition;
+        double turnStrength;
         MotorEx wheel;
         CRServo servo;
         AbsoluteAnalogEncoder encoder;
-        pod(String motorName, String servoName, String encoderName, boolean inverted, double multiplier) {
+        pod(String motorName, String servoName, String encoderName, boolean inverted, double multiplier, double turnStrength) {
             wheel = new MotorEx(hardwareMap, motorName, Motor.GoBILDA.BARE);
             wheel.setRunMode(Motor.RunMode.VelocityControl);
             wheel.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
@@ -206,6 +196,7 @@ public class stinkyBackup extends LinearOpMode {
             this.multiplier = multiplier;
             tickOffset = wheel.getCurrentPosition();
             initialServoPosition = encoder.getCurrentPosition();
+            this.turnStrength = turnStrength;
         }
         public double getServoPosition() {
             return encoder.getCurrentPosition();
@@ -215,9 +206,9 @@ public class stinkyBackup extends LinearOpMode {
         }
         public void run(double power) {
             if (getServoPosition() - initialServoPosition > 0) {
-                servo.setPower(-0.1);
+                servo.setPower(-turnStrength);
             } else if (getServoPosition() - initialServoPosition < 0) {
-                servo.setPower(0.1);
+                servo.setPower(turnStrength);
             } else servo.setPower(0);
 
             if ((tickGoal - (wheel.getCurrentPosition() - tickOffset)) > 0) {
