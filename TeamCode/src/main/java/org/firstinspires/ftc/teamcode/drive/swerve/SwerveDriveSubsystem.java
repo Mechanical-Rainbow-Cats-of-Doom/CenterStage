@@ -139,16 +139,6 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
 
 
     @Override
-    public ChassisSpeeds getMeasuredVelocity() {
-        return null;
-    }
-
-    @Override
-    public Pose2d getPosition() {
-        return null;
-    }
-
-    @Override
     public void periodic() {
         fieldRelativeReader.readValue();
         fieldRelative = fieldRelativeReader.getState();

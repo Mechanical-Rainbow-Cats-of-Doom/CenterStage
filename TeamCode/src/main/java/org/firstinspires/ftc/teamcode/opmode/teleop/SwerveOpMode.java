@@ -19,8 +19,8 @@ import org.firstinspires.ftc.teamcode.tool.DroneLauncher;
 import org.firstinspires.ftc.teamcode.tool.Intake;
 import org.firstinspires.ftc.teamcode.tool.Lift;
  
-@TeleOp(name = "🐟")
-public class MainDriverOpMode extends CommandOpMode {
+@TeleOp(name = "Swervey")
+public class SwerveOpMode extends CommandOpMode {
     private final Telemetry telemetry = new MultipleTelemetry(super.telemetry, FtcDashboard.getInstance().getTelemetry());
     private GamepadEx driver1, driver2;
     private SwerveDriveSubsystem drive;
