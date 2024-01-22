@@ -27,8 +27,8 @@ public class PropPipeline extends OpenCvPipeline {
         enum Default implements PropPipelineRectsProvider {
             RED_BOARD_SIDE(createRectDecimal(0.33, 0.84, 0.15, 0.1),
                     createRectDecimal(0.84, 0.45, 0.15, 0.1)),
-            RED_AUDIENCE_SIDE(createRectDecimal(0, 0.18, 0.12, 0.2),
-                    createRectDecimal(0.47, 0.14, 0.15, 0.1)),
+            RED_AUDIENCE_SIDE(createRectDecimal(0.15, 0.2, 0.2, 0.25),
+                    createRectDecimal(0.7, 0.12, 0.3, 0.23)),
             BLUE_BOARD_SIDE(createRectDecimal(0, 0.15, 0.08, 0.14),
                     createRectDecimal(0.45, 0.15, 0.15, 0.1)),
             BLUE_AUDIENCE_SIDE(createRectDecimal(0.36, 0.14, 0.15, 0.1),

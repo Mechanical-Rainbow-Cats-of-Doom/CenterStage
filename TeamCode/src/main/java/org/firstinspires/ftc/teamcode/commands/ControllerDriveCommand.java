@@ -30,6 +30,6 @@ public class ControllerDriveCommand extends CommandBase {
             final SwerveDriveSubsystem swerve = (SwerveDriveSubsystem) drive;
             swerve.setUsePresetOffset(presetOffsetToggle.getAsBoolean());
         }
-        drive.setTargetVelocity(new ChassisSpeeds(driveGamepad.getLeftY(), driveGamepad.getLeftX(), driveGamepad.getRightX()));
+        drive.setTargetVelocity(new ChassisSpeeds(driveGamepad.getLeftY(), driveGamepad.getRightX(), driveGamepad.getLeftX()));
     }
 }

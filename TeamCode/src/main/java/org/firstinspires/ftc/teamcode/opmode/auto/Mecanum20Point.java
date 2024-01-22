@@ -38,6 +38,7 @@ public class Mecanum20Point extends LinearOpMode {
         float startTime = System.currentTimeMillis() / 1000f;
 
         waitForStart();
+        mecanum.initialize();
 
         result = detector.run(() -> {
             int time = (int)((System.currentTimeMillis() - startTime) / 10f) % 4;

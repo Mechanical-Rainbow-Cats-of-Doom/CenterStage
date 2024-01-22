@@ -25,13 +25,15 @@ public class LiftPositionFromConfig extends LinearOpMode {
         public static boolean rotateClawEarly;
         public static boolean clawOpen = true;
         public static boolean forceStartOpen;
+        public static Lift.LiftPosition.Default defaultPosition = Lift.LiftPosition.Default.DOWN;
+        public static boolean useDefault = false;
 
         private static final ConfigChangeDetector<LiftPositionConfig> changeDetector =
                 new ConfigChangeDetector<>(LiftPositionConfig.class, Collections.singletonList("changeDetector"));
 
 
-        public static Lift.LiftPosition.Custom getCustomLiftPosition() {
-            return new Lift.LiftPosition.Custom(liftTicks, (float)servoPosition, rotateClawEarly, clawOpen, forceStartOpen);
+        public static Lift.LiftPosition getCustomLiftPosition() {
+            return useDefault ? defaultPosition : new Lift.LiftPosition.Custom(liftTicks, (float)servoPosition, rotateClawEarly, clawOpen, forceStartOpen);
         }
 
         public static boolean changeDetected() {
@@ -45,7 +47,7 @@ public class LiftPositionFromConfig extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         CommandScheduler.getInstance().reset();
         GamepadEx driver2 = new GamepadEx(gamepad2);
-        Lift lift = new Lift(hardwareMap, driver2, true, false);
+        Lift lift = new Lift(hardwareMap, driver2, true, false, telemetry);
         telemetry = new MultipleTelemetry(super.telemetry, FtcDashboard.getInstance().getTelemetry());
         waitForStart();
         long lastPositionTime = System.currentTimeMillis();
@@ -65,6 +67,7 @@ public class LiftPositionFromConfig extends LinearOpMode {
                 telemetry.addData("Current Lift State", lift.getState().toString());
                 telemetry.addData("Lift Position Error", lift.getError());
             }
+            telemetry.addData("Claw Open", lift.getClawOpen());
             telemetry.addData("Time Since Last Update", System.currentTimeMillis() - lastPositionTime);
             telemetry.update();
         }

@@ -42,7 +42,7 @@ public class MecanumOpMode extends CommandOpMode {
         drive = new MecanumDriveSubsystem(hardwareMap, () -> {
             fieldOrientedReader.readValue();
             return fieldOrientedReader.getState();
-        }, true);
+        }, true, telemetry);
         lift = new Lift(hardwareMap, driver2);
         droneLauncher = new DroneLauncher(hardwareMap, () -> driver1.getButton(GamepadKeys.Button.BACK));
         intake = new Intake(hardwareMap);

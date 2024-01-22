@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.commands;
 
+import com.arcrobotics.ftclib.command.CommandScheduler;
+
 import org.firstinspires.ftc.teamcode.tool.Intake;
 import org.firstinspires.ftc.teamcode.tool.Lift;
 
@@ -13,11 +15,22 @@ public class LiftSafeCommand extends LiftGoToPositionCommand {
 
     @Override
     public void end(boolean interrupted) {
-        lift.setPosition(Lift.LiftPosition.Default.DOWN);
+        CommandScheduler.getInstance().schedule(false, new PostSafe(lift));
     }
 
     @Override
     public boolean isFinished() {
-        return !intake.getOn() || !intake.getState();
+        return !intake.getOn() || !intake.getState() || !lift.isAutomatic();
+    }
+
+    private static class PostSafe extends LiftGoToPositionCommand {
+        public PostSafe(Lift lift) {
+            super(lift, Lift.LiftPosition.Default.DOWN);
+        }
+
+        @Override
+        public boolean isFinished() {
+            return lift.getPosition() != Lift.LiftPosition.Default.DOWN || lift.getState().isFinished() || !lift.isAutomatic();
+        }
     }
 }

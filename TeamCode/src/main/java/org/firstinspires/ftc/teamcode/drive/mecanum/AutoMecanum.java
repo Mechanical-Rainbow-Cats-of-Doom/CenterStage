@@ -4,19 +4,22 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.drive.localization.Localization;
 import org.firstinspires.ftc.teamcode.drive.localization.Localization2EImpl;
 
 import static java.lang.Math.signum;
 
 @Config
 public class AutoMecanum extends MecanumDriveSubsystem {
-    private final Localization localization;
+    private final Localization2EImpl localization;
     public static double defaultPower = 0.3;
 
     public AutoMecanum(HardwareMap hardwareMap) {
-        super(hardwareMap, () -> false, false);
+        super(hardwareMap, () -> false, false, null);
         this.localization = new Localization2EImpl(hardwareMap);
+    }
+
+    public void initialize() {
+        localization.initialize();
     }
     
     public void zero() {
@@ -25,7 +28,7 @@ public class AutoMecanum extends MecanumDriveSubsystem {
     }
     
     public void goForward(double inches, double buffer, double power, Runnable runWhileWaiting) {
-        final double startingX = localization.getPosition().getX();
+        final double startingX = localization.getRobotCoordinates().getX();
         setTargetVelocity(new ChassisSpeeds(power, 0, 0));
         periodic();
         while (Math.abs(localization.getPosition().getX() - startingX - inches) >= buffer) {
@@ -47,7 +50,7 @@ public class AutoMecanum extends MecanumDriveSubsystem {
     }
 
     public void goSideways(double inches, double buffer, double power, Runnable runWhileWaiting) {
-        final double startingY = localization.getPosition().getY();
+        final double startingY = localization.getRobotCoordinates().getY();
         setTargetVelocity(new ChassisSpeeds(0, power, 0));
         periodic();
         while (Math.abs(localization.getPosition().getY() - startingY - inches) >= buffer) {
@@ -90,4 +93,9 @@ public class AutoMecanum extends MecanumDriveSubsystem {
         rotate(deg, buffer, defaultPower * signum(deg));
     }
 
+    @Override
+    public void periodic() {
+        super.periodic();
+        localization.updatePosition();
+    }
 }

@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.commands.LiftGoToPositionCommand;
 import org.firstinspires.ftc.teamcode.common.hardware.DebugMotor;
 
@@ -24,8 +25,8 @@ public class Lift extends SubsystemBase {
 
 
         enum Default implements LiftPosition {
-            DOWN(0, 0.115f, true, false, true),
-            DOWN_DONT_DROP(0, 0.115f, true, false, false),
+            DOWN(50, 0.115f, true, false, true),
+            DOWN_DONT_DROP(50, 0.115f, true, false, false),
             SAFE(953, 0.115f, true, true, true),
             ONE(3335, 0.45f, false, true, false),
             TWO(5718, 0.45f, false, true, false),
@@ -179,7 +180,8 @@ public class Lift extends SubsystemBase {
     public static int positionLimit = 8196;
     public static double clawRotateRunTimeP = 1000;
     public static double clawOpenTime = 400;
-    private static double clawManualSpeed = 50;
+    public static double clawManualSpeed = 50;
+    public static double MAX_CLAW_POSITION = 0.115;
     private final Motor liftMotor;
     private final Servo clawRotationServo, clawServo;
     private final GamepadEx toolGamepad;
@@ -193,12 +195,14 @@ public class Lift extends SubsystemBase {
 
     private final ElapsedTime timer = new ElapsedTime();
     private double calculatedRotationTime;
+    private final Telemetry telemetry;
 
     private double lastClawRotation = -1;
 
     private final boolean isTeleOp;
 
-    public Lift(HardwareMap hardwareMap, GamepadEx toolGamepad, boolean debug, boolean teleOp) {
+    public Lift(HardwareMap hardwareMap, GamepadEx toolGamepad, boolean debug, boolean teleOp,
+                Telemetry telemetry) {
         final Motor.GoBILDA motorType = Motor.GoBILDA.RPM_117;
         final String id = "lift1";
         this.toolGamepad = toolGamepad;
@@ -230,14 +234,15 @@ public class Lift extends SubsystemBase {
         }
 
         this.isTeleOp = teleOp;
+        this.telemetry = telemetry;
     }
 
-    public Lift(HardwareMap hardwareMap, GamepadEx toolGamepad, boolean debug) {
-        this(hardwareMap, toolGamepad, debug, true);
+    public Lift(HardwareMap hardwareMap, GamepadEx toolGamepad, boolean debug, Telemetry telemetry) {
+        this(hardwareMap, toolGamepad, debug, true, telemetry);
     }
 
     public Lift(HardwareMap hardwareMap, boolean debug) {
-        this(hardwareMap, null, debug);
+        this(hardwareMap, null, debug, null);
     }
 
     public Lift(HardwareMap hardwareMap) {
@@ -245,7 +250,7 @@ public class Lift extends SubsystemBase {
     }
 
     public Lift(HardwareMap hardwareMap, GamepadEx toolGamepad) {
-        this(hardwareMap, toolGamepad, false);
+        this(hardwareMap, toolGamepad, false, null);
     }
 
     @Override
@@ -265,7 +270,9 @@ public class Lift extends SubsystemBase {
             }
             liftMotor.set(toolGamepad.getLeftY() * LIFT_POWER);
             lastClawRotation = clawRotationServo.getPosition();
-            clawRotationServo.setPosition(clawRotationServo.getPosition() + (((LiftPosition.Default.ONE.servoPosition - LiftPosition.Default.DOWN.servoPosition) / clawManualSpeed) * toolGamepad.getRightY()));
+            double position = clawRotationServo.getPosition() + (((LiftPosition.Default.ONE.servoPosition - LiftPosition.Default.DOWN.servoPosition) / clawManualSpeed) * toolGamepad.getRightY());
+            position = Math.max(MAX_CLAW_POSITION, position);
+            clawRotationServo.setPosition(position);
             return;
         }
         if(runMode != Motor.RunMode.PositionControl) {
@@ -287,13 +294,12 @@ public class Lift extends SubsystemBase {
             case STARTING_MOVE:
                 state = State.EARLY_RUN_CLAW;
                 if(position.shouldForceStartOpen() && clawServo.getPosition() == CLAW_CLOSED_POSITION) {
-                    clawOpen = false;
                     timer.reset();
                     clawServo.setPosition(CLAW_OPEN_POSITION);
                 }
             case EARLY_RUN_CLAW:
                 if(position.shouldForceStartOpen() && !clawOpen && timer.milliseconds() < clawOpenTime) break;
-                clawOpen = true;
+                if(position.shouldForceStartOpen()) clawOpen = true;
                 state = State.EARLY_ROTATE_CLAW;
                 if(position.rotateClawEarly()) {
                     double newPosition = position.getClawRotation();
@@ -346,6 +352,10 @@ public class Lift extends SubsystemBase {
     public void setPosition(LiftPosition position) {
         this.position = position;
         this.state = State.STARTING_MOVE;
+    }
+
+    public boolean getClawOpen() {
+        return clawOpen;
     }
 
     public LiftPosition getPosition() {
