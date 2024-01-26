@@ -63,7 +63,7 @@ public final class MecanumDrive {
 
         // drive model parameters
         public double inPerTick = 0.0029626469472886;
-        public double lateralInPerTick = 0.001762679231368574;
+        public double lateralInPerTick = 0.002272319911722001;
         public double trackWidthTicks = 4466.260375515916;
 
         // feedforward parameters (in tick units)
@@ -222,6 +222,7 @@ public final class MecanumDrive {
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
                 PARAMS.logoFacingDirection, PARAMS.usbFacingDirection));
         imu.initialize(parameters);
+        imu.resetYaw();
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
