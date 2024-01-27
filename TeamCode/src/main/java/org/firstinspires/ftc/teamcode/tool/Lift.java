@@ -28,6 +28,7 @@ public class Lift extends SubsystemBase {
             DOWN(50, 0.115f, true, false, true),
             DOWN_DONT_DROP(50, 0.115f, true, false, false),
             SAFE(953, 0.115f, true, true, true),
+            LOW(2500, 0.45f, false, true, false),
             ONE(3335, 0.45f, false, true, false),
             TWO(5718, 0.45f, false, true, false),
             THREE(8196, 0.45f, false, true, false);
@@ -177,7 +178,8 @@ public class Lift extends SubsystemBase {
     public static double LIFT_POWER = 1;
     public static double kP = 1.2e-2;
     public static double positionTolerence = 20;
-    public static int positionLimit = 8196;
+    public static int MIN_LIFT_POSITION = 40;
+    public static int MAX_LIFT_POSITION = 8196;
     public static double clawRotateRunTimeP = 1000;
     public static double clawOpenTime = 400;
     public static double clawManualSpeed = 50;
@@ -187,7 +189,7 @@ public class Lift extends SubsystemBase {
     private final GamepadEx toolGamepad;
     private LiftPosition position = LiftPosition.Default.DOWN;
     private State state = State.AT_POSITION;
-    private boolean clawOpen = false;
+    private boolean clawOpen = true;
     private boolean automatic = true;
     private Motor.RunMode runMode = Motor.RunMode.PositionControl;
     private double lastKP = kP;
@@ -264,11 +266,33 @@ public class Lift extends SubsystemBase {
             lastPositionTolerence = positionTolerence;
         }
         if(!automatic) {
-            if(runMode != Motor.RunMode.RawPower) {
-                liftMotor.setRunMode(Motor.RunMode.RawPower);
-                runMode = Motor.RunMode.RawPower;
+            liftMotor.getCurrentPosition();
+            if(liftMotor.getCurrentPosition() < MIN_LIFT_POSITION && toolGamepad.getLeftY() <= 0) {
+                if (runMode != Motor.RunMode.VelocityControl) {
+                    liftMotor.setRunMode(Motor.RunMode.VelocityControl);
+                    runMode = Motor.RunMode.VelocityControl;
+                }
+                liftMotor.setTargetPosition(MIN_LIFT_POSITION);
+                liftMotor.set(LIFT_POWER);
+            } else if(liftMotor.getCurrentPosition() > MAX_LIFT_POSITION && toolGamepad.getLeftY() >= 0) {
+                if (runMode != Motor.RunMode.VelocityControl) {
+                    liftMotor.setRunMode(Motor.RunMode.VelocityControl);
+                    runMode = Motor.RunMode.VelocityControl;
+                }
+                liftMotor.setTargetPosition(MAX_LIFT_POSITION);
+                liftMotor.set(LIFT_POWER);
+            } else {
+                if (runMode != Motor.RunMode.RawPower) {
+                    liftMotor.setRunMode(Motor.RunMode.RawPower);
+                    runMode = Motor.RunMode.RawPower;
+                }
+                if(((liftMotor.getCurrentPosition()-MIN_LIFT_POSITION) < 10 && toolGamepad.getLeftY() <= 0) &&
+                        ((MAX_LIFT_POSITION-liftMotor.getCurrentPosition()) < 10 && toolGamepad.getLeftY() >= 0)) {
+                    liftMotor.set(0);
+                } else {
+                    liftMotor.set(toolGamepad.getLeftY() * LIFT_POWER);
+                }
             }
-            liftMotor.set(toolGamepad.getLeftY() * LIFT_POWER);
             lastClawRotation = clawRotationServo.getPosition();
             double position = clawRotationServo.getPosition() + (((LiftPosition.Default.ONE.servoPosition - LiftPosition.Default.DOWN.servoPosition) / clawManualSpeed) * toolGamepad.getRightY());
             position = Math.max(MAX_CLAW_POSITION, position);
@@ -310,7 +334,7 @@ public class Lift extends SubsystemBase {
             case EARLY_ROTATE_CLAW:
                 if(position.rotateClawEarly() && timer.milliseconds() < calculatedRotationTime) break;
                 state = State.RUNNING_LIFT;
-                liftMotor.setTargetPosition(Math.max(0, Math.min(positionLimit, position.getLiftTicks())));
+                liftMotor.setTargetPosition(Math.max(MIN_LIFT_POSITION, Math.min(MAX_LIFT_POSITION, position.getLiftTicks())));
                 liftMotor.set(LIFT_POWER);
             case RUNNING_LIFT:
                 if(!liftMotor.atTargetPosition()) break;

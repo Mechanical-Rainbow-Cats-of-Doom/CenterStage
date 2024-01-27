@@ -62,6 +62,9 @@ public class PropDetector {
      * @return integer 0 - 2, corresponds to left, center, and right respectively
      */
     public synchronized int run(Runnable runnable) throws InterruptedException {
+        while(camera.getFps() < 10) {
+            runnable.run();
+        }
         final PropPipeline pipeline = new PropPipeline(isRed, debug, visionVals, rects);
         camera.setPipeline(pipeline);
         pipeline.startPipeline();

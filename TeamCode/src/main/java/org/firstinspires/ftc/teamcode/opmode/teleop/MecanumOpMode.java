@@ -2,12 +2,14 @@ package org.firstinspires.ftc.teamcode.opmode.teleop;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.arcrobotics.ftclib.command.CommandBase;
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.gamepad.ToggleButtonReader;
+import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -16,6 +18,7 @@ import org.firstinspires.ftc.teamcode.commands.ControllerDriveCommand;
 import org.firstinspires.ftc.teamcode.commands.PrepareSafeCommand;
 import org.firstinspires.ftc.teamcode.commands.SetIntakeCommands;
 import org.firstinspires.ftc.teamcode.drive.mecanum.MecanumDriveSubsystem;
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.tool.DroneLauncher;
 import org.firstinspires.ftc.teamcode.tool.Intake;
 import org.firstinspires.ftc.teamcode.tool.Lift;
@@ -32,6 +35,8 @@ public class MecanumOpMode extends CommandOpMode {
 
     @Override
     public void initialize() {
+        MecanumDrive drive2 = new MecanumDrive(hardwareMap, new Pose2d(0,0, Math.toRadians(0)));
+
         CommandScheduler.getInstance().reset();
 
         // initialize hardware
