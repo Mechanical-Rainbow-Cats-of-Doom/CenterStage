@@ -14,7 +14,7 @@ public class AutoMecanum extends MecanumDriveSubsystem {
     public static double defaultPower = 0.3;
 
     public AutoMecanum(HardwareMap hardwareMap) {
-        super(hardwareMap, () -> false, false, null);
+        super(hardwareMap, () -> false, false, null, false);
         this.localization = new Localization2EImpl(hardwareMap);
     }
 

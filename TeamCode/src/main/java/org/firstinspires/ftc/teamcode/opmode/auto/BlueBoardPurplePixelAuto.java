@@ -4,9 +4,11 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.arcrobotics.ftclib.util.Timing;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.common.util.DelayStorage;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.tool.Intake;
 import org.firstinspires.ftc.teamcode.vision.PropDetector;
@@ -41,7 +43,9 @@ public class BlueBoardPurplePixelAuto extends LinearOpMode {
                 .strafeToLinearHeading(new Vector2d(12,-41), Math.toRadians(90))
                 .strafeTo(new Vector2d(12, -50))
                 .build();
+        Timing.Timer timer = DelayStorage.getTimer();
         waitForStart();
+        timer.start();
 
         float startTime = System.currentTimeMillis() / 1000f;
         int detection = detector.run(() -> {
@@ -52,6 +56,11 @@ public class BlueBoardPurplePixelAuto extends LinearOpMode {
             telemetry.update();
         });
 
+        while(!timer.done()) {
+            telemetry.addLine("Waiting for delay");
+            telemetry.addData("Time Left", timer.remainingTime() / 1000);
+            telemetry.update();
+        }
         switch (detection) {
             case 0:
                 Actions.runBlocking(left);

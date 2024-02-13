@@ -12,10 +12,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.drive.localization.Localization2EImpl;
-import org.firstinspires.ftc.teamcode.drive.swerve.SwerveDriveSubsystem;
 
 @TeleOp
-public class LocalizationTestWithoutMotors extends OpMode {
+public class OldLocalizationTestWithoutMotors extends OpMode {
     public Localization2EImpl localization;
     public GamepadEx driver1;
     public MultipleTelemetry telemetry;

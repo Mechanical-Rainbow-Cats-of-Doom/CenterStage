@@ -25,6 +25,9 @@ public class PropPipeline extends OpenCvPipeline {
         Rect[] rects();
 
         enum Default implements PropPipelineRectsProvider {
+            DEFAULT(createRectDecimal(0.02, 0.25, 0.15, 0.1),
+                    createRectDecimal(0.39, 0.20, 0.15, 0.1),
+                    createRectDecimal(0.75, 0.25, 0.15, 0.1)),
             RED_BOARD_SIDE(createRectDecimal(0.05, 0.1, 0.2, 0.3),
                     createRectDecimal(0.55, 0.1, 0.3, 0.1)),
             RED_AUDIENCE_SIDE(createRectDecimal(0.15, 0.2, 0.2, 0.25),
@@ -50,7 +53,7 @@ public class PropPipeline extends OpenCvPipeline {
         class PropPipelineDashboardConfig implements PropPipelineRectsProvider {
             public static double x1, y1, width1 = .2, height1 = .2;
             public static double x2 = .2, y2, width2 = .2, height2 = .2;
-            public boolean hasThirdRectangle = false;
+            public static boolean hasThirdRectangle = false;
             public static double x3 = .4, y3, width3 = .2, height3 = .2;
             public static String defaultName = "";
             public Rect[] rects() {
@@ -91,10 +94,12 @@ public class PropPipeline extends OpenCvPipeline {
     private int totalTimesRan = 0;
     private final boolean debug;
     private final boolean isRed;
+    private final Mat[] mats;
     private final PropPipelineRectsProvider propPipelineRectsProvider;
 
     public PropPipeline(boolean isRed, boolean debug, ArrayBlockingQueue<Integer> queue,
                         PropPipelineRectsProvider propPipelineRectsProvider) {
+        this.mats = new Mat[] {new Mat(), new Mat(), new Mat()};
         this.isRed = isRed;
         this.debug = debug;
         this.queue = queue;
@@ -104,8 +109,8 @@ public class PropPipeline extends OpenCvPipeline {
     public void reset() {
         running = true;
         totalTimesRan = 0;
-        curRun = new Pair<>(-1, 0d);
-        greatestConfidence = new Pair<>(-1, 0d);
+        curRun = new Pair<>(-1, Double.NEGATIVE_INFINITY);
+        greatestConfidence = new Pair<>(-1, Double.NEGATIVE_INFINITY);
     }
 
     public void startPipeline() {
@@ -126,7 +131,7 @@ public class PropPipeline extends OpenCvPipeline {
     @Override
     public synchronized Mat processFrame(Mat input) {
         if (running) {
-            curRun = findPositionWithConfidence(input, propPipelineRectsProvider.rects(), isRed);
+            curRun = findPositionWithConfidence(input, mats, propPipelineRectsProvider.rects(), isRed);
 
             if (curRun.second > greatestConfidence.second) {
                 greatestConfidence = curRun;
@@ -141,11 +146,11 @@ public class PropPipeline extends OpenCvPipeline {
     }
 
     @NonNull
-    @Contract("_, _, _ -> new")
-    public static Pair<Integer, Double> findPositionWithConfidence(@NonNull Mat input, @NonNull Rect[] rects, boolean isRed) {
+    @Contract("_, _, _, _ -> new")
+    public static Pair<Integer, Double> findPositionWithConfidence(@NonNull Mat input, Mat[] mats, @NonNull Rect[] rects, boolean isRed) {
         int pos = -1;
         double confidence = 0;
-        Mat componentMat = new Mat(), nonComponentMat = new Mat(), greenMat = new Mat();
+        Mat componentMat = mats[0], nonComponentMat = mats[1], greenMat = mats[2];
         Core.extractChannel(input, nonComponentMat, isRed ? 2 : 0);
         Core.extractChannel(input, componentMat, isRed ? 0 : 2);
         Core.extractChannel(input, greenMat, 1);
@@ -155,7 +160,7 @@ public class PropPipeline extends OpenCvPipeline {
             final double green = Core.mean(greenMat.submat(rects[i])).val[0];
             final double totalConfidence = component / (component + noncomponent + green);
 
-            if (totalConfidence >= (isRed ? RED_CONFIDENCE_THRESHOLD : BLUE_CONFIDENCE_THRESHOLD) && totalConfidence > confidence) {
+            if ((totalConfidence >= (isRed ? RED_CONFIDENCE_THRESHOLD : BLUE_CONFIDENCE_THRESHOLD) || rects.length > 2) && totalConfidence > confidence) {
                 pos = i;
                 confidence = totalConfidence;
             }

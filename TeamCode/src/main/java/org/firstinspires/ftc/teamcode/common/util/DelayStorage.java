@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.common.util;
 
-import androidx.annotation.NonNull;
+import com.arcrobotics.ftclib.util.Timing;
 
-import com.qualcomm.robotcore.util.ElapsedTime;
+import java.util.concurrent.TimeUnit;
 
 public class DelayStorage {
     public static double seconds = 0;
@@ -17,6 +17,10 @@ public class DelayStorage {
 
     public static void subtractSeconds(double seconds) {
         DelayStorage.seconds = Math.max(DelayStorage.seconds - seconds, 0);
+    }
+
+    public static Timing.Timer getTimer() {
+        return new Timing.Timer((long)(seconds*1000), TimeUnit.MILLISECONDS);
     }
 
     /**

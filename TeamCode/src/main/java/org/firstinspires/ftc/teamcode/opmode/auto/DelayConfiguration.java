@@ -2,8 +2,10 @@ package org.firstinspires.ftc.teamcode.opmode.auto;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+import com.arcrobotics.ftclib.gamepad.ToggleButtonReader;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -18,23 +20,40 @@ public class DelayConfiguration extends LinearOpMode {
         telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry(),
                 super.telemetry);
         driver = new GamepadEx(gamepad1);
-        while (!isStarted() && !isStopRequested() && opModeIsActive()) {
+        ToggleButtonReader dpadUp = new ToggleButtonReader(driver, GamepadKeys.Button.DPAD_UP);
+        ToggleButtonReader dpadDown = new ToggleButtonReader(driver, GamepadKeys.Button.DPAD_DOWN);
+
+        ToggleButtonReader dpadLeft = new ToggleButtonReader(driver, GamepadKeys.Button.DPAD_LEFT);
+        ToggleButtonReader dpadRight = new ToggleButtonReader(driver, GamepadKeys.Button.DPAD_RIGHT);
+
+        while (!isStarted() && !isStopRequested()) {
             telemetry.addLine("---Change Delay---");
             telemetry.addData("Current Delay (sec): ", DelayStorage.seconds);
-            telemetry.addLine("DPAD_UP increases delay");
-            telemetry.addLine("DPAD_DOWN decreases delay");
+            telemetry.addLine("DPAD_UP increases delay by 1");
+            telemetry.addLine("DPAD_DOWN decreases delay by 1");
+            telemetry.addLine("DPAD_RIGHT increases delay by .1");
+            telemetry.addLine("DPAD_LEFT decreases delay by .1");
             telemetry.addLine("X clears delay");
             telemetry.addLine("A exits");
-            driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(() -> {
+            telemetry.update();
+
+            dpadUp.readValue();
+            dpadDown.readValue();
+            dpadLeft.readValue();
+            dpadRight.readValue();
+
+            if(dpadUp.wasJustPressed()) {
                 DelayStorage.addSeconds(1);
-            });
-            driver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(() -> {
-                if (DelayStorage.seconds == 0) return;
+            }
+            if(dpadDown.wasJustPressed()) {
                 DelayStorage.subtractSeconds(1);
-            });
-            driver.getGamepadButton(GamepadKeys.Button.X).whenPressed(() -> {
-                DelayStorage.setSeconds(0);
-            });
+            }
+            if(dpadRight.wasJustPressed()) {
+                DelayStorage.addSeconds(.1);
+            }
+            if(dpadLeft.wasJustPressed()) {
+                DelayStorage.subtractSeconds(.1);
+            }
         }
         waitForStart();
         while (!isStopRequested() && opModeIsActive()) {
