@@ -13,6 +13,7 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.Vector2dDual;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -20,6 +21,7 @@ import org.firstinspires.ftc.teamcode.tool.Lift;
 import org.firstinspires.ftc.teamcode.vision.PropDetector;
 import org.firstinspires.ftc.teamcode.vision.PropPipeline;
 
+@Disabled
 @Autonomous
 public class BlueAudiencePlacePixelAuto extends LinearOpMode {
     protected boolean isRed = false;

@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,6 +17,7 @@ import org.firstinspires.ftc.teamcode.drive.mecanum.AutoMecanum;
 import org.firstinspires.ftc.teamcode.vision.PropDetector;
 import org.firstinspires.ftc.teamcode.vision.PropPipeline;
 
+@Disabled
 @Autonomous
 @Config
 public class Mecanum20Point extends LinearOpMode {

@@ -17,9 +17,11 @@ public class HighlightSelectionZonePipeline extends OpenCvPipeline {
     private final boolean isRed;
     private final PropPipeline.PropPipelineRectsProvider rects;
     private int lastResult;
+    private final Mat[] mats;
     private double lastConfidence;
 
     public HighlightSelectionZonePipeline(boolean isRed, PropPipeline.PropPipelineRectsProvider rects) {
+        this.mats = new Mat[] {new Mat(), new Mat(), new Mat()};
         this.isRed = isRed;
         this.rects = rects;
     }
@@ -27,7 +29,7 @@ public class HighlightSelectionZonePipeline extends OpenCvPipeline {
     @Override
     public Mat processFrame(Mat input) {
         Rect[] rects = this.rects.rects();
-        Pair<Integer, Double> data = PropPipeline.findPositionWithConfidence(input, rects, isRed);
+        Pair<Integer, Double> data = PropPipeline.findPositionWithConfidence(input, mats, rects, isRed);
         int pos = data.first;
         for (int i = 0; i < rects.length; i++) {
             Scalar color = HighlightSelectionZonePipeline.color;

@@ -11,14 +11,16 @@ import java.util.function.BooleanSupplier;
 
 @Config
 public class DroneLauncher extends SubsystemBase {
-    public static double HELD_POS = 0.59D, LAUNCHED_POS = 0.7D;
+    public static double HELD_POS = 0.54D, LAUNCHED_POS = 0.65D;
     public static double WAIT_TIME = 1;
+    public static DroneLauncher instance;
     private final ServoToggle rubberBandHolder;
-    private final ButtonReader reader;
+    public final ButtonReader reader;
     private final ElapsedTime timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     public DroneLauncher(HardwareMap hardwareMap, BooleanSupplier button) {
         this.rubberBandHolder = new ServoToggle(hardwareMap, "drone", HELD_POS, LAUNCHED_POS);
         this.reader = new ButtonReader(button);
+        instance = this;
     }
 
     @Override

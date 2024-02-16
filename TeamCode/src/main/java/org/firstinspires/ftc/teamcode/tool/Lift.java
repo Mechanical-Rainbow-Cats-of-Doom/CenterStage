@@ -25,8 +25,8 @@ public class Lift extends SubsystemBase {
 
 
         enum Default implements LiftPosition {
-            DOWN(50, 0.115f, true, false, true),
-            DOWN_DONT_DROP(50, 0.115f, true, false, false),
+            DOWN(100, 0.115f, true, false, true),
+            DOWN_DONT_DROP(100, 0.115f, true, false, false),
             SAFE(953, 0.115f, true, true, true),
             LOW(2500, 0.45f, false, true, false),
             ONE(3335, 0.45f, false, true, false),
@@ -182,13 +182,13 @@ public class Lift extends SubsystemBase {
     public static int MAX_LIFT_POSITION = 8196;
     public static double clawRotateRunTimeP = 1000;
     public static double clawOpenTime = 400;
-    public static double clawManualSpeed = 50;
+    public static double clawManualSpeed = 100;
     public static double MAX_CLAW_POSITION = 0.115;
     private final Motor liftMotor;
     private final Servo clawRotationServo, clawServo;
     private final GamepadEx toolGamepad;
     private LiftPosition position = LiftPosition.Default.DOWN;
-    private State state = State.AT_POSITION;
+    private State state = State.STARTING_MOVE;
     private boolean clawOpen = true;
     private boolean automatic = true;
     private Motor.RunMode runMode = Motor.RunMode.PositionControl;

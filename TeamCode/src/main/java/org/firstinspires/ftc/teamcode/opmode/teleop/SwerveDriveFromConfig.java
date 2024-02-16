@@ -5,11 +5,13 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.drive.swerve.SwerveDriveSubsystem;
 
+@Disabled
 @TeleOp
 @Config
 public class SwerveDriveFromConfig extends LinearOpMode {

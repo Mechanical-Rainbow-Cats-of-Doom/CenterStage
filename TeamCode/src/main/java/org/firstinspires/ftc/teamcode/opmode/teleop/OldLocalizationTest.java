@@ -8,14 +8,16 @@ import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.arcrobotics.ftclib.geometry.Translation2d;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.drive.localization.Localization2EImpl;
 import org.firstinspires.ftc.teamcode.drive.swerve.SwerveDriveSubsystem;
 
+@Disabled
 @TeleOp
-public class LocalizationTest extends LinearOpMode {
+public class OldLocalizationTest extends LinearOpMode {
     public Localization2EImpl localization;
     public SwerveDriveSubsystem drive;
     public GamepadEx driver1;

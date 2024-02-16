@@ -9,7 +9,6 @@ import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.gamepad.ToggleButtonReader;
-import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -18,7 +17,6 @@ import org.firstinspires.ftc.teamcode.commands.ControllerDriveCommand;
 import org.firstinspires.ftc.teamcode.commands.PrepareSafeCommand;
 import org.firstinspires.ftc.teamcode.commands.SetIntakeCommands;
 import org.firstinspires.ftc.teamcode.drive.mecanum.MecanumDriveSubsystem;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.tool.DroneLauncher;
 import org.firstinspires.ftc.teamcode.tool.Intake;
 import org.firstinspires.ftc.teamcode.tool.Lift;
@@ -32,11 +30,10 @@ public class MecanumOpMode extends CommandOpMode {
     private DroneLauncher droneLauncher;
     private Intake intake;
     private boolean lastLifterPosition;
+    protected boolean squareInputs = false;
 
     @Override
     public void initialize() {
-        MecanumDrive drive2 = new MecanumDrive(hardwareMap, new Pose2d(0,0, Math.toRadians(0)));
-
         CommandScheduler.getInstance().reset();
 
         // initialize hardware
@@ -47,8 +44,8 @@ public class MecanumOpMode extends CommandOpMode {
         drive = new MecanumDriveSubsystem(hardwareMap, () -> {
             fieldOrientedReader.readValue();
             return fieldOrientedReader.getState();
-        }, true, telemetry);
-//        lift = new Lift(hardwareMap, driver2);
+        }, true, telemetry, squareInputs);
+        //lift = new Lift(hardwareMap, driver2);
         droneLauncher = new DroneLauncher(hardwareMap, () -> driver1.getButton(GamepadKeys.Button.BACK));
         intake = new Intake(hardwareMap);
         Servo lifter = hardwareMap.get(Servo.class, "lifter");
@@ -75,8 +72,7 @@ public class MecanumOpMode extends CommandOpMode {
         });
 
         // register unregistered subsystems
-//        register(drive, lift, intake, droneLauncher);
-//        register(droneLauncher);
+       // register(drive, lift, intake, droneLauncher);
     }
 
     @Override

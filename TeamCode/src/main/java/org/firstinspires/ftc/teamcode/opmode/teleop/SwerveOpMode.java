@@ -7,6 +7,7 @@ import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -18,7 +19,8 @@ import org.firstinspires.ftc.teamcode.drive.swerve.SwerveDriveSubsystem;
 import org.firstinspires.ftc.teamcode.tool.DroneLauncher;
 import org.firstinspires.ftc.teamcode.tool.Intake;
 import org.firstinspires.ftc.teamcode.tool.Lift;
- 
+
+@Disabled
 @TeleOp(name = "Swervey")
 public class SwerveOpMode extends CommandOpMode {
     private final Telemetry telemetry = new MultipleTelemetry(super.telemetry, FtcDashboard.getInstance().getTelemetry());
