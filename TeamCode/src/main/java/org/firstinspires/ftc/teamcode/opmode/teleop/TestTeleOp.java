@@ -8,6 +8,7 @@ import com.arcrobotics.ftclib.command.PerpetualCommand;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.drive.swerve.DefaultSwerveDriveCommand;
@@ -16,6 +17,7 @@ import org.firstinspires.ftc.teamcode.drive.swerve.SwerveDriveSubsystem;
 // If you are confused how this works, please see TestAuto for more comments
 // Also i'm confused too cuz this shit is broke, see SwerveDriveTester for a currently working impl
 
+@Disabled
 @TeleOp
 public class TestTeleOp extends CommandOpMode {
     private SwerveDriveSubsystem swerveDrive;

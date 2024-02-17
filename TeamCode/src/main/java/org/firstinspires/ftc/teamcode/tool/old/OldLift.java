@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.commands.LiftGoToPositionCommand;
 import org.firstinspires.ftc.teamcode.common.hardware.DebugMotor;
 
@@ -24,9 +25,10 @@ public class OldLift extends SubsystemBase {
 
 
         enum Default implements LiftPosition {
-            DOWN(0, 0.115f, true, false, true),
-            DOWN_DONT_DROP(0, 0.115f, true, false, false),
+            DOWN(100, 0.115f, true, false, true),
+            DOWN_DONT_DROP(100, 0.115f, true, false, false),
             SAFE(953, 0.115f, true, true, true),
+            LOW(2500, 0.45f, false, true, false),
             ONE(3335, 0.45f, false, true, false),
             TWO(5718, 0.45f, false, true, false),
             THREE(8196, 0.45f, false, true, false);
@@ -176,16 +178,18 @@ public class OldLift extends SubsystemBase {
     public static double LIFT_POWER = 1;
     public static double kP = 1.2e-2;
     public static double positionTolerence = 20;
-    public static int positionLimit = 8196;
+    public static int MIN_LIFT_POSITION = 40;
+    public static int MAX_LIFT_POSITION = 8196;
     public static double clawRotateRunTimeP = 1000;
     public static double clawOpenTime = 400;
-    private static double clawManualSpeed = 50;
+    public static double clawManualSpeed = 100;
+    public static double MAX_CLAW_POSITION = 0.115;
     private final Motor liftMotor;
     private final Servo clawRotationServo, clawServo;
     private final GamepadEx toolGamepad;
     private LiftPosition position = LiftPosition.Default.DOWN;
-    private State state = State.AT_POSITION;
-    private boolean clawOpen = false;
+    private State state = State.STARTING_MOVE;
+    private boolean clawOpen = true;
     private boolean automatic = true;
     private Motor.RunMode runMode = Motor.RunMode.PositionControl;
     private double lastKP = kP;
@@ -193,12 +197,14 @@ public class OldLift extends SubsystemBase {
 
     private final ElapsedTime timer = new ElapsedTime();
     private double calculatedRotationTime;
+    private final Telemetry telemetry;
 
     private double lastClawRotation = -1;
 
     private final boolean isTeleOp;
 
-    public OldLift(HardwareMap hardwareMap, GamepadEx toolGamepad, boolean debug, boolean teleOp) {
+    public OldLift(HardwareMap hardwareMap, GamepadEx toolGamepad, boolean debug, boolean teleOp,
+                Telemetry telemetry) {
         final Motor.GoBILDA motorType = Motor.GoBILDA.RPM_117;
         final String id = "lift1";
         this.toolGamepad = toolGamepad;
@@ -230,14 +236,15 @@ public class OldLift extends SubsystemBase {
         }
 
         this.isTeleOp = teleOp;
+        this.telemetry = telemetry;
     }
 
-    public OldLift(HardwareMap hardwareMap, GamepadEx toolGamepad, boolean debug) {
-        this(hardwareMap, toolGamepad, debug, true);
+    public OldLift(HardwareMap hardwareMap, GamepadEx toolGamepad, boolean debug, Telemetry telemetry) {
+        this(hardwareMap, toolGamepad, debug, true, telemetry);
     }
 
     public OldLift(HardwareMap hardwareMap, boolean debug) {
-        this(hardwareMap, null, debug);
+        this(hardwareMap, null, debug, null);
     }
 
     public OldLift(HardwareMap hardwareMap) {
@@ -245,7 +252,7 @@ public class OldLift extends SubsystemBase {
     }
 
     public OldLift(HardwareMap hardwareMap, GamepadEx toolGamepad) {
-        this(hardwareMap, toolGamepad, false);
+        this(hardwareMap, toolGamepad, false, null);
     }
 
     @Override
@@ -259,13 +266,37 @@ public class OldLift extends SubsystemBase {
             lastPositionTolerence = positionTolerence;
         }
         if(!automatic) {
-            if(runMode != Motor.RunMode.RawPower) {
-                liftMotor.setRunMode(Motor.RunMode.RawPower);
-                runMode = Motor.RunMode.RawPower;
+            liftMotor.getCurrentPosition();
+            if(liftMotor.getCurrentPosition() < MIN_LIFT_POSITION && toolGamepad.getLeftY() <= 0) {
+                if (runMode != Motor.RunMode.VelocityControl) {
+                    liftMotor.setRunMode(Motor.RunMode.VelocityControl);
+                    runMode = Motor.RunMode.VelocityControl;
+                }
+                liftMotor.setTargetPosition(MIN_LIFT_POSITION);
+                liftMotor.set(LIFT_POWER);
+            } else if(liftMotor.getCurrentPosition() > MAX_LIFT_POSITION && toolGamepad.getLeftY() >= 0) {
+                if (runMode != Motor.RunMode.VelocityControl) {
+                    liftMotor.setRunMode(Motor.RunMode.VelocityControl);
+                    runMode = Motor.RunMode.VelocityControl;
+                }
+                liftMotor.setTargetPosition(MAX_LIFT_POSITION);
+                liftMotor.set(LIFT_POWER);
+            } else {
+                if (runMode != Motor.RunMode.RawPower) {
+                    liftMotor.setRunMode(Motor.RunMode.RawPower);
+                    runMode = Motor.RunMode.RawPower;
+                }
+                if(((liftMotor.getCurrentPosition()-MIN_LIFT_POSITION) < 10 && toolGamepad.getLeftY() <= 0) &&
+                        ((MAX_LIFT_POSITION-liftMotor.getCurrentPosition()) < 10 && toolGamepad.getLeftY() >= 0)) {
+                    liftMotor.set(0);
+                } else {
+                    liftMotor.set(toolGamepad.getLeftY() * LIFT_POWER);
+                }
             }
-            liftMotor.set(toolGamepad.getLeftY() * LIFT_POWER);
             lastClawRotation = clawRotationServo.getPosition();
-            clawRotationServo.setPosition(clawRotationServo.getPosition() + (((LiftPosition.Default.ONE.servoPosition - LiftPosition.Default.DOWN.servoPosition) / clawManualSpeed) * toolGamepad.getRightY()));
+            double position = clawRotationServo.getPosition() + (((LiftPosition.Default.ONE.servoPosition - LiftPosition.Default.DOWN.servoPosition) / clawManualSpeed) * toolGamepad.getRightY());
+            position = Math.max(MAX_CLAW_POSITION, position);
+            clawRotationServo.setPosition(position);
             return;
         }
         if(runMode != Motor.RunMode.PositionControl) {
@@ -287,13 +318,12 @@ public class OldLift extends SubsystemBase {
             case STARTING_MOVE:
                 state = State.EARLY_RUN_CLAW;
                 if(position.shouldForceStartOpen() && clawServo.getPosition() == CLAW_CLOSED_POSITION) {
-                    clawOpen = false;
                     timer.reset();
                     clawServo.setPosition(CLAW_OPEN_POSITION);
                 }
             case EARLY_RUN_CLAW:
                 if(position.shouldForceStartOpen() && !clawOpen && timer.milliseconds() < clawOpenTime) break;
-                clawOpen = true;
+                if(position.shouldForceStartOpen()) clawOpen = true;
                 state = State.EARLY_ROTATE_CLAW;
                 if(position.rotateClawEarly()) {
                     double newPosition = position.getClawRotation();
@@ -304,7 +334,7 @@ public class OldLift extends SubsystemBase {
             case EARLY_ROTATE_CLAW:
                 if(position.rotateClawEarly() && timer.milliseconds() < calculatedRotationTime) break;
                 state = State.RUNNING_LIFT;
-                liftMotor.setTargetPosition(Math.max(0, Math.min(positionLimit, position.getLiftTicks())));
+                liftMotor.setTargetPosition(Math.max(MIN_LIFT_POSITION, Math.min(MAX_LIFT_POSITION, position.getLiftTicks())));
                 liftMotor.set(LIFT_POWER);
             case RUNNING_LIFT:
                 if(!liftMotor.atTargetPosition()) break;
@@ -346,6 +376,10 @@ public class OldLift extends SubsystemBase {
     public void setPosition(LiftPosition position) {
         this.position = position;
         this.state = State.STARTING_MOVE;
+    }
+
+    public boolean getClawOpen() {
+        return clawOpen;
     }
 
     public LiftPosition getPosition() {

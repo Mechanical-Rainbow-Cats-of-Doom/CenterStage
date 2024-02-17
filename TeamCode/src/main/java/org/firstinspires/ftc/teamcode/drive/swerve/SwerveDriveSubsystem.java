@@ -37,7 +37,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
 
     public static double flMult = 1, frMult = 1, blMult = 1, brMult = 1;
 
-    public static double flP = 1, flI = 0, flD = 0.1, frP = 1, frI = 0, frD = 0.1, blP = 1, blI = 0, blD = 0.1, brP = 1, brI = 0, brD = 0.1;
+    public static double flP = 1.3, flI = 0, flD = 0.13, frP = 1.3, frI = 0, frD = 0.13, blP = 1.3, blI = 0, blD = 0.13, brP = 1.3, brI = 0, brD = 0.13;
     private static double[][] pidConstants;
     private final IMU imu;
     private final ToggleButtonReader fieldRelativeReader;
@@ -137,16 +137,6 @@ public class SwerveDriveSubsystem extends SubsystemBase implements HolonomicDriv
         }
     }
 
-
-    @Override
-    public ChassisSpeeds getMeasuredVelocity() {
-        return null;
-    }
-
-    @Override
-    public Pose2d getPosition() {
-        return null;
-    }
 
     @Override
     public void periodic() {

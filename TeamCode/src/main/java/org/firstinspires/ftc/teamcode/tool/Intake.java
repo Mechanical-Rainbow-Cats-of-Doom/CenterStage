@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.common.util.DcMotorSimpleGroup;
 
 @Config
 public class Intake extends ToggleableMotor {
-    public static double SPEED = 0.9;
+    public static double SPEED = 1;
     private static final ConfigChangeDetector<Intake> changeDetector = new ConfigChangeDetector<>(Intake.class);
     public Intake(@NonNull HardwareMap hardwareMap) {
         super(new DcMotorSimpleGroup(

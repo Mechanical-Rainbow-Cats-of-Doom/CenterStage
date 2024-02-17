@@ -19,7 +19,7 @@ public class PropDetector {
     private final OpenCvCamera camera;
     private final boolean debug, isRed;
     public static int CAMERA_WIDTH = 320, CAMERA_HEIGHT = 240;
-    public static OpenCvCameraRotation ORIENTATION = OpenCvCameraRotation.UPSIDE_DOWN;
+    public static OpenCvCameraRotation ORIENTATION = OpenCvCameraRotation.UPRIGHT;
     private final ArrayBlockingQueue<Integer> visionVals = new ArrayBlockingQueue<>(1);
     private final PropPipeline.PropPipelineRectsProvider rects;
     private HighlightSelectionZonePipeline highlightSelectionZonePipeline;
@@ -62,6 +62,9 @@ public class PropDetector {
      * @return integer 0 - 2, corresponds to left, center, and right respectively
      */
     public synchronized int run(Runnable runnable) throws InterruptedException {
+        while(camera.getFps() < 10) {
+            runnable.run();
+        }
         final PropPipeline pipeline = new PropPipeline(isRed, debug, visionVals, rects);
         camera.setPipeline(pipeline);
         pipeline.startPipeline();

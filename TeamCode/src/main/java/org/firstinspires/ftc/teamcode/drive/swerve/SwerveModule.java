@@ -95,6 +95,9 @@ public class SwerveModule {
 
         try {
             dynamicTickOffset = wheelAutoPositionMap.get(this.wheel);
+            if (Math.abs(dynamicTickOffset) <= 1e-5) {
+                dynamicTickOffset = getServoEncoderOutput();
+            }
         } catch (Exception ex) {
             dynamicTickOffset = getServoEncoderOutput();
         }

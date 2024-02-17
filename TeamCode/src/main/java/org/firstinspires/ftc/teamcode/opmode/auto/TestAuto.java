@@ -1,13 +1,23 @@
 package org.firstinspires.ftc.teamcode.opmode.auto;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.command.CommandOpMode;
+import com.arcrobotics.ftclib.gamepad.GamepadEx;
+import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
+import org.firstinspires.ftc.teamcode.common.util.DelayStorage;
+
+@Disabled
 @Autonomous
 public class TestAuto extends CommandOpMode {
 
+
     @Override
     public void initialize() {
+
         // initialize hardware
         // schedule commands
         // register any subsystems that are unregistered for some reason
@@ -18,6 +28,8 @@ public class TestAuto extends CommandOpMode {
     @Override
     public void runOpMode() {
         initialize();
+
+
 
         waitForStart();
 
