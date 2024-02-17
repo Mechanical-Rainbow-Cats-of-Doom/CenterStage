@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.tool;
+package org.firstinspires.ftc.teamcode.tool.old;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.SubsystemBase;
@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.commands.LiftGoToPositionCommand;
 import org.firstinspires.ftc.teamcode.common.hardware.DebugMotor;
 
 @Config
-public class Lift extends SubsystemBase {
+public class OldLift extends SubsystemBase {
     public interface LiftPosition {
         int getLiftTicks();
         double getClawRotation();
@@ -198,7 +198,7 @@ public class Lift extends SubsystemBase {
 
     private final boolean isTeleOp;
 
-    public Lift(HardwareMap hardwareMap, GamepadEx toolGamepad, boolean debug, boolean teleOp) {
+    public OldLift(HardwareMap hardwareMap, GamepadEx toolGamepad, boolean debug, boolean teleOp) {
         final Motor.GoBILDA motorType = Motor.GoBILDA.RPM_117;
         final String id = "lift1";
         this.toolGamepad = toolGamepad;
@@ -232,19 +232,19 @@ public class Lift extends SubsystemBase {
         this.isTeleOp = teleOp;
     }
 
-    public Lift(HardwareMap hardwareMap, GamepadEx toolGamepad, boolean debug) {
+    public OldLift(HardwareMap hardwareMap, GamepadEx toolGamepad, boolean debug) {
         this(hardwareMap, toolGamepad, debug, true);
     }
 
-    public Lift(HardwareMap hardwareMap, boolean debug) {
+    public OldLift(HardwareMap hardwareMap, boolean debug) {
         this(hardwareMap, null, debug);
     }
 
-    public Lift(HardwareMap hardwareMap) {
+    public OldLift(HardwareMap hardwareMap) {
         this(hardwareMap, false);
     }
 
-    public Lift(HardwareMap hardwareMap, GamepadEx toolGamepad) {
+    public OldLift(HardwareMap hardwareMap, GamepadEx toolGamepad) {
         this(hardwareMap, toolGamepad, false);
     }
 

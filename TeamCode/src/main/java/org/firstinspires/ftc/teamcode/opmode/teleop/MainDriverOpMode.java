@@ -17,14 +17,14 @@ import org.firstinspires.ftc.teamcode.commands.SetIntakeCommands;
 import org.firstinspires.ftc.teamcode.drive.swerve.SwerveDriveSubsystem;
 import org.firstinspires.ftc.teamcode.tool.DroneLauncher;
 import org.firstinspires.ftc.teamcode.tool.Intake;
-import org.firstinspires.ftc.teamcode.tool.Lift;
+import org.firstinspires.ftc.teamcode.tool.old.OldLift;
  
 @TeleOp(name = "🐟")
 public class MainDriverOpMode extends CommandOpMode {
     private final Telemetry telemetry = new MultipleTelemetry(super.telemetry, FtcDashboard.getInstance().getTelemetry());
     private GamepadEx driver1, driver2;
     private SwerveDriveSubsystem drive;
-    private Lift lift;
+    private OldLift lift;
     private DroneLauncher droneLauncher;
     private Intake intake;
     private boolean lastLifterPosition;
@@ -37,7 +37,7 @@ public class MainDriverOpMode extends CommandOpMode {
         driver1 = new GamepadEx(gamepad1);
         driver2 = new GamepadEx(gamepad2);
         drive = new SwerveDriveSubsystem(hardwareMap, telemetry, true, () -> true);
-        lift = new Lift(hardwareMap, driver2);
+        lift = new OldLift(hardwareMap, driver2);
         droneLauncher = new DroneLauncher(hardwareMap, () -> driver1.getButton(GamepadKeys.Button.BACK));
         intake = new Intake(hardwareMap);
         Servo lifter = hardwareMap.get(Servo.class, "lifter");
