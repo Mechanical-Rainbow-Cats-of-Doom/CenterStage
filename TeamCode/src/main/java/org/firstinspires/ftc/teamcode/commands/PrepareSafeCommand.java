@@ -5,14 +5,14 @@ import com.arcrobotics.ftclib.command.CommandBase;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 
 import org.firstinspires.ftc.teamcode.tool.Intake;
-import org.firstinspires.ftc.teamcode.tool.Lift;
+import org.firstinspires.ftc.teamcode.tool.old.OldLift;
 
 public class PrepareSafeCommand extends CommandBase {
     public final LiftSafeCommand safeCommand;
     public final Intake intake;
-    public final Lift lift;
+    public final OldLift lift;
 
-    public PrepareSafeCommand(Intake intake, Lift lift) {
+    public PrepareSafeCommand(Intake intake, OldLift lift) {
         this.intake = intake;
         this.lift = lift;
         safeCommand = new LiftSafeCommand(intake, lift);

@@ -3,13 +3,13 @@ package org.firstinspires.ftc.teamcode.commands;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 
 import org.firstinspires.ftc.teamcode.tool.Intake;
-import org.firstinspires.ftc.teamcode.tool.Lift;
+import org.firstinspires.ftc.teamcode.tool.old.OldLift;
 
 public class LiftSafeCommand extends LiftGoToPositionCommand {
     public final PostSafe postSafe;
     private final Intake intake;
-    public LiftSafeCommand(Intake intake, Lift lift) {
-        super(lift, Lift.LiftPosition.Default.SAFE);
+    public LiftSafeCommand(Intake intake, OldLift lift) {
+        super(lift, OldLift.LiftPosition.Default.SAFE);
         this.intake = intake;
         this.lift = lift;
         postSafe = new PostSafe(lift);

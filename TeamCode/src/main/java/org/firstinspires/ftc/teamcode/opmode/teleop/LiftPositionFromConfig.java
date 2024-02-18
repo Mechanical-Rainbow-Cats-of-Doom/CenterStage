@@ -3,16 +3,14 @@ package org.firstinspires.ftc.teamcode.opmode.teleop;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
-import com.arcrobotics.ftclib.util.Timing;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.common.util.ConfigChangeDetector;
-import org.firstinspires.ftc.teamcode.tool.Lift;
+import org.firstinspires.ftc.teamcode.tool.old.OldLift;
 
 import java.util.Collections;
 
@@ -32,8 +30,8 @@ public class LiftPositionFromConfig extends LinearOpMode {
                 new ConfigChangeDetector<>(LiftPositionConfig.class, Collections.singletonList("changeDetector"));
 
 
-        public static Lift.LiftPosition getCustomLiftPosition() {
-            return useDefault ? defaultPosition : new Lift.LiftPosition.Custom(liftTicks, (float)servoPosition, rotateClawEarly, clawOpen, forceStartOpen);
+        public static OldLift.LiftPosition getCustomLiftPosition() {
+            return useDefault ? defaultPosition : new OldLift.LiftPosition.Custom(liftTicks, (float)servoPosition, rotateClawEarly, clawOpen, forceStartOpen);
         }
 
         public static boolean changeDetected() {
@@ -47,7 +45,7 @@ public class LiftPositionFromConfig extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         CommandScheduler.getInstance().reset();
         GamepadEx driver2 = new GamepadEx(gamepad2);
-        Lift lift = new Lift(hardwareMap, driver2, true, false, telemetry);
+        OldLift lift = new OldLift(hardwareMap, driver2, true, false, telemetry);
         telemetry = new MultipleTelemetry(super.telemetry, FtcDashboard.getInstance().getTelemetry());
         waitForStart();
         long lastPositionTime = System.currentTimeMillis();
