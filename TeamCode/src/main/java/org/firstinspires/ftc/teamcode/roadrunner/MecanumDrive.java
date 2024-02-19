@@ -235,6 +235,28 @@ public final class MecanumDrive {
         MecanumKinematics.WheelVelocities<Time> wheelVels = new MecanumKinematics(1).inverse(
                 PoseVelocity2dDual.constant(powers, 1));
 
+        double voltage = voltageSensor.getVoltage();
+
+        final MotorFeedforward feedforward = new MotorFeedforward(PARAMS.kS,
+                PARAMS.kV / PARAMS.inPerTick, PARAMS.kA / PARAMS.inPerTick);
+        double leftFrontPower = feedforward.compute(wheelVels.leftFront.times(PARAMS.maxWheelVel)) / voltage;
+        double leftBackPower = feedforward.compute(wheelVels.leftBack.times(PARAMS.maxWheelVel)) / voltage;
+        double rightBackPower = feedforward.compute(wheelVels.rightBack.times(PARAMS.maxWheelVel)) / voltage;
+        double rightFrontPower = feedforward.compute(wheelVels.rightFront.times(PARAMS.maxWheelVel)) / voltage;
+        mecanumCommandWriter.write(new MecanumCommandMessage(
+                voltage, leftFrontPower, leftBackPower, rightBackPower, rightFrontPower
+        ));
+
+        leftFront.setPower(leftFrontPower);
+        leftBack.setPower(leftBackPower);
+        rightBack.setPower(rightBackPower);
+        rightFront.setPower(rightFrontPower);
+    }
+
+    public void setDrivePowersNoFeedForward(PoseVelocity2d powers) {
+        MecanumKinematics.WheelVelocities<Time> wheelVels = new MecanumKinematics(1).inverse(
+                PoseVelocity2dDual.constant(powers, 1));
+
         double maxPowerMag = 1;
         for (DualNum<Time> power : wheelVels.all()) {
             maxPowerMag = Math.max(maxPowerMag, power.value());
