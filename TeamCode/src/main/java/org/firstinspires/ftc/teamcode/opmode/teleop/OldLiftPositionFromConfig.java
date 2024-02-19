@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -14,8 +15,10 @@ import org.firstinspires.ftc.teamcode.tool.old.OldLift;
 
 import java.util.Collections;
 
+@Disabled
 @TeleOp
-public class LiftPositionFromConfig extends LinearOpMode {
+public class OldLiftPositionFromConfig extends LinearOpMode {
+    @Disabled
     @Config
     public static class LiftPositionConfig {
         public static int liftTicks;
@@ -23,7 +26,7 @@ public class LiftPositionFromConfig extends LinearOpMode {
         public static boolean rotateClawEarly;
         public static boolean clawOpen = true;
         public static boolean forceStartOpen;
-        public static Lift.LiftPosition.Default defaultPosition = Lift.LiftPosition.Default.DOWN;
+        public static OldLift.LiftPosition.Default defaultPosition = OldLift.LiftPosition.Default.DOWN;
         public static boolean useDefault = false;
 
         private static final ConfigChangeDetector<LiftPositionConfig> changeDetector =

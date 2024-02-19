@@ -17,7 +17,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.tool.Lift;
+import org.firstinspires.ftc.teamcode.tool.old.OldLift;
 import org.firstinspires.ftc.teamcode.vision.PropDetector;
 import org.firstinspires.ftc.teamcode.vision.PropPipeline;
 
@@ -31,7 +31,7 @@ public class BlueAudiencePlacePixelAuto extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         PropDetector detector = new PropDetector(hardwareMap, "webcam", true,
                 isRed, PropPipeline.PropPipelineRectsProvider.Default.RED_BOARD_SIDE);
-        Lift lift = new Lift(hardwareMap, null, false, false, null);
+        OldLift lift = new OldLift(hardwareMap, null, false, false, null);
         Pose2d startPose = new Pose2d(12, -61.75, Math.toRadians(90));
         Pose2d secondInitialPose = new Pose2d(12, -50, Math.toRadians(90));
         Pose2d thirdInitialPose = new Pose2d(36, -16, Math.toRadians(180));
@@ -123,15 +123,15 @@ public class BlueAudiencePlacePixelAuto extends LinearOpMode {
                 }
                 break;
         }
-        lift.setPosition(Lift.LiftPosition.Default.DOWN);
+        lift.setPosition(OldLift.LiftPosition.Default.DOWN);
         while(!lift.getState().isFinished()) {
             lift.periodic();
         }
-        lift.setPosition(Lift.LiftPosition.Default.LOW);
+        lift.setPosition(OldLift.LiftPosition.Default.LOW);
         while(!lift.getState().isFinished()) {
             lift.periodic();
         }
-        lift.setPosition(Lift.LiftPosition.Default.DOWN);
+        lift.setPosition(OldLift.LiftPosition.Default.DOWN);
         while(!lift.getState().isFinished()) {
             lift.periodic();
         }
