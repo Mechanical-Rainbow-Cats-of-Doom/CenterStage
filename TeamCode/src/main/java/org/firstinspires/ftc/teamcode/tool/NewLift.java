@@ -384,37 +384,7 @@ public class NewLift extends SubsystemBase {
         switch(state) {
             case STARTING_MOVE:
                 state = State.EARLY_MOVE;
-                if(state.currentTime(position.getLiftMoveTime())) {
-                    liftMotor.setTargetPosition(position.getLiftTicks());
-                    waitingForLiftMove = true;
-                }
-                if(state.currentTime(position.getArmLengthTime())) {
-                    double newArmLength = position.getArmLength();
-                    double timeRequired = ARM_LENGTH_TIME_P * Math.abs(armLengthServo.getPosition() - newArmLength);
-                    maxMoveTime = Math.max(maxMoveTime, timeRequired);
-                    armLengthServo.setPosition(newArmLength);
-                }
-                if(state.currentTime(position.getArmRollTime())) {
-                    double newArmRoll = position.getArmRoll();
-                    double timeRequired = ARM_ROLL_TIME_P * Math.abs(armRollServo.getPosition() - newArmRoll);
-                    maxMoveTime = Math.max(maxMoveTime, timeRequired);
-                    armRollServo.setPosition(position.getArmRoll());
-                    carriageRollServo.setPosition(-position.getArmRoll());
-                }
-                if(state.currentTime(position.getArmYawTime())) {
-                    double requiredPosition = position.isArmOut() ? ARM_OUT_YAW : ARM_IN_YAW;
-                    if(armYawServo.getPosition() != requiredPosition) {
-                        maxMoveTime = Math.max(maxMoveTime, ARM_YAW_MOVE_TIME);
-                        armYawServo.setPosition(requiredPosition);
-                    }
-                }
-                if(state.currentTime(position.getClawTime())) {
-                    double requiredPosition = position.isClawOpen() ? CLAW_OPEN_POSITION : CLAW_CLOSED_POSITION;
-                    if(carriageClawServo.getPosition() != requiredPosition) {
-                        maxMoveTime = Math.max(maxMoveTime, CLAW_MOVE_TIME);
-                        carriageClawServo.setPosition(requiredPosition);
-                    }
-                }
+                prepareMove();
                 time.reset();
             case EARLY_MOVE:
                 if(waitingForLiftMove && !liftMotor.atTargetPosition()) {
@@ -426,37 +396,7 @@ public class NewLift extends SubsystemBase {
                 waitingForLiftMove = false;
                 maxMoveTime = 0;
                 state = State.MOVE;
-                if(state.currentTime(position.getLiftMoveTime())) {
-                    liftMotor.setTargetPosition(position.getLiftTicks());
-                    waitingForLiftMove = true;
-                }
-                if(state.currentTime(position.getArmLengthTime())) {
-                    double newArmLength = position.getArmLength();
-                    double timeRequired = ARM_LENGTH_TIME_P * Math.abs(armLengthServo.getPosition() - newArmLength);
-                    maxMoveTime = Math.max(maxMoveTime, timeRequired);
-                    armLengthServo.setPosition(newArmLength);
-                }
-                if(state.currentTime(position.getArmRollTime())) {
-                    double newArmRoll = position.getArmRoll();
-                    double timeRequired = ARM_ROLL_TIME_P * Math.abs(armRollServo.getPosition() - newArmRoll);
-                    maxMoveTime = Math.max(maxMoveTime, timeRequired);
-                    armRollServo.setPosition(position.getArmRoll());
-                    carriageRollServo.setPosition(-position.getArmRoll());
-                }
-                if(state.currentTime(position.getArmYawTime())) {
-                    double requiredPosition = position.isArmOut() ? ARM_OUT_YAW : ARM_IN_YAW;
-                    if(armYawServo.getPosition() != requiredPosition) {
-                        maxMoveTime = Math.max(maxMoveTime, ARM_YAW_MOVE_TIME);
-                        armYawServo.setPosition(requiredPosition);
-                    }
-                }
-                if(state.currentTime(position.getClawTime())) {
-                    double requiredPosition = position.isClawOpen() ? CLAW_OPEN_POSITION : CLAW_CLOSED_POSITION;
-                    if(carriageClawServo.getPosition() != requiredPosition) {
-                        maxMoveTime = Math.max(maxMoveTime, CLAW_MOVE_TIME);
-                        carriageClawServo.setPosition(requiredPosition);
-                    }
-                }
+                prepareMove();
                 time.reset();
             case MOVE:
                 if(waitingForLiftMove && !liftMotor.atTargetPosition()) {
@@ -468,37 +408,7 @@ public class NewLift extends SubsystemBase {
                 waitingForLiftMove = false;
                 maxMoveTime = 0;
                 state = State.LATE_MOVE;
-                if(state.currentTime(position.getLiftMoveTime())) {
-                    liftMotor.setTargetPosition(position.getLiftTicks());
-                    waitingForLiftMove = true;
-                }
-                if(state.currentTime(position.getArmLengthTime())) {
-                    double newArmLength = position.getArmLength();
-                    double timeRequired = ARM_LENGTH_TIME_P * Math.abs(armLengthServo.getPosition() - newArmLength);
-                    maxMoveTime = Math.max(maxMoveTime, timeRequired);
-                    armLengthServo.setPosition(newArmLength);
-                }
-                if(state.currentTime(position.getArmRollTime())) {
-                    double newArmRoll = position.getArmRoll();
-                    double timeRequired = ARM_ROLL_TIME_P * Math.abs(armRollServo.getPosition() - newArmRoll);
-                    maxMoveTime = Math.max(maxMoveTime, timeRequired);
-                    armRollServo.setPosition(position.getArmRoll());
-                    carriageRollServo.setPosition(-position.getArmRoll());
-                }
-                if(state.currentTime(position.getArmYawTime())) {
-                    double requiredPosition = position.isArmOut() ? ARM_OUT_YAW : ARM_IN_YAW;
-                    if(armYawServo.getPosition() != requiredPosition) {
-                        maxMoveTime = Math.max(maxMoveTime, ARM_YAW_MOVE_TIME);
-                        armYawServo.setPosition(requiredPosition);
-                    }
-                }
-                if(state.currentTime(position.getClawTime())) {
-                    double requiredPosition = position.isClawOpen() ? CLAW_OPEN_POSITION : CLAW_CLOSED_POSITION;
-                    if(carriageClawServo.getPosition() != requiredPosition) {
-                        maxMoveTime = Math.max(maxMoveTime, CLAW_MOVE_TIME);
-                        carriageClawServo.setPosition(requiredPosition);
-                    }
-                }
+                prepareMove();
                 time.reset();
             case LATE_MOVE:
                 if(waitingForLiftMove && !liftMotor.atTargetPosition()) {
@@ -516,37 +426,7 @@ public class NewLift extends SubsystemBase {
                         break;
                     }
                     state = State.VERY_LATE_MOVE;
-                    if(state.currentTime(position.getLiftMoveTime())) {
-                        liftMotor.setTargetPosition(position.getLiftTicks());
-                        waitingForLiftMove = true;
-                    }
-                    if(state.currentTime(position.getArmLengthTime())) {
-                        double newArmLength = position.getArmLength();
-                        double timeRequired = ARM_LENGTH_TIME_P * Math.abs(armLengthServo.getPosition() - newArmLength);
-                        maxMoveTime = Math.max(maxMoveTime, timeRequired);
-                        armLengthServo.setPosition(newArmLength);
-                    }
-                    if(state.currentTime(position.getArmRollTime())) {
-                        double newArmRoll = position.getArmRoll();
-                        double timeRequired = ARM_ROLL_TIME_P * Math.abs(armRollServo.getPosition() - newArmRoll);
-                        maxMoveTime = Math.max(maxMoveTime, timeRequired);
-                        armRollServo.setPosition(position.getArmRoll());
-                        carriageRollServo.setPosition(-position.getArmRoll());
-                    }
-                    if(state.currentTime(position.getArmYawTime())) {
-                        double requiredPosition = position.isArmOut() ? ARM_OUT_YAW : ARM_IN_YAW;
-                        if(armYawServo.getPosition() != requiredPosition) {
-                            maxMoveTime = Math.max(maxMoveTime, ARM_YAW_MOVE_TIME);
-                            armYawServo.setPosition(requiredPosition);
-                        }
-                    }
-                    if(state.currentTime(position.getClawTime())) {
-                        double requiredPosition = position.isClawOpen() ? CLAW_OPEN_POSITION : CLAW_CLOSED_POSITION;
-                        if(carriageClawServo.getPosition() != requiredPosition) {
-                            maxMoveTime = Math.max(maxMoveTime, CLAW_MOVE_TIME);
-                            carriageClawServo.setPosition(requiredPosition);
-                        }
-                    }
+                    prepareMove();
                 }
             case VERY_LATE_MOVE:
                 if(waitingForLiftMove && !liftMotor.atTargetPosition()) {
@@ -600,5 +480,39 @@ public class NewLift extends SubsystemBase {
         return position.getLiftMoveTime() == time || position.getClawTime() == time ||
                 position.getArmLengthTime() == time || position.getArmYawTime() == time ||
                 position.getArmRollTime() == time;
+    }
+
+    private void prepareMove() {
+        if(state.currentTime(position.getLiftMoveTime())) {
+            liftMotor.setTargetPosition(position.getLiftTicks());
+            waitingForLiftMove = true;
+        }
+        if(state.currentTime(position.getArmLengthTime())) {
+            double newArmLength = position.getArmLength();
+            double timeRequired = ARM_LENGTH_TIME_P * Math.abs(armLengthServo.getPosition() - newArmLength);
+            maxMoveTime = Math.max(maxMoveTime, timeRequired);
+            armLengthServo.setPosition(newArmLength);
+        }
+        if(state.currentTime(position.getArmRollTime())) {
+            double newArmRoll = position.getArmRoll();
+            double timeRequired = ARM_ROLL_TIME_P * Math.abs(armRollServo.getPosition() - newArmRoll);
+            maxMoveTime = Math.max(maxMoveTime, timeRequired);
+            armRollServo.setPosition(position.getArmRoll());
+            carriageRollServo.setPosition(-position.getArmRoll());
+        }
+        if(state.currentTime(position.getArmYawTime())) {
+            double requiredPosition = position.isArmOut() ? ARM_OUT_YAW : ARM_IN_YAW;
+            if(armYawServo.getPosition() != requiredPosition) {
+                maxMoveTime = Math.max(maxMoveTime, ARM_YAW_MOVE_TIME);
+                armYawServo.setPosition(requiredPosition);
+            }
+        }
+        if(state.currentTime(position.getClawTime())) {
+            double requiredPosition = position.isClawOpen() ? CLAW_OPEN_POSITION : CLAW_CLOSED_POSITION;
+            if(carriageClawServo.getPosition() != requiredPosition) {
+                maxMoveTime = Math.max(maxMoveTime, CLAW_MOVE_TIME);
+                carriageClawServo.setPosition(requiredPosition);
+            }
+        }
     }
 }
