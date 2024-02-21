@@ -26,13 +26,13 @@ public class LiftSafeCommand extends LiftGoToPositionCommand {
     }
 
     private static class PostSafe extends LiftGoToPositionCommand {
-        public PostSafe(Lift lift) {
-            super(lift, Lift.LiftPosition.Default.DOWN);
+        public PostSafe(OldLift lift) {
+            super(lift, OldLift.LiftPosition.Default.DOWN);
         }
 
         @Override
         public boolean isFinished() {
-            return lift.getPosition() != Lift.LiftPosition.Default.DOWN || lift.getState().isFinished() || !lift.isAutomatic();
+            return lift.getPosition() != OldLift.LiftPosition.Default.DOWN || lift.getState().isFinished() || !lift.isAutomatic();
         }
     }
 }

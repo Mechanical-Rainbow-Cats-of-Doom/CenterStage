@@ -17,6 +17,8 @@ import java.util.Arrays;
 
 @Config
 public class NewLift extends SubsystemBase {
+    private final SimpleServo armYawRight;
+
     public interface LiftPosition {
         int getLiftTicks();
         boolean isArmOut();
@@ -273,7 +275,7 @@ public class NewLift extends SubsystemBase {
     public static double ARM_ROLL_TIME_P = 0;
     public static double ARM_LENGTH_TIME_P = 0;
     private final MotorGroup liftMotor;
-    private final ServoEx armYawServo;
+    private final ServoEx armYawLeft;
     private final ServoEx armRollServo;
     private final ServoEx armLengthServo;
     private final ServoEx carriageRollServo;
@@ -294,7 +296,7 @@ public class NewLift extends SubsystemBase {
     @SuppressWarnings("ConstantConditions")
     public NewLift(HardwareMap hardwareMap, GamepadEx toolGamepad, boolean debug, boolean teleOp) {
         final Motor.GoBILDA motorType = Motor.GoBILDA.RPM_312;
-        final String[] liftMotorIds = {"lift1", "lift2"};
+        final String[] liftMotorIds = {"liftRight", "liftLeft"};
         final boolean[] isInverted = {false, false};
         this.toolGamepad = toolGamepad;
         Motor[] motors = new Motor[liftMotorIds.length];
@@ -310,11 +312,12 @@ public class NewLift extends SubsystemBase {
         liftMotor.setPositionTolerance(POSITION_TOLERANCE);
         liftMotor.setRunMode(Motor.RunMode.PositionControl);
 
-        armYawServo = new SimpleServo(hardwareMap, "armYawServo", 0, 1);
-        armRollServo = new SimpleServo(hardwareMap, "armRollServo", 0, 1);
-        armLengthServo = new SimpleServo(hardwareMap, "armLengthServo", 0, 1);
-        carriageRollServo = new SimpleServo(hardwareMap, "carriageRollServo", 0, 1);
-        carriageClawServo = new SimpleServo(hardwareMap, "armYawServo", 0, 1);
+        armYawLeft = new SimpleServo(hardwareMap, "armYawLeft", 0, 1);
+        armYawRight = new SimpleServo(hardwareMap, "armYawRight", 0, 1);
+        armRollServo = new SimpleServo(hardwareMap, "armRoll", 0, 1);
+        armLengthServo = new SimpleServo(hardwareMap, "armLength", 0, 1);
+        carriageRollServo = new SimpleServo(hardwareMap, "carriageRoll", 0, 1);
+        carriageClawServo = new SimpleServo(hardwareMap, "carriageClaw", 0, 1);
 
         // TODO reimplement inputs
 //        if (toolGamepad != null) {
@@ -502,9 +505,9 @@ public class NewLift extends SubsystemBase {
         }
         if(state.currentTime(position.getArmYawTime())) {
             double requiredPosition = position.isArmOut() ? ARM_OUT_YAW : ARM_IN_YAW;
-            if(armYawServo.getPosition() != requiredPosition) {
+            if(armYawLeft.getPosition() != requiredPosition) {
                 maxMoveTime = Math.max(maxMoveTime, ARM_YAW_MOVE_TIME);
-                armYawServo.setPosition(requiredPosition);
+                armYawLeft.setPosition(requiredPosition);
             }
         }
         if(state.currentTime(position.getClawTime())) {

@@ -3,13 +3,13 @@ package org.firstinspires.ftc.teamcode.commands;
 import com.arcrobotics.ftclib.command.CommandBase;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.tool.Lift;
+import org.firstinspires.ftc.teamcode.tool.old.OldLift;
 
 public class LiftTelemetryCommand extends CommandBase {
     private final Telemetry telemetry;
-    private final Lift lift;
+    private final OldLift lift;
 
-    public LiftTelemetryCommand(Telemetry telemetry, Lift lift) {
+    public LiftTelemetryCommand(Telemetry telemetry, OldLift lift) {
         this.telemetry = telemetry;
         this.lift = lift;
     }

@@ -27,7 +27,8 @@ public class NewLiftPositionFromConfig extends LinearOpMode {
         public static NewLift.LiftPosition.Time armRollTime;
         public static NewLift.LiftPosition.Time armYawTime;
         public static NewLift.LiftPosition.Time armLengthTime;
-        public static NewLift.LiftPosition nextLiftPosition;
+        public static NewLift.LiftPosition.Time clawTime;
+        public static boolean clawOpen;
         public static NewLift.LiftPosition.Default defaultPosition = NewLift.LiftPosition.Default.DOWN;
         public static boolean useDefault = false;
 
@@ -36,8 +37,8 @@ public class NewLiftPositionFromConfig extends LinearOpMode {
 
 
         public static NewLift.LiftPosition getCustomLiftPosition() {
-            return useDefault ? defaultPosition : new NewLift.LiftPosition.Custom(liftTicks,
-                    armOut, armRoll, armLength, liftMoveTime, armRollTime, armYawTime, armLengthTime, nextLiftPosition);
+            return useDefault ? defaultPosition : new NewLift.LiftPosition.Custom(liftTicks, armOut,
+                    armRoll, armLength, clawOpen, liftMoveTime, armRollTime, armYawTime, armLengthTime, clawTime);
         }
 
         public static boolean changeDetected() {

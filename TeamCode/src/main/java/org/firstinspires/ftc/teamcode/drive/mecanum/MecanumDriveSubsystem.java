@@ -71,7 +71,7 @@ public class MecanumDriveSubsystem extends SubsystemBase implements HolonomicDri
     @Override
     public void periodic() {
         if(squareInputs) {
-            currVelocity.vxMetersPerSecond = Math.signum(currVelocity.vxMetersPerSecond)*currVelocity.vxMetersPerSecond;
+            currVelocity.vxMetersPerSecond = Math.signum(currVelocity.vxMetersPerSecond)*currVelocity.vxMetersPerSecond*currVelocity.vxMetersPerSecond;
             currVelocity.vyMetersPerSecond = Math.signum(currVelocity.vyMetersPerSecond)*currVelocity.vyMetersPerSecond*currVelocity.vyMetersPerSecond;
             currVelocity.omegaRadiansPerSecond = Math.signum(currVelocity.omegaRadiansPerSecond)*currVelocity.omegaRadiansPerSecond*currVelocity.omegaRadiansPerSecond;
         }
