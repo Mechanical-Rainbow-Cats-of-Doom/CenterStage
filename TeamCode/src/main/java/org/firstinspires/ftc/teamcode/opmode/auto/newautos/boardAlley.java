@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode.opmode.auto.newautos;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -32,7 +34,7 @@ public class boardAlley extends LinearOpMode {
                 .strafeToLinearHeading(new Vector2d(50, -35), Math.toRadians(180))
                 .build();
 
-        Action cycle = drive.actionBuilder(drive.pose)
+        Action cycle = drive.actionBuilder(new Pose2d(50, -35, Math.toRadians(180)))
                 .strafeTo(new Vector2d(35, -12))
                 .strafeToLinearHeading(new Vector2d(-57, -12), Math.toRadians(180))
                 .strafeToLinearHeading(new Vector2d(50, -12), Math.toRadians(180))
@@ -46,23 +48,28 @@ public class boardAlley extends LinearOpMode {
         waitForStart();
         if (isStopRequested()) return;
 
-        Action direction;
+        Action purplePixel;
         switch (visionOutput) {
             case 0:
-                direction = left;
+                purplePixel = left;
                 break;
             case 1:
-                direction = center;
+                purplePixel = center;
                 break;
             case 2:
-                direction = right;
+                purplePixel = right;
                 break;
             default:
-                direction = center;
+                purplePixel = center;
                 break;
         }
 
-
+        Actions.runBlocking(
+                new SequentialAction(
+                        purplePixel,
+                        cycle
+                )
+        );
 
     }
 }

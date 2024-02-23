@@ -19,16 +19,18 @@ import java.util.Collections;
 public class NewLiftPositionFromConfig extends LinearOpMode {
     @Config
     public static class LiftPositionConfig {
-        public static int liftTicks;
-        public static boolean armOut;
-        public static double armRoll;
-        public static double armLength;
-        public static NewLift.LiftPosition.Time liftMoveTime;
-        public static NewLift.LiftPosition.Time armRollTime;
-        public static NewLift.LiftPosition.Time armYawTime;
-        public static NewLift.LiftPosition.Time armLengthTime;
-        public static NewLift.LiftPosition.Time clawTime;
-        public static boolean clawOpen;
+        public static int liftTicks = 0;
+        public static boolean armOut = false;
+        public static double armRoll = 0.43;
+        public static double carriageRoll = 0.52;
+        public static double armLength = 0;
+        public static NewLift.LiftPosition.Time liftMoveTime = NewLift.LiftPosition.Time.NORMAL;
+        public static NewLift.LiftPosition.Time armRollTime = NewLift.LiftPosition.Time.NORMAL;
+        public static NewLift.LiftPosition.Time carriageRollTime = NewLift.LiftPosition.Time.NORMAL;
+        public static NewLift.LiftPosition.Time armYawTime = NewLift.LiftPosition.Time.NORMAL;
+        public static NewLift.LiftPosition.Time armLengthTime = NewLift.LiftPosition.Time.NORMAL;
+        public static NewLift.LiftPosition.Time clawTime = NewLift.LiftPosition.Time.NORMAL;
+        public static boolean clawOpen = false;
         public static NewLift.LiftPosition.Default defaultPosition = NewLift.LiftPosition.Default.DOWN;
         public static boolean useDefault = false;
 
@@ -38,7 +40,8 @@ public class NewLiftPositionFromConfig extends LinearOpMode {
 
         public static NewLift.LiftPosition getCustomLiftPosition() {
             return useDefault ? defaultPosition : new NewLift.LiftPosition.Custom(liftTicks, armOut,
-                    armRoll, armLength, clawOpen, liftMoveTime, armRollTime, armYawTime, armLengthTime, clawTime);
+                    armRoll, carriageRoll, armLength, clawOpen, liftMoveTime, armRollTime,
+                    carriageRollTime, armYawTime, armLengthTime, clawTime);
         }
 
         public static boolean changeDetected() {
