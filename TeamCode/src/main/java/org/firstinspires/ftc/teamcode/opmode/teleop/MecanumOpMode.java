@@ -69,6 +69,7 @@ public class MecanumOpMode extends CommandOpMode {
         });
 
         // register unregistered subsystems
+        register(intake);
        // register(drive, lift, intake, droneLauncher);
     }
 
