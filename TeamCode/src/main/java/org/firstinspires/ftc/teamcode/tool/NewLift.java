@@ -939,4 +939,28 @@ public class NewLift extends SubsystemBase {
     public Action getClawAction(boolean open) {
         return new ClawAction(open);
     }
+
+    private class MoveLiftToPosition implements Action {
+        private boolean started = false;
+        private final LiftPosition position;
+
+        public MoveLiftToPosition(LiftPosition position) {
+            this.position = position;
+        }
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            if(!started) {
+                setPosition(position);
+                started = true;
+            }
+            periodic();
+            return !getState().isFinished();
+        }
+    }
+
+    public Action moveLiftToPosition(LiftPosition position) {
+        return new MoveLiftToPosition(position);
+    }
+
 }
