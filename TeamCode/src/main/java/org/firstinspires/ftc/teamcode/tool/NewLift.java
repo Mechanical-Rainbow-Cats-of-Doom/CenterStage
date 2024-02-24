@@ -66,12 +66,6 @@ public class NewLift extends SubsystemBase {
             DOWN(0, 100, false, 0.43, 0.535, 0.9, false, true,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.VERY_EARLY, Time.VERY_EARLY, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY),
 
-            A_LOW(1000, 100, true, 0.43, 0.535, 1, true, true,
-                    Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.EARLY, Time.LATE, Time.VERY_LATE_BUTTON, Time.EARLY),
-            A_MEDIUM(2000, 100, true, 0.43, 0.535, 1, true, true,
-                    Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.EARLY, Time.LATE, Time.VERY_LATE_BUTTON, Time.EARLY),
-            A_HIGH(3000, 100, true, 0.43, 0.535, 1, true, true,
-                    Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.EARLY, Time.LATE, Time.VERY_LATE_BUTTON, Time.EARLY),
 
             T_LEFT_LOW(800, 100, true, 0.76, 0.76, 0.35, true, true,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY, Default.DOWN),
@@ -92,7 +86,30 @@ public class NewLift extends SubsystemBase {
             T_RIGHT_MEDIUM(1400, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, T_RIGHT_LOW.armRoll, T_RIGHT_LOW.carriageRoll, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armYawTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.nextLiftPosition),
             T_RIGHT_HIGH(2050, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, T_RIGHT_LOW.armRoll, T_RIGHT_LOW.carriageRoll, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm,
-                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armYawTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.nextLiftPosition);
+                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armYawTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.nextLiftPosition),
+
+            // NO WORK
+            A_VLOW_MIDDLEDUMP_RIGHT_LEAN(0, 100, true, 0.7, 0.535, 1, false, true,
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY),
+            // NO WORK
+            A_VLOW_MIDDLEDUMP_LEFT_LEAN(0, 100, true, 0.7, 0.535, 1, false, true,
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY),
+            A_MIDDLE_VLOW_LEFTDUMP(200, 100, true, 0.25, 0.3, 1, false, true,
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY),
+            A_MIDDLE_VLOW_RIGHTDUMP(100, 100, true, 0.5, 0.75, 1, false, true,
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY),
+
+            A_LEFT_VLOW_LEFTDUMP(100, 100, true, 0.5, 0.75, 0.35, false, true,
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY),
+            A_LEFT_VLOW_MIDDLEDUMP(300, 100, true, 0.8, 1, 0.35, false, true,
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY),
+
+
+            A_MEDIUM(2000, 100, true, 0.43, 0.535, 1, true, true,
+                     Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.EARLY, Time.LATE, Time.VERY_LATE_BUTTON, Time.EARLY),
+            A_HIGH(3000, 100, true, 0.43, 0.535, 1, true, true,
+                   Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.EARLY, Time.LATE, Time.VERY_LATE_BUTTON, Time.EARLY);
+
             private final int liftTicks;
             private final int liftTicksTwo;
             private final boolean armOut;
