@@ -3,12 +3,15 @@ package org.firstinspires.ftc.teamcode.opmode.auto.newautos;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.tool.NewIntake;
+import org.firstinspires.ftc.teamcode.tool.NewLift;
 
 @Autonomous
 public class boardAlley extends LinearOpMode {
@@ -16,6 +19,9 @@ public class boardAlley extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         MecanumDrive drive = new MecanumDrive(hardwareMap, startPose);
+
+        NewLift lift = new NewLift(hardwareMap);
+        NewIntake intake = new NewIntake(hardwareMap);
 
         // Purple pixel movements
         Action left = drive.actionBuilder(drive.pose)
@@ -43,6 +49,7 @@ public class boardAlley extends LinearOpMode {
 
 
 
+
         int visionOutput = -1;
 
         waitForStart();
@@ -51,23 +58,48 @@ public class boardAlley extends LinearOpMode {
         Action purplePixel;
         switch (visionOutput) {
             case 0:
-                purplePixel = left;
+                purplePixel = new SequentialAction(
+                        left,
+                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_LOW),
+                        lift.getClawAction(true),
+                        new SleepAction(1),
+                        lift.getClawAction(false)
+                );
                 break;
             case 1:
-                purplePixel = center;
+                purplePixel = new SequentialAction(
+                        center,
+                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_LOW),
+                        lift.getClawAction(true),
+                        new SleepAction(1),
+                        lift.getClawAction(false)
+                );
                 break;
             case 2:
-                purplePixel = right;
+                purplePixel = new SequentialAction(
+                        right,
+                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_LOW),
+                        lift.getClawAction(true),
+                        new SleepAction(1),
+                        lift.getClawAction(false)
+                );
                 break;
             default:
-                purplePixel = center;
+                purplePixel = new SequentialAction(
+                        center,
+                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_LOW),
+                        lift.getClawAction(true),
+                        new SleepAction(1),
+                        lift.getClawAction(false)
+                );
                 break;
         }
 
+
         Actions.runBlocking(
                 new SequentialAction(
-                        purplePixel,
-                        cycle
+                        purplePixel
+//                        , cycle
                 )
         );
 

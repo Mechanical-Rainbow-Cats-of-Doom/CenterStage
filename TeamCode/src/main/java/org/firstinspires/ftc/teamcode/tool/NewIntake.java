@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.tool;
 
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
@@ -148,4 +152,39 @@ public class NewIntake extends SubsystemBase {
 
         height = DefaultHeight.numberToHeight(defHeight.getIndex() + num);
     }
+
+    private class SpinIntake implements Action {
+        private final DoubleSupplier intakeHeight;
+        private final PixelSensor sensor;
+        private final int toCollect;
+        private boolean started = false;
+
+        public SpinIntake(PixelSensor sensor, int toCollect, DoubleSupplier intakeHeight) {
+            this.sensor = sensor;
+            this.toCollect = toCollect;
+            this.intakeHeight = intakeHeight;
+        }
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            if(!started) {
+                setState(State.FORWARD);
+                setHeight(intakeHeight);
+                started = true;
+            }
+            sensor.periodic();
+            boolean done = sensor.getPixelCount() >= toCollect;
+            if(done) {
+                setState(State.OFF);
+            }
+            periodic();
+            return !done;
+        }
+    }
+
+    public Action spinIntakeAction(PixelSensor pixelSensor, int toCollect, DoubleSupplier intakeHeight) {
+        return new SpinIntake(pixelSensor, toCollect, intakeHeight);
+    }
+
+
 }

@@ -5,6 +5,7 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeBlueDark;
+import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeBlueLight;
 import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeRedDark;
 import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeRedLight;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
@@ -135,6 +136,21 @@ public class MeepMeepTesting {
                                 .lineToLinearHeading(new Pose2d(60,59, Math.toRadians(180)))
                                 .build());
 
+        RoadRunnerBotEntity newAudience = new DefaultBotBuilder(meepMeep)
+                .setColorScheme(new ColorSchemeBlueLight())
+                .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 13.23195266731826)
+                .followTrajectorySequence(drive ->
+                        drive.trajectorySequenceBuilder(new Pose2d(-35, -63.75, Math.toRadians(90)))
+                                .lineToLinearHeading(new Pose2d(-41, -37, Math.toRadians(110)))
+                                .lineToLinearHeading(new Pose2d(-35, -38, Math.toRadians(180)))
+                                .lineToLinearHeading(new Pose2d(-35, -12, Math.toRadians(180)))
+                                .lineToLinearHeading(new Pose2d(-57, -12, Math.toRadians(180)))
+                                .lineToLinearHeading(new Pose2d(50, -12, Math.toRadians(180)))
+                                .lineToLinearHeading(new Pose2d(-57, -12, Math.toRadians(180)))
+                                .lineToLinearHeading(new Pose2d(50, -12, Math.toRadians(180)))
+                                .lineToLinearHeading(new Pose2d(60, -12, Math.toRadians(180)))
+                                .build());
+
         meepMeep.setBackground(MeepMeep.Background.FIELD_CENTERSTAGE_JUICE_DARK)
                 .setDarkMode(true)
                 .setBackgroundAlpha(0.95f)
@@ -146,6 +162,7 @@ public class MeepMeepTesting {
                 .addEntity(audienceLeft)
                 .addEntity(boardRight2)
                 .addEntity(blueBoardRight)
+                .addEntity(blueBoardCenter)
                 .addEntity(blueBoardCenter)
                 .start();
     }
