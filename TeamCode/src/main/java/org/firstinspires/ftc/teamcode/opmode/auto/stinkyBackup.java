@@ -19,7 +19,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.common.hardware.AbsoluteAnalogEncoder;
 import org.firstinspires.ftc.teamcode.common.util.DcMotorSimpleGroup;
 import org.firstinspires.ftc.teamcode.drive.swerve.SwerveModule;
-import org.firstinspires.ftc.teamcode.tool.Intake;
 import org.firstinspires.ftc.teamcode.vision.PropDetector;
 import org.firstinspires.ftc.teamcode.vision.PropPipeline;
 
@@ -62,7 +61,7 @@ public class stinkyBackup extends LinearOpMode {
         int result = -1;
         float startTime = System.currentTimeMillis() / 1000f;
 
-//        Intake intake = new Intake(hardwareMap);
+//        OldIntake intake = new OldIntake(hardwareMap);
 
         waitForStart();
 

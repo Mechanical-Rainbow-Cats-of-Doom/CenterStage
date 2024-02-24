@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.tool;
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.command.CommandBase;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
@@ -13,6 +14,8 @@ import com.arcrobotics.ftclib.hardware.motors.MotorGroup;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.commands.LiftGoToPositionCommand;
+
 import java.util.Arrays;
 
 @Config
@@ -21,6 +24,7 @@ public class NewLift extends SubsystemBase {
 
     public interface LiftPosition {
         int getLiftTicks();
+        int getLiftTicksTwo();
         boolean isArmOut();
         /**
          * left is 0, middle is 0.43, right is 0.8
@@ -38,6 +42,7 @@ public class NewLift extends SubsystemBase {
         boolean isClawOpen();
         boolean retractArm();
         Time getLiftMoveTime();
+        Time getLiftMoveTwoTime();
         Time getArmYawTime();
         Time getArmRollTime();
         Time getCarriageRollTime();
@@ -56,33 +61,45 @@ public class NewLift extends SubsystemBase {
 
 
         enum Default implements LiftPosition {
-            DOWN(100, false, 0.43, 0.52, 0.81, false, true,
-                    Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.LATE, Time.LATE, Time.EARLY, Time.EARLY),
-            A_LOW(1000, true, 0.43, 0.52, 1, true, true,
-                    Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.EARLY, Time.LATE, Time.VERY_LATE_BUTTON, Time.EARLY),
-            MEDIUM(2000, true, 0.43, 0.52, 1, true, true,
-                    Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.EARLY, Time.LATE, Time.VERY_LATE_BUTTON, Time.EARLY),
-            HIGH(3000, true, 0.43, 0.52, 1, true, true,
-                    Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.EARLY, Time.LATE, Time.VERY_LATE_BUTTON, Time.EARLY),
-            T_LEFT_LOW(800, true, 0.76, 0.76, 0.35, true, true,
-                    Time.LATE, Time.NORMAL, Time.LATE, Time.LATE, Time.LATE, Time.VERY_LATE_BUTTON, Time.EARLY),
-            T_LEFT_MEDIUM(1400, T_LEFT_LOW.armOut, T_LEFT_LOW.armRoll, T_LEFT_LOW.carriageRoll, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm,
-                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.armYawTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime),
-            T_LEFT_HIGH(2100, T_LEFT_LOW.armOut, T_LEFT_LOW.armRoll, T_LEFT_LOW.carriageRoll, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm,
-                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.armYawTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime),
-            T_RIGHT_LOW(1400, T_LEFT_LOW.armOut, 0.14, 0.33, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm,
-                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.armYawTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime),
-            T_RIGHT_MEDIUM(1400, T_LEFT_LOW.armOut, T_LEFT_LOW.armRoll, T_LEFT_LOW.carriageRoll, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm,
-                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.armYawTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime),
-            T_RIGHT_HIGH(2100, T_LEFT_LOW.armOut, T_LEFT_LOW.armRoll, T_LEFT_LOW.carriageRoll, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm,
-                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.armYawTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime);
+            DOWN(0, 100, false, 0.43, 0.535, 0.9, false, true,
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.VERY_EARLY, Time.VERY_EARLY, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY),
+
+            A_LOW(1000, 100, true, 0.43, 0.535, 1, true, true,
+                    Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.EARLY, Time.LATE, Time.VERY_LATE_BUTTON, Time.EARLY),
+            A_MEDIUM(2000, 100, true, 0.43, 0.535, 1, true, true,
+                    Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.EARLY, Time.LATE, Time.VERY_LATE_BUTTON, Time.EARLY),
+            A_HIGH(3000, 100, true, 0.43, 0.535, 1, true, true,
+                    Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.EARLY, Time.LATE, Time.VERY_LATE_BUTTON, Time.EARLY),
+
+            T_LEFT_LOW(800, 100, true, 0.76, 0.76, 0.35, true, true,
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY, Default.DOWN),
+            T_LEFT_MEDIUM(1400, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, T_LEFT_LOW.armRoll, T_LEFT_LOW.carriageRoll, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm,
+                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armYawTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.nextLiftPosition),
+            T_LEFT_HIGH(2050, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, T_LEFT_LOW.armRoll, T_LEFT_LOW.carriageRoll, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm,
+                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armYawTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.nextLiftPosition),
+
+            T_MIDDLE_LOW(400, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm,
+                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armYawTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.nextLiftPosition),
+            T_MIDDLE_MEDIUM(1000, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm,
+                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armYawTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.nextLiftPosition),
+            T_MIDDLE_HIGH(1650, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm,
+                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armYawTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.nextLiftPosition),
+
+            T_RIGHT_LOW(800, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.14, 0.33, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm,
+                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armYawTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.nextLiftPosition),
+            T_RIGHT_MEDIUM(1400, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, T_RIGHT_LOW.armRoll, T_RIGHT_LOW.carriageRoll, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm,
+                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armYawTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.nextLiftPosition),
+            T_RIGHT_HIGH(2050, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, T_RIGHT_LOW.armRoll, T_RIGHT_LOW.carriageRoll, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm,
+                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armYawTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.nextLiftPosition);
             private final int liftTicks;
+            private final int liftTicksTwo;
             private final boolean armOut;
             private final double armRoll;
             private final double carriageRoll;
             private final double armLength;
             private final boolean retractArm;
             private final Time liftMoveTime;
+            private final Time liftMoveTwoTime;
             private final Time armRollTime;
             private final Time carriageRollTime;
             private final Time armYawTime;
@@ -92,17 +109,20 @@ public class NewLift extends SubsystemBase {
             private final boolean clawOpen;
             private final LiftPosition nextLiftPosition;
 
-            Default(int liftTicks, boolean armOut, double armRoll, double carriageRoll,
-                    double armLength, boolean clawOpen, boolean retractArm, Time liftMoveTime,
-                    Time armYawTime, Time armRollTime, Time carriageRollTime, Time armLengthTime,
-                    Time clawTime, Time retractArmTime, LiftPosition nextLiftPosition) {
+            Default(int liftTicks, int liftTicksTwo, boolean armOut, double armRoll, double carriageRoll,
+                    double armLength, boolean clawOpen, boolean retractArm,
+                    Time liftMoveTime, Time liftMoveTwoTime, Time armYawTime, Time armRollTime, Time carriageRollTime,
+                    Time armLengthTime, Time clawTime, Time retractArmTime,
+                    LiftPosition nextLiftPosition) {
                 this.liftTicks = liftTicks;
+                this.liftTicksTwo = liftTicksTwo;
                 this.armOut = armOut;
                 this.armRoll = armRoll;
                 this.carriageRoll = carriageRoll;
                 this.armLength = armLength;
                 this.clawOpen = clawOpen;
                 this.liftMoveTime = liftMoveTime;
+                this.liftMoveTwoTime = liftMoveTwoTime;
                 this.armRollTime = armRollTime;
                 this.carriageRollTime = carriageRollTime;
                 this.armYawTime = armYawTime;
@@ -113,19 +133,24 @@ public class NewLift extends SubsystemBase {
                 this.retractArmTime = retractArmTime;
             }
 
-            Default(int liftTicks, boolean armOut, double armRoll, double carriageRoll,
-                    double armLength, boolean clawOpen, boolean retractArm, Time liftMoveTime,
-                    Time armYawTime, Time armRollTime, Time carriageRollTime, Time armLengthTime,
-                    Time clawTime, Time retractArmTime) {
-                this(liftTicks, armOut, armRoll, carriageRoll, armLength, clawOpen, retractArm,
-                        liftMoveTime, armRollTime, carriageRollTime, armYawTime, armLengthTime,
-                        clawTime, retractArmTime, null);
+            Default(int liftTicks, int liftTicksTwo, boolean armOut, double armRoll, double carriageRoll,
+                    double armLength, boolean clawOpen, boolean retractArm,
+                    Time liftMoveTime, Time liftMoveTwoTime, Time armYawTime, Time armRollTime, Time carriageRollTime,
+                    Time armLengthTime, Time clawTime, Time retractArmTime) {
+                this(liftTicks, liftTicksTwo, armOut, armRoll, carriageRoll, armLength, clawOpen, retractArm,
+                        liftMoveTime, liftMoveTwoTime, armYawTime, armRollTime, carriageRollTime,
+                        armLengthTime, clawTime, retractArmTime, null);
             }
 
 
             @Override
             public int getLiftTicks() {
                 return liftTicks;
+            }
+
+            @Override
+            public int getLiftTicksTwo() {
+                return liftTicksTwo;
             }
 
             @Override
@@ -136,6 +161,11 @@ public class NewLift extends SubsystemBase {
             @Override
             public Time getLiftMoveTime() {
                 return liftMoveTime;
+            }
+
+            @Override
+            public Time getLiftMoveTwoTime() {
+                return liftMoveTwoTime;
             }
 
             @Override
@@ -253,6 +283,11 @@ public class NewLift extends SubsystemBase {
             }
 
             @Override
+            public int getLiftTicksTwo() {
+                return 0;
+            }
+
+            @Override
             public boolean isArmOut() {
                 return armOut;
             }
@@ -260,6 +295,11 @@ public class NewLift extends SubsystemBase {
             @Override
             public Time getLiftMoveTime() {
                 return liftMoveTime;
+            }
+
+            @Override
+            public Time getLiftMoveTwoTime() {
+                return null;
             }
 
             @Override
@@ -366,11 +406,14 @@ public class NewLift extends SubsystemBase {
     public static double CLAW_MOVE_TIME = 0;
     public static double ARM_ROLL_TIME_P = 0.79;
     public static double CARRIAGE_ROLL_TIME_P = 0.6;
-    public static double ARM_LENGTH_TIME_P = 0.5072;
+    public static double ARM_LENGTH_TIME_P = 1.3;
     public static double FIRST_SERVO_MIDDLE = 0.5;
     public static double SECOND_SERVO_MIDDLE = 0.5;
     public static boolean SECOND_SERVO_INVERTED = true;
     public static double ARM_RETRACTED_POSITION = 1;
+
+    public int direction = 0;
+    public int height = 0;
 
     private final MotorGroup liftMotor;
     private final Motor liftLeader;
@@ -380,15 +423,103 @@ public class NewLift extends SubsystemBase {
     private final ServoEx carriageRollServo;
     private final ServoEx carriageClawServo;
     private final GamepadEx toolGamepad;
-    private LiftPosition position = LiftPosition.Default.DOWN;
-    private State state = State.AT_POSITION;
+    // the blursed method
+    private LiftPosition position = new LiftPosition() {
+        @Override
+        public int getLiftTicks() {
+            return 0;
+        }
+
+        @Override
+        public int getLiftTicksTwo() {
+            return 0;
+        }
+
+        @Override
+        public boolean isArmOut() {
+            return false;
+        }
+
+        @Override
+        public double getArmRoll() {
+            return 0.43;
+        }
+
+        @Override
+        public double getCarriageRoll() {
+            return 0.535;
+        }
+
+        @Override
+        public double getArmLength() {
+            return 0.9;
+        }
+
+        @Override
+        public boolean isClawOpen() {
+            return false;
+        }
+
+        @Override
+        public boolean retractArm() {
+            return false;
+        }
+
+        @Override
+        public Time getLiftMoveTime() {
+            return Time.NORMAL;
+        }
+
+        @Override
+        public Time getLiftMoveTwoTime() {
+            return null;
+        }
+
+        @Override
+        public Time getArmYawTime() {
+            return Time.NORMAL;
+        }
+
+        @Override
+        public Time getArmRollTime() {
+            return Time.NORMAL;
+        }
+
+        @Override
+        public Time getCarriageRollTime() {
+            return Time.NORMAL;
+        }
+
+        @Override
+        public Time getArmLengthTime() {
+            return Time.NORMAL;
+        }
+
+        @Override
+        public Time getClawTime() {
+            return null;
+        }
+
+        @Override
+        public Time getRetractArmTime() {
+            return null;
+        }
+
+        @Override
+        public LiftPosition getNextLiftPosition() {
+            return Default.DOWN;
+        }
+    };
+    private LiftPosition previousLiftPosition = LiftPosition.Default.DOWN;
+    private State state = State.STARTING_MOVE;
     private boolean automatic = true;
     private Motor.RunMode runMode = Motor.RunMode.PositionControl;
     private double lastKP = kP;
     private double lastPositionTolerance = POSITION_TOLERANCE;
     private boolean waitingForLiftMove = false;
     private double maxMoveTime = 0;
-    private ElapsedTime time = new ElapsedTime();
+    private final ElapsedTime time = new ElapsedTime();
+    private boolean initial = true;
 
     private final boolean isTeleOp;
 
@@ -419,18 +550,20 @@ public class NewLift extends SubsystemBase {
         carriageClawServo = new SimpleServo(hardwareMap, "carriageClaw", 0, 1);
 
         // TODO reimplement inputs
-//        if (toolGamepad != null) {
-//            toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
-//                    .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.DOWN));
-//            toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT)
-//                    .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.ONE));
-//            toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT)
-//                    .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.TWO));
-//            toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP)
-//                    .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.THREE));
-//            toolGamepad.getGamepadButton(GamepadKeys.Button.X)
-//                    .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.DOWN_DONT_DROP));
-//        }
+        if (toolGamepad != null) {
+            toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
+                    .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.DOWN));
+            toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT)
+                    .whenPressed(new SelectPositionCommand(2, false));
+            toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP)
+                    .whenPressed(new SelectPositionCommand(1, false));
+            toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT)
+                    .whenPressed(new SelectPositionCommand(0, false));
+            toolGamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
+                    .whenPressed(new SelectPositionCommand(-1, true));
+            toolGamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
+                    .whenPressed(new SelectPositionCommand(1, true));
+        }
 
         this.isTeleOp = teleOp;
     }
@@ -474,43 +607,41 @@ public class NewLift extends SubsystemBase {
             runMode = Motor.RunMode.PositionControl;
         }
 
-        if(position == null) {
-            if(state == State.STARTING_MOVE) {
-                liftMotor.setTargetPosition(liftMotor.getCurrentPosition());
-                liftMotor.set(LIFT_POWER);
-                state = State.AT_POSITION;
-            }
-            return;
-        }
         liftMotor.set(LIFT_POWER);
         switch(state) {
             case STARTING_MOVE:
                 state = State.VERY_EARLY_MOVE;
                 waitingForLiftMove = false;
                 maxMoveTime = 0;
-                prepareMove();
-                time.reset();
+                if(previousLiftPosition.isArmOut() != position.isArmOut()) {
+                    prepareMove();
+                    time.reset();
+                }
             case VERY_EARLY_MOVE:
-                if(waitingForLiftMove && !liftMotor.atTargetPosition()) {
-                    break;
+                if(previousLiftPosition.isArmOut() != position.isArmOut() || initial) {
+                    if (waitingForLiftMove && !liftMotor.atTargetPosition()) {
+                        break;
+                    }
+                    if (maxMoveTime > time.seconds()) {
+                        break;
+                    }
+                    waitingForLiftMove = false;
+                    maxMoveTime = 0;
+                    state = State.EARLY_MOVE;
+                    prepareMove();
+                    time.reset();
                 }
-                if(maxMoveTime > time.seconds()) {
-                    break;
-                }
-                waitingForLiftMove = false;
-                maxMoveTime = 0;
-                state = State.EARLY_MOVE;
-                prepareMove();
-                time.reset();
             case EARLY_MOVE:
-                if(waitingForLiftMove && !liftMotor.atTargetPosition()) {
-                    break;
+                if(previousLiftPosition.isArmOut() != position.isArmOut()) {
+                    if (waitingForLiftMove && !liftMotor.atTargetPosition()) {
+                        break;
+                    }
+                    if (maxMoveTime > time.seconds()) {
+                        break;
+                    }
+                    waitingForLiftMove = false;
+                    maxMoveTime = 0;
                 }
-                if(maxMoveTime > time.seconds()) {
-                    break;
-                }
-                waitingForLiftMove = false;
-                maxMoveTime = 0;
                 state = State.MOVE;
                 prepareMove();
                 time.reset();
@@ -543,6 +674,7 @@ public class NewLift extends SubsystemBase {
                     }
                     state = State.VERY_LATE_BUTTON_MOVE;
                     prepareMove();
+                    maxMoveTime = Math.min(0.2, maxMoveTime);
                 }
             case VERY_LATE_BUTTON_MOVE:
                 if(waitingForLiftMove && !liftMotor.atTargetPosition()) {
@@ -556,7 +688,7 @@ public class NewLift extends SubsystemBase {
                 state = State.AT_POSITION;
             case AT_POSITION:
                 LiftPosition next = position.getNextLiftPosition();
-                if(next != null) {
+                if(next != null && toolGamepad.getButton(GamepadKeys.Button.Y)) {
                     setPosition(next);
                 }
                 break;
@@ -568,8 +700,11 @@ public class NewLift extends SubsystemBase {
     }
 
     public void setPosition(LiftPosition position) {
+        if(position == null) return;
+        initial = false;
+        previousLiftPosition = this.position;
         this.position = position;
-        this.state = State.STARTING_MOVE;
+        state = State.STARTING_MOVE;
     }
 
     public LiftPosition getPosition() {
@@ -600,12 +735,15 @@ public class NewLift extends SubsystemBase {
         return position.getLiftMoveTime() == time || position.getClawTime() == time ||
                 position.getArmLengthTime() == time || position.getArmYawTime() == time ||
                 position.getArmRollTime() == time || position.getCarriageRollTime() == time ||
-                position.getRetractArmTime() == time;
+                position.getRetractArmTime() == time || position.getLiftMoveTwoTime() == time;
     }
 
     private void prepareMove() {
         if(state.currentTime(position.getLiftMoveTime())) {
             liftMotor.setTargetPosition(Math.max(0, Math.min(position.getLiftTicks(), POSITION_LIMIT)));
+            waitingForLiftMove = true;
+        } else if(state.currentTime(position.getLiftMoveTwoTime())) {
+            liftMotor.setTargetPosition(Math.max(0, Math.min(position.getLiftTicksTwo(), POSITION_LIMIT)));
             waitingForLiftMove = true;
         }
         if(state.currentTime(position.getArmLengthTime())) {
@@ -645,6 +783,78 @@ public class NewLift extends SubsystemBase {
                 maxMoveTime = Math.max(maxMoveTime, CLAW_MOVE_TIME);
                 carriageClawServo.setPosition(requiredPosition);
             }
+        }
+    }
+
+    private class SelectPositionCommand extends CommandBase {
+        private final int o;
+        private final boolean height;
+
+        private SelectPositionCommand(int o, boolean height) {
+            this.o = o;
+            this.height = height;
+        }
+
+        @Override
+        public void execute() {
+            if(height) {
+                NewLift.this.height = Math.max(0, Math.min(NewLift.this.height + o, 2));
+            } else {
+                NewLift.this.direction = o;
+            }
+
+            chooseNewLiftPosition();
+        }
+
+        @Override
+        public boolean isFinished() {
+            return true;
+        }
+    }
+
+    private void chooseNewLiftPosition() {
+        direction = direction % 3;
+        height = height % 3;
+        setPosition(selectPosition(direction, height));
+    }
+
+    private static LiftPosition selectPosition(int direction, int height) {
+        switch(direction) {
+            case 0:
+                switch(height) {
+                    case 0:
+                        return LiftPosition.Default.T_LEFT_LOW;
+                    case 1:
+                        return LiftPosition.Default.T_LEFT_MEDIUM;
+                    case 2:
+                        return LiftPosition.Default.T_LEFT_HIGH;
+                    default:
+                        return LiftPosition.Default.DOWN;
+                }
+            case 1:
+                switch(height) {
+                    case 0:
+                        return LiftPosition.Default.T_MIDDLE_LOW;
+                    case 1:
+                        return LiftPosition.Default.T_MIDDLE_MEDIUM;
+                    case 2:
+                        return LiftPosition.Default.T_MIDDLE_HIGH;
+                    default:
+                        return LiftPosition.Default.DOWN;
+                }
+            case 2:
+                switch(height) {
+                    case 0:
+                        return LiftPosition.Default.T_RIGHT_LOW;
+                    case 1:
+                        return LiftPosition.Default.T_RIGHT_MEDIUM;
+                    case 2:
+                        return LiftPosition.Default.T_RIGHT_HIGH;
+                    default:
+                        return LiftPosition.Default.DOWN;
+                }
+            default:
+                return LiftPosition.Default.DOWN;
         }
     }
 }

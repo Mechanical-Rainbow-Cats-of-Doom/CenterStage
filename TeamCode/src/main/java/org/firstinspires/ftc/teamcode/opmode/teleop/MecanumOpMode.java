@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.opmode.teleop;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.arcrobotics.ftclib.command.CommandBase;
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
@@ -13,20 +12,19 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.commands.ControllerDriveCommand;
-import org.firstinspires.ftc.teamcode.commands.SetIntakeCommands;
 import org.firstinspires.ftc.teamcode.drive.mecanum.MecanumDriveSubsystem;
 import org.firstinspires.ftc.teamcode.tool.DroneLauncher;
-import org.firstinspires.ftc.teamcode.tool.Intake;
+import org.firstinspires.ftc.teamcode.tool.NewIntake;
+import org.firstinspires.ftc.teamcode.tool.NewLift;
 
 @TeleOp(name = "🐟 DRIVER 🐟")
 public class MecanumOpMode extends CommandOpMode {
     private final Telemetry telemetry = new MultipleTelemetry(super.telemetry, FtcDashboard.getInstance().getTelemetry());
     private GamepadEx driver1, driver2;
     private MecanumDriveSubsystem drive;
-//    private Lift lift;
+    private NewLift lift;
     private DroneLauncher droneLauncher;
-    private Intake intake;
-    private boolean lastLifterPosition;
+    private NewIntake intake;
     protected boolean squareInputs = false;
 
     @Override
@@ -42,40 +40,36 @@ public class MecanumOpMode extends CommandOpMode {
             fieldOrientedReader.readValue();
             return fieldOrientedReader.getState();
         }, true, telemetry, squareInputs);
-        //lift = new Lift(hardwareMap, driver2);
+        lift = new NewLift(hardwareMap, driver2);
         droneLauncher = new DroneLauncher(hardwareMap, () -> driver1.getButton(GamepadKeys.Button.BACK));
-        intake = new Intake(hardwareMap);
-        Servo lifter = hardwareMap.get(Servo.class, "lifter");
-        lifter.setPosition(.2);
+        intake = new NewIntake(hardwareMap, driver2);
 
         // schedule all commands
         schedule(new ControllerDriveCommand(drive, driver1, () -> false));
+
 //        schedule(new PrepareSafeCommand(intake, lift));
-        CommandBase toggleForward = new SetIntakeCommands.SetIntakeForward(intake);
-        CommandBase toggleBackward = new SetIntakeCommands.SetIntakeBackward(intake);
-        driver2.getGamepadButton(GamepadKeys.Button.A)
-                .whenPressed(toggleForward).whenReleased(toggleForward);
-        driver2.getGamepadButton(GamepadKeys.Button.B)
-                .whenPressed(toggleBackward).whenReleased(toggleBackward);
+//        CommandBase toggleForward = new SetIntakeCommand.SetIntakeForward(intake);
+//        CommandBase toggleBackward = new SetIntakeCommand.SetIntakeBackward(intake);
+//        driver2.getGamepadButton(GamepadKeys.Button.A)
+//                .whenPressed(toggleForward).whenReleased(toggleForward);
+//        driver2.getGamepadButton(GamepadKeys.Button.B)
+//                .whenPressed(toggleBackward).whenReleased(toggleBackward);
 //        driver2.getGamepadButton(GamepadKeys.Button.Y).whenPressed(()->{
 //            if(!lift.isAutomatic()) {
 //                lift.toggleClawOpen();
 //            }
 //        });
 //        driver2.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(()->lift.toggleAutomatic());
-        driver2.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(()->{
-            lifter.setPosition(lastLifterPosition ? .2 : .8);
-            lastLifterPosition = !lastLifterPosition;
-        });
 
         // register unregistered subsystems
-        register(intake);
-       // register(drive, lift, intake, droneLauncher);
+        register(drive, lift, intake, droneLauncher);
     }
 
     @Override
     public void run() {
         super.run();
+        telemetry.addData("D2 Left Trigger", driver2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
+        telemetry.addData("D2 Right Trigger", driver2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
         telemetry.update();
     }
 }

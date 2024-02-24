@@ -13,10 +13,10 @@ import org.firstinspires.ftc.teamcode.common.util.ConfigChangeDetector;
 import org.firstinspires.ftc.teamcode.common.util.DcMotorSimpleGroup;
 
 @Config
-public class Intake extends ToggleableMotor {
+public class OldIntake extends ToggleableMotor {
     public static double SPEED = 1;
-    private static final ConfigChangeDetector<Intake> changeDetector = new ConfigChangeDetector<>(Intake.class);
-    public Intake(@NonNull HardwareMap hardwareMap) {
+    private static final ConfigChangeDetector<OldIntake> changeDetector = new ConfigChangeDetector<>(OldIntake.class);
+    public OldIntake(@NonNull HardwareMap hardwareMap) {
         super(new DcMotorSimpleGroup(
                 new Pair<>(hardwareMap.get(DcMotor.class, "intake"), false),
                 new Pair<>(hardwareMap.get(CRServo.class, "intakeServo"), true)

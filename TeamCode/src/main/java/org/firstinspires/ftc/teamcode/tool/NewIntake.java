@@ -1,18 +1,27 @@
 package org.firstinspires.ftc.teamcode.tool;
 
 import com.arcrobotics.ftclib.command.SubsystemBase;
+import com.arcrobotics.ftclib.gamepad.GamepadEx;
+import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.commands.SetIntakeCommand;
+
 import java.util.function.DoubleSupplier;
 
 public class NewIntake extends SubsystemBase {
+    public static double TRIGGER_DEADZONE = 0.4;
+
     private final MotorEx intakeMotor;
     private final ServoEx intakeHeight;
+    private final GamepadEx toolGamepad;
     private State state = State.OFF;
     private DoubleSupplier height = DefaultHeight.UP;
+    private boolean leftTriggerPreviouslyDepressed = false;
+    private boolean rightTriggerPreviouslyDepressed = false;
 
     public enum State {
         OFF(0),
@@ -31,16 +40,18 @@ public class NewIntake extends SubsystemBase {
     }
 
     public enum DefaultHeight implements DoubleSupplier {
-        UP(0.24),
-        PIXEL_5(0.645),
-        PIXEL_4(0.665),
-        PIXEL_3(0.685),
-        PIXEL_2(0.71),
-        BOTTOM(0.73);
+        UP(5, 0.24),
+        PIXEL_5(4, 0.645),
+        PIXEL_4(3, 0.665),
+        PIXEL_3(2, 0.685),
+        PIXEL_2(1, 0.71),
+        BOTTOM(0, 0.73);
 
-        private double height;
+        private final int index;
+        private final double height;
 
-        DefaultHeight(double height) {
+        DefaultHeight(int index, double height) {
+            this.index = index;
             this.height = height;
         }
 
@@ -48,11 +59,53 @@ public class NewIntake extends SubsystemBase {
         public double getAsDouble() {
             return height;
         }
+
+        public int getIndex() {
+            return index;
+        }
+
+        public static DefaultHeight numberToHeight(int number) {
+            number = number % 6;
+            if(number < 0) {
+                number += 6;
+            }
+            switch(number) {
+                case 0:
+                    return BOTTOM;
+                case 1:
+                    return PIXEL_2;
+                case 2:
+                    return PIXEL_3;
+                case 3:
+                    return PIXEL_4;
+                case 4:
+                    return PIXEL_5;
+                case 5:
+                default:
+                    return UP;
+            }
+        }
+    }
+
+    public NewIntake(HardwareMap map, GamepadEx toolGamepad) {
+        intakeMotor = new MotorEx(map, "intake");
+        intakeHeight = new SimpleServo(map, "intakeHeight", 0, 1);
+        intakeMotor.setInverted(true);
+
+        if(toolGamepad != null) {
+            toolGamepad.getGamepadButton(GamepadKeys.Button.A)
+                    .whenReleased(new SetIntakeCommand(this, State.OFF))
+                    .whenHeld(new SetIntakeCommand(this, State.FORWARD));
+
+            toolGamepad.getGamepadButton(GamepadKeys.Button.B)
+                    .whenReleased(new SetIntakeCommand(this, State.OFF))
+                    .whenHeld(new SetIntakeCommand(this, State.BACKWARD));
+        }
+        this.toolGamepad = toolGamepad;
     }
 
     public NewIntake(HardwareMap map) {
-        intakeMotor = new MotorEx(map, "intake");
-        intakeHeight = new SimpleServo(map, "intakeHeight", 0, 1);
+        this(map, null);
     }
 
     public void setState(State state) {
@@ -67,5 +120,32 @@ public class NewIntake extends SubsystemBase {
     public void periodic() {
         intakeMotor.set(state.power);
         intakeHeight.setPosition(height.getAsDouble());
+
+        if(toolGamepad != null) {
+            boolean leftTriggerDepressed = toolGamepad.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > TRIGGER_DEADZONE;
+            boolean rightTriggerDepressed = toolGamepad.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > TRIGGER_DEADZONE;
+
+            if(leftTriggerDepressed && rightTriggerDepressed) {
+                height = DefaultHeight.UP;
+            } else if(leftTriggerDepressed && !leftTriggerPreviouslyDepressed) {
+                change(1);
+            } else if(rightTriggerDepressed && !rightTriggerPreviouslyDepressed) {
+                change(-1);
+            }
+
+            leftTriggerPreviouslyDepressed = leftTriggerDepressed;
+            rightTriggerPreviouslyDepressed = rightTriggerDepressed;
+        }
+    }
+
+    private void change(int num) {
+        if(!(height instanceof DefaultHeight)) {
+            height = DefaultHeight.UP;
+            return;
+        }
+
+        DefaultHeight defHeight = (DefaultHeight) height;
+
+        height = DefaultHeight.numberToHeight(defHeight.getIndex() + num);
     }
 }

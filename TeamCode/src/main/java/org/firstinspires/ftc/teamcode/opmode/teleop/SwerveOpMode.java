@@ -14,10 +14,10 @@
 //import org.firstinspires.ftc.robotcore.external.Telemetry;
 //import org.firstinspires.ftc.teamcode.commands.ControllerDriveCommand;
 //import org.firstinspires.ftc.teamcode.commands.PrepareSafeCommand;
-//import org.firstinspires.ftc.teamcode.commands.SetIntakeCommands;
+//import org.firstinspires.ftc.teamcode.commands.SetIntakeCommand;
 //import org.firstinspires.ftc.teamcode.drive.swerve.SwerveDriveSubsystem;
 //import org.firstinspires.ftc.teamcode.tool.DroneLauncher;
-//import org.firstinspires.ftc.teamcode.tool.Intake;
+//import org.firstinspires.ftc.teamcode.tool.OldIntake;
 //import org.firstinspires.ftc.teamcode.tool.old.OldLift;
 //
 //@Disabled
@@ -28,7 +28,7 @@
 //    private SwerveDriveSubsystem drive;
 //    private OldLift lift;
 //    private DroneLauncher droneLauncher;
-//    private Intake intake;
+//    private OldIntake intake;
 //    private boolean lastLifterPosition;
 //
 //    @Override
@@ -41,15 +41,15 @@
 //        drive = new SwerveDriveSubsystem(hardwareMap, telemetry, true, () -> true);
 //        lift = new OldLift(hardwareMap, driver2);
 //        droneLauncher = new DroneLauncher(hardwareMap, () -> driver1.getButton(GamepadKeys.Button.BACK));
-//        intake = new Intake(hardwareMap);
+//        intake = new OldIntake(hardwareMap);
 //        Servo lifter = hardwareMap.get(Servo.class, "lifter");
 //        lifter.setPosition(.2);
 //
 //        // schedule all commands
 //        schedule(new ControllerDriveCommand(drive, driver1, () -> driver1.getButton(GamepadKeys.Button.Y)));
 //        schedule(new PrepareSafeCommand(intake, lift));
-//        CommandBase toggleForward = new SetIntakeCommands.SetIntakeForward(intake);
-//        CommandBase toggleBackward = new SetIntakeCommands.SetIntakeBackward(intake);
+//        CommandBase toggleForward = new SetIntakeCommand.SetIntakeForward(intake);
+//        CommandBase toggleBackward = new SetIntakeCommand.SetIntakeBackward(intake);
 //        driver2.getGamepadButton(GamepadKeys.Button.A)
 //                .whenPressed(toggleForward).whenReleased(toggleForward);
 //        driver2.getGamepadButton(GamepadKeys.Button.B)

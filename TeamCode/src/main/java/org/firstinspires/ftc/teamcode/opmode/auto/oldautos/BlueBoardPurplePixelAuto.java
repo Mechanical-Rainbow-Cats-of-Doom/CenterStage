@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.common.util.DelayStorage;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.tool.Intake;
+import org.firstinspires.ftc.teamcode.tool.OldIntake;
 import org.firstinspires.ftc.teamcode.vision.PropDetector;
 import org.firstinspires.ftc.teamcode.vision.PropPipeline;
 
@@ -23,7 +23,7 @@ public class BlueBoardPurplePixelAuto extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         PropDetector detector = new PropDetector(hardwareMap, "webcam", true,
                 isRed, PropPipeline.PropPipelineRectsProvider.Default.RED_BOARD_SIDE);
-        Intake intake = new Intake(hardwareMap);
+        OldIntake intake = new OldIntake(hardwareMap);
         Pose2d startPose = new Pose2d(12, -61.75, Math.toRadians(90));
         MecanumDrive drive = new MecanumDrive(hardwareMap, startPose);
         Action left = drive.actionBuilder(startPose)

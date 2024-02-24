@@ -223,16 +223,16 @@ public class OldLift extends SubsystemBase {
 
         liftMotor.setRunMode(Motor.RunMode.PositionControl);
         if (toolGamepad != null) {
-            toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
-                    .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.DOWN));
-            toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT)
-                    .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.ONE));
-            toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT)
-                    .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.TWO));
-            toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP)
-                    .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.THREE));
-            toolGamepad.getGamepadButton(GamepadKeys.Button.X)
-                    .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.DOWN_DONT_DROP));
+//            toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
+//                    .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.DOWN));
+//            toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT)
+//                    .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.ONE));
+//            toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT)
+//                    .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.TWO));
+//            toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP)
+//                    .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.THREE));
+//            toolGamepad.getGamepadButton(GamepadKeys.Button.X)
+//                    .whenPressed(new LiftGoToPositionCommand(this, LiftPosition.Default.DOWN_DONT_DROP));
         }
 
         this.isTeleOp = teleOp;

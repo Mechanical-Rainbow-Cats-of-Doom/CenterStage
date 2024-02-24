@@ -2,14 +2,14 @@ package org.firstinspires.ftc.teamcode.commands;
 
 import com.arcrobotics.ftclib.command.CommandBase;
 
-import org.firstinspires.ftc.teamcode.tool.old.OldLift;
+import org.firstinspires.ftc.teamcode.tool.NewLift;
 
 
 public class LiftGoToPositionCommand extends CommandBase {
-    public OldLift lift;
-    public OldLift.LiftPosition position;
+    public NewLift lift;
+    public NewLift.LiftPosition position;
 
-    public LiftGoToPositionCommand(OldLift lift, OldLift.LiftPosition position) {
+    public LiftGoToPositionCommand(NewLift lift, NewLift.LiftPosition position) {
         this.lift = lift;
         this.position = position;
         addRequirements(lift);

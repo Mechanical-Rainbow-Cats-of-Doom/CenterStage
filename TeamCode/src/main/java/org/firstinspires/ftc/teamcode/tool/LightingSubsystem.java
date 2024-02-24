@@ -11,9 +11,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @Config
-public class LightingSubsystem extends SubsystemBase implements AutoCloseable {
-    public static double ONE_DISTANCE;
-    public static double TWO_DISTANCE;
+public class LightingSubsystem extends SubsystemBase {
     public static RevBlinkinLedDriver.BlinkinPattern RED_ALLIANCE_COLOR = RevBlinkinLedDriver.BlinkinPattern.RED;
     public static RevBlinkinLedDriver.BlinkinPattern BLUE_ALLIANCE_COLOR = RevBlinkinLedDriver.BlinkinPattern.BLUE;
     public static RevBlinkinLedDriver.BlinkinPattern TOUCHING_BOARD_COLOR = RevBlinkinLedDriver.BlinkinPattern.GREEN;
@@ -23,14 +21,14 @@ public class LightingSubsystem extends SubsystemBase implements AutoCloseable {
     private final boolean isRed;
     private final RevBlinkinLedDriver boardSensorBlinkin;
     private final RevBlinkinLedDriver pixelDistanceBlinkin;
-    private final ColorRangeSensor pixelSensor;
+    private final PixelSensor pixelSensor;
     private final TouchSensor boardSensor;
     private final Telemetry telemetry;
 
     public LightingSubsystem(HardwareMap hardwareMap, boolean isRed, Telemetry telemetry) {
+        pixelSensor = new PixelSensor(hardwareMap);
         boardSensorBlinkin = hardwareMap.get(RevBlinkinLedDriver.class, "frontBlinkin");
         pixelDistanceBlinkin = hardwareMap.get(RevBlinkinLedDriver.class, "backBlinkin");
-        pixelSensor = hardwareMap.get(ColorRangeSensor.class, "pixelSensor");
         boardSensor = hardwareMap.get(TouchSensor.class, "boardSensor");
         this.isRed = isRed;
         this.telemetry = telemetry;
@@ -42,30 +40,29 @@ public class LightingSubsystem extends SubsystemBase implements AutoCloseable {
 
     @Override
     public void periodic() {
-        double pixelDistance = pixelSensor.getDistance(DistanceUnit.INCH);
+        pixelSensor.periodic();
         boolean touchingBoard = boardSensor.isPressed();
         if(telemetry != null) {
-            telemetry.addData("Pixel Sensor Distance", pixelDistance);
+            telemetry.addData("Pixel Sensor Distance", pixelSensor.getDistance());
             telemetry.addData("Is Touching Board", touchingBoard);
         }
 
-        if(pixelDistance > ONE_DISTANCE) {
-            pixelDistanceBlinkin.setPattern(getTeamColor());
-        } else if(pixelDistance > TWO_DISTANCE) {
-            pixelDistanceBlinkin.setPattern(ONE_PIXEL_COLOR);
-        } else {
-            pixelDistanceBlinkin.setPattern(TWO_PIXEL_COLOR);
+        switch(pixelSensor.getPixelCount()) {
+            default:
+            case 0:
+                pixelDistanceBlinkin.setPattern(getTeamColor());
+                break;
+            case 1:
+                pixelDistanceBlinkin.setPattern(ONE_PIXEL_COLOR);
+                break;
+            case 2:
+                pixelDistanceBlinkin.setPattern(TWO_PIXEL_COLOR);
+                break;
         }
-
         boardSensorBlinkin.setPattern(touchingBoard ? TOUCHING_BOARD_COLOR : getTeamColor());
     }
 
     private RevBlinkinLedDriver.BlinkinPattern getTeamColor() {
         return isRed ? RED_ALLIANCE_COLOR : BLUE_ALLIANCE_COLOR;
-    }
-
-    @Override
-    public void close() {
-        pixelSensor.close();
     }
 }

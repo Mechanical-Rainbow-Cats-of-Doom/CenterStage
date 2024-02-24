@@ -5,9 +5,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import java.util.function.BooleanSupplier;
 
-public class GamepadIntake extends Intake {
+public class GamepadOldIntake extends OldIntake {
     private final ButtonReader toggle;
-    public GamepadIntake(HardwareMap hardwareMap, BooleanSupplier toggler) {
+    public GamepadOldIntake(HardwareMap hardwareMap, BooleanSupplier toggler) {
         super(hardwareMap);
         this.toggle = new ButtonReader(toggler);
     }

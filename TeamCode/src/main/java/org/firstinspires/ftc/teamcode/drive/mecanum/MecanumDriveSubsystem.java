@@ -27,7 +27,7 @@ public class MecanumDriveSubsystem extends SubsystemBase implements HolonomicDri
     public static double BR_MULTIPLIER = 1;
 
     @SuppressWarnings("FieldCanBeLocal")
-    private final MotorEx frontLeft, frontRight, backLeft, backRight;
+//    private final MotorEx frontLeft, frontRight, backLeft, backRight;
     private final Telemetry telemetry;
 
     private final MecanumDrive drive;
@@ -40,14 +40,14 @@ public class MecanumDriveSubsystem extends SubsystemBase implements HolonomicDri
 
     public MecanumDriveSubsystem(HardwareMap hardwareMap, BooleanSupplier fieldOriented, boolean teleOp,
                                  Telemetry telemetry, boolean squareInputs) {
-        this.frontLeft = new MotorEx(hardwareMap, "frontLeftMotor");
-        this.frontLeft.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-        this.frontRight = new MotorEx(hardwareMap, "frontRightMotor");
-        this.frontRight.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-        this.backLeft = new MotorEx(hardwareMap, "backLeftMotor");
-        this.backLeft.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-        this.backRight = new MotorEx(hardwareMap, "backRightMotor");
-        this.backRight.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+//        this.frontLeft = new MotorEx(hardwareMap, "frontLeftMotor");
+//        this.frontLeft.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+//        this.frontRight = new MotorEx(hardwareMap, "frontRightMotor");
+//        this.frontRight.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+//        this.backLeft = new MotorEx(hardwareMap, "backLeftMotor");
+//        this.backLeft.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+//        this.backRight = new MotorEx(hardwareMap, "backRightMotor");
+//        this.backRight.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         this.drive = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
         this.imu = hardwareMap.get(IMU.class, "imu");
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
