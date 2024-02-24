@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.tool;
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.arcrobotics.ftclib.command.CommandBase;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
@@ -399,11 +401,11 @@ public class NewLift extends SubsystemBase {
     public static double POSITION_TOLERANCE = 15;
     public static int POSITION_LIMIT = 3000;
     public static double CLAW_OPEN_POSITION = 0;
-    public static double CLAW_CLOSED_POSITION = 0;
+    public static double CLAW_CLOSED_POSITION = 0.2;
     public static double ARM_IN_YAW = 0.34;
     public static double ARM_OUT_YAW = 0.44;
     public static double ARM_YAW_MOVE_TIME = 1.33;
-    public static double CLAW_MOVE_TIME = 0;
+    public static double CLAW_MOVE_TIME = 0.2;
     public static double ARM_ROLL_TIME_P = 0.79;
     public static double CARRIAGE_ROLL_TIME_P = 0.6;
     public static double ARM_LENGTH_TIME_P = 1.3;
@@ -411,6 +413,9 @@ public class NewLift extends SubsystemBase {
     public static double SECOND_SERVO_MIDDLE = 0.5;
     public static boolean SECOND_SERVO_INVERTED = true;
     public static double ARM_RETRACTED_POSITION = 1;
+    public static double MIN_CARRIAGE_ANGLE = 0;
+    public static double MAX_CARRIAGE_ANGLE = 1;
+    public static double CARRIAGE_ANGLE_OFFSET = 0;
 
     public int direction = 0;
     public int height = 0;
@@ -514,12 +519,15 @@ public class NewLift extends SubsystemBase {
     private State state = State.STARTING_MOVE;
     private boolean automatic = true;
     private Motor.RunMode runMode = Motor.RunMode.PositionControl;
-    private double lastKP = kP;
-    private double lastPositionTolerance = POSITION_TOLERANCE;
     private boolean waitingForLiftMove = false;
     private double maxMoveTime = 0;
     private final ElapsedTime time = new ElapsedTime();
     private boolean initial = true;
+
+    private double lastKP = kP;
+    private double lastPositionTolerance = POSITION_TOLERANCE;
+    private double lastMinCarriageAngle = MIN_CARRIAGE_ANGLE;
+    private double lastMaxCarriageAngle = MAX_CARRIAGE_ANGLE;
 
     private final boolean isTeleOp;
 
@@ -545,7 +553,7 @@ public class NewLift extends SubsystemBase {
         armYawLeft = new SimpleServo(hardwareMap, "armYawLeft", 0, 1);
         armYawRight = new SimpleServo(hardwareMap, "armYawRight", 0, 1);
         armRollServo = new SimpleServo(hardwareMap, "armRoll", 0, 1);
-        armLengthServo = new SimpleServo(hardwareMap, "armLength", 0, 1);
+        armLengthServo = new SimpleServo(hardwareMap, "armLength", MIN_CARRIAGE_ANGLE, MAX_CARRIAGE_ANGLE);
         carriageRollServo = new SimpleServo(hardwareMap, "carriageRoll", 0, 1);
         carriageClawServo = new SimpleServo(hardwareMap, "carriageClaw", 0, 1);
 
@@ -586,6 +594,11 @@ public class NewLift extends SubsystemBase {
 
     @Override
     public void periodic() {
+        if(lastMinCarriageAngle != MIN_CARRIAGE_ANGLE || lastMaxCarriageAngle != MAX_CARRIAGE_ANGLE) {
+            carriageRollServo.setRange(MIN_CARRIAGE_ANGLE, MAX_CARRIAGE_ANGLE);
+            lastMinCarriageAngle = MIN_CARRIAGE_ANGLE;
+            lastMaxCarriageAngle = MAX_CARRIAGE_ANGLE;
+        }
         if(kP != lastKP) {
             liftMotor.setPositionCoefficient(kP);
             lastKP = kP;
@@ -600,6 +613,8 @@ public class NewLift extends SubsystemBase {
                 runMode = Motor.RunMode.RawPower;
             }
             liftMotor.set(toolGamepad.getLeftY() * LIFT_POWER);
+            double angle = Math.atan2(toolGamepad.getRightY(), toolGamepad.getRightX());
+            carriageRollServo.turnToAngle(angle);
             return;
         }
         if(runMode != Motor.RunMode.PositionControl) {
@@ -607,7 +622,7 @@ public class NewLift extends SubsystemBase {
             runMode = Motor.RunMode.PositionControl;
         }
 
-        liftMotor.set(LIFT_POWER);
+        liftMotor.set(1);
         switch(state) {
             case STARTING_MOVE:
                 state = State.VERY_EARLY_MOVE;
@@ -709,6 +724,15 @@ public class NewLift extends SubsystemBase {
 
     public LiftPosition getPosition() {
         return position;
+    }
+
+    public void toggleArmPosition() {
+        if(!automatic) {
+            double requiredPosition = (armYawRight.getPosition() == ARM_IN_YAW) ? ARM_OUT_YAW : ARM_IN_YAW;
+
+            armYawRight.setPosition(requiredPosition);
+            armYawLeft.setPosition((requiredPosition-FIRST_SERVO_MIDDLE)*(SECOND_SERVO_INVERTED ? -1 : 1)+SECOND_SERVO_MIDDLE);
+        }
     }
 
     public void setAutomatic(boolean automatic) {
@@ -856,5 +880,41 @@ public class NewLift extends SubsystemBase {
             default:
                 return LiftPosition.Default.DOWN;
         }
+    }
+
+    public void setClaw(boolean open) {
+        carriageClawServo.setPosition(open ? CLAW_OPEN_POSITION : CLAW_CLOSED_POSITION);
+    }
+
+    public boolean isClawOpen() {
+        return carriageClawServo.getPosition() != CLAW_CLOSED_POSITION;
+    }
+
+    private class ClawAction implements Action {
+        private final boolean open;
+        private boolean started = false;
+        private ElapsedTime time = new ElapsedTime();
+
+        public ClawAction(boolean open) {
+            this.open = open;
+        }
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            if(!started) {
+                if(carriageClawServo.getPosition() == (open ? CLAW_OPEN_POSITION : CLAW_CLOSED_POSITION)) {
+                    return true;
+                }
+                setClaw(open);
+                started = true;
+                time.reset();
+            }
+
+            return time.seconds() > CLAW_MOVE_TIME;
+        }
+    }
+
+    public Action getClawAction(boolean open) {
+        return new ClawAction(open);
     }
 }
