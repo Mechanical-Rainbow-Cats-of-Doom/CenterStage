@@ -56,8 +56,8 @@ public class NewLiftPositionFromConfig extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         CommandScheduler.getInstance().reset();
         GamepadEx driver2 = new GamepadEx(gamepad2);
-        NewLift lift = new NewLift(hardwareMap, driver2, false, false);
         telemetry = new MultipleTelemetry(super.telemetry, FtcDashboard.getInstance().getTelemetry());
+        NewLift lift = new NewLift(hardwareMap, driver2, telemetry, false, false);
         waitForStart();
         long lastPositionTime = System.currentTimeMillis();
         driver2.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(lift::toggleAutomatic);

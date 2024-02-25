@@ -15,7 +15,9 @@ import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorGroup;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.commands.LiftGoToPositionCommand;
 
 import java.util.Arrays;
@@ -546,9 +548,10 @@ public class NewLift extends SubsystemBase {
     private double lastMaxCarriageAngle = MAX_CARRIAGE_ANGLE;
 
     private final boolean isTeleOp;
+    private final Telemetry telemetry;
 
     @SuppressWarnings("ConstantConditions")
-    public NewLift(HardwareMap hardwareMap, GamepadEx toolGamepad, boolean debug, boolean teleOp) {
+    public NewLift(HardwareMap hardwareMap, GamepadEx toolGamepad, Telemetry telemetry, boolean debug, boolean teleOp) {
         final Motor.GoBILDA motorType = Motor.GoBILDA.RPM_312;
         final String[] liftMotorIds = {"liftRight", "liftLeft"};
         final boolean[] isInverted = {false, true};
@@ -590,10 +593,11 @@ public class NewLift extends SubsystemBase {
         }
 
         this.isTeleOp = teleOp;
+        this.telemetry = telemetry;
     }
 
     public NewLift(HardwareMap hardwareMap, GamepadEx toolGamepad, boolean debug) {
-        this(hardwareMap, toolGamepad, debug, true);
+        this(hardwareMap, toolGamepad, null, debug, true);
     }
 
     public NewLift(HardwareMap hardwareMap, boolean debug) {
@@ -631,7 +635,9 @@ public class NewLift extends SubsystemBase {
             liftMotor.set(toolGamepad.getLeftY() * LIFT_POWER);
             if(Math.abs(toolGamepad.getRightY()) > FLICK_STICK_DEADZONE || Math.abs(toolGamepad.getRightX()) > FLICK_STICK_DEADZONE) {
                 double angle = Math.atan2(toolGamepad.getRightY(), toolGamepad.getRightX());
-                carriageRollServo.turnToAngle(angle + CARRIAGE_ANGLE_OFFSET);
+                if(telemetry != null)
+                    telemetry.addData("Flick Stick Angle", angle);
+                carriageRollServo.turnToAngle(Range.clip((angle + CARRIAGE_ANGLE_OFFSET) % 360, MIN_CARRIAGE_ANGLE, MAX_CARRIAGE_ANGLE));
             }
             return;
         }
