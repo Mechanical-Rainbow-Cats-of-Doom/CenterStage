@@ -102,6 +102,11 @@ public class NewLift extends SubsystemBase {
             A_LEFT_VLOW_MIDDLEDUMP(300, 100, true, 0.8, 1, 0.35, false, true,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, null, Time.VERY_EARLY),
 
+            A_RIGHT_VLOW_RIGHTDUMP(100, 100, true, 0.36, 0.32, 0.35, false, true,
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY),
+            A_RIGHT_VLOW_MIDDLEDUMP(300, 100, true, 0.06, 0.07, 0.35, false, true,
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY),
+
 
             A_MEDIUM(2000, 100, true, 0.43, 0.535, 1, true, true,
                      Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.EARLY, Time.LATE, null, Time.EARLY),
