@@ -63,10 +63,8 @@ public class NewLift extends SubsystemBase {
 
 
         enum Default implements LiftPosition {
-            DOWN(0, 100, false, 0.43, 0.535, 0.9, false, true,
+            DOWN(0, 100, false, 0.43, 0.535, 0.85, false, true,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.VERY_EARLY, Time.VERY_EARLY, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY),
-
-
             T_LEFT_LOW(800, 100, true, 0.76, 0.76, 0.35, true, true,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY, Default.DOWN),
             T_LEFT_MEDIUM(1400, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, T_LEFT_LOW.armRoll, T_LEFT_LOW.carriageRoll, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm,
@@ -90,19 +88,19 @@ public class NewLift extends SubsystemBase {
 
             // NO WORK
             A_VLOW_MIDDLEDUMP_RIGHT_LEAN(0, 100, true, 0.7, 0.535, 1, false, true,
-                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY),
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, null, Time.VERY_EARLY),
             // NO WORK
             A_VLOW_MIDDLEDUMP_LEFT_LEAN(0, 100, true, 0.7, 0.535, 1, false, true,
-                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY),
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, null, Time.VERY_EARLY),
             A_MIDDLE_VLOW_LEFTDUMP(200, 100, true, 0.25, 0.3, 1, false, true,
-                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY),
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, null, Time.VERY_EARLY),
             A_MIDDLE_VLOW_RIGHTDUMP(100, 100, true, 0.5, 0.75, 1, false, true,
-                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY),
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, null, Time.VERY_EARLY),
 
             A_LEFT_VLOW_LEFTDUMP(100, 100, true, 0.5, 0.75, 0.35, false, true,
-                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY),
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, null, Time.VERY_EARLY),
             A_LEFT_VLOW_MIDDLEDUMP(300, 100, true, 0.8, 1, 0.35, false, true,
-                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY),
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, null, Time.VERY_EARLY),
 
             A_RIGHT_VLOW_RIGHTDUMP(100, 100, true, 0.36, 0.32, 0.35, false, true,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY),
@@ -111,9 +109,9 @@ public class NewLift extends SubsystemBase {
 
 
             A_MEDIUM(2000, 100, true, 0.43, 0.535, 1, true, true,
-                     Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.EARLY, Time.LATE, Time.VERY_LATE_BUTTON, Time.EARLY),
+                     Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.EARLY, Time.LATE, null, Time.EARLY),
             A_HIGH(3000, 100, true, 0.43, 0.535, 1, true, true,
-                   Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.EARLY, Time.LATE, Time.VERY_LATE_BUTTON, Time.EARLY);
+                   Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.EARLY, Time.LATE, null, Time.EARLY);
 
             private final int liftTicks;
             private final int liftTicksTwo;
@@ -424,7 +422,7 @@ public class NewLift extends SubsystemBase {
     public static int POSITION_LIMIT = 3000;
     public static double CLAW_OPEN_POSITION = 0;
     public static double CLAW_CLOSED_POSITION = 0.2;
-    public static double ARM_IN_YAW = 0.34;
+    public static double ARM_IN_YAW = 0.32;
     public static double ARM_OUT_YAW = 0.44;
     public static double ARM_YAW_MOVE_TIME = 1.33;
     public static double CLAW_MOVE_TIME = 0.2;
@@ -494,7 +492,7 @@ public class NewLift extends SubsystemBase {
 
         @Override
         public Time getLiftMoveTime() {
-            return Time.NORMAL;
+            return null;
         }
 
         @Override
@@ -706,7 +704,7 @@ public class NewLift extends SubsystemBase {
                 if(!usesTime(position, LiftPosition.Time.VERY_LATE_BUTTON)) {
                     state = State.AT_POSITION;
                 } else {
-                    if (!toolGamepad.getButton(GamepadKeys.Button.Y)) {
+                    if (toolGamepad != null && !toolGamepad.getButton(GamepadKeys.Button.Y)) {
                         break;
                     }
                     state = State.VERY_LATE_BUTTON_MOVE;
@@ -725,7 +723,7 @@ public class NewLift extends SubsystemBase {
                 state = State.AT_POSITION;
             case AT_POSITION:
                 LiftPosition next = position.getNextLiftPosition();
-                if(next != null && toolGamepad.getButton(GamepadKeys.Button.Y)) {
+                if(next != null && (toolGamepad == null || toolGamepad.getButton(GamepadKeys.Button.Y))) {
                     setPosition(next);
                 }
                 break;
@@ -924,9 +922,6 @@ public class NewLift extends SubsystemBase {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             if(!started) {
-                if(carriageClawServo.getPosition() == (open ? CLAW_OPEN_POSITION : CLAW_CLOSED_POSITION)) {
-                    return true;
-                }
                 setClaw(open);
                 started = true;
                 time.reset();
