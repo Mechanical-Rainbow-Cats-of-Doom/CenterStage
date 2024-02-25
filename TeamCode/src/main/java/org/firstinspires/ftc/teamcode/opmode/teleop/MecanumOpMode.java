@@ -59,7 +59,7 @@ public class MecanumOpMode extends CommandOpMode {
 //                lift.toggleClawOpen();
 //            }
 //        });
-//        driver2.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(()->lift.toggleAutomatic());
+        driver2.getGamepadButton(GamepadKeys.Button.BACK).whenPressed(()->lift.toggleAutomatic());
 
         // register unregistered subsystems
         register(drive, lift, intake, droneLauncher);
@@ -68,8 +68,8 @@ public class MecanumOpMode extends CommandOpMode {
     @Override
     public void run() {
         super.run();
-        telemetry.addData("D2 Left Trigger", driver2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
-        telemetry.addData("D2 Right Trigger", driver2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
+        telemetry.addData("Lift State", lift.getState().name());
+        telemetry.addData("Lift Position", lift.getCurrentLiftPosition());
         telemetry.update();
     }
 }
