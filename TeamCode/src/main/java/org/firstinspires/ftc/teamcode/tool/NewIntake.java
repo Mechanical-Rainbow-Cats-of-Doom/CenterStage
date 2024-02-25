@@ -10,10 +10,13 @@ import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
+import com.arcrobotics.ftclib.util.Timing;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.commands.SetIntakeCommand;
 
+import java.util.concurrent.TimeUnit;
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 public class NewIntake extends SubsystemBase {
@@ -155,14 +158,12 @@ public class NewIntake extends SubsystemBase {
 
     private class SpinIntake implements Action {
         private final DoubleSupplier intakeHeight;
-        private final PixelSensor sensor;
-        private final int toCollect;
+        private final BooleanSupplier finished;
         private boolean started = false;
 
-        public SpinIntake(PixelSensor sensor, int toCollect, DoubleSupplier intakeHeight) {
-            this.sensor = sensor;
-            this.toCollect = toCollect;
+        public SpinIntake(BooleanSupplier finished, DoubleSupplier intakeHeight) {
             this.intakeHeight = intakeHeight;
+            this.finished = finished;
         }
 
         @Override
@@ -172,8 +173,7 @@ public class NewIntake extends SubsystemBase {
                 setHeight(intakeHeight);
                 started = true;
             }
-            sensor.periodic();
-            boolean done = sensor.getPixelCount() >= toCollect;
+            boolean done = finished.getAsBoolean();
             if(done) {
                 setState(State.OFF);
             }
@@ -182,8 +182,26 @@ public class NewIntake extends SubsystemBase {
         }
     }
 
+    public Action spinIntakeAction(BooleanSupplier finished, DoubleSupplier intakeHeight) {
+        return new SpinIntake(finished, intakeHeight);
+    }
+
     public Action spinIntakeAction(PixelSensor pixelSensor, int toCollect, DoubleSupplier intakeHeight) {
-        return new SpinIntake(pixelSensor, toCollect, intakeHeight);
+        return new SpinIntake(() -> {
+            pixelSensor.periodic();
+            return toCollect >= pixelSensor.getPixelCount();
+        }, intakeHeight);
+    }
+
+    public Action spinIntakeAction(double timeSeconds, DoubleSupplier intakeHeight) {
+        boolean started = false;
+        Timing.Timer timer = new Timing.Timer((long) (timeSeconds * 1000), TimeUnit.MILLISECONDS);
+        return new SpinIntake(() -> {
+            if(!started) {
+                timer.start();
+            }
+            return timer.done();
+        }, intakeHeight);
     }
 
 

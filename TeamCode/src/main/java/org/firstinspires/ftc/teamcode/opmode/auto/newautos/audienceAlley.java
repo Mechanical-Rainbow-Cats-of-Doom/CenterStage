@@ -40,20 +40,12 @@ public class audienceAlley extends LinearOpMode {
                 .strafeToLinearHeading(new Vector2d(12, -45*yMultiplier), Math.toRadians(110))
                 .strafeToLinearHeading(new Vector2d(6, -40*yMultiplier), Math.toRadians(130))
                 .strafeToLinearHeading(new Vector2d(50, -35*yMultiplier), Math.toRadians(180))
-                .stopAndAdd(lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_LOW))
-                .stopAndAdd(lift.getClawAction(true))
-                .waitSeconds(1)
-                .stopAndAdd(lift.getClawAction(false))
                 .build();
 
         Action center = drive.actionBuilder(drive.pose)
                 .strafeTo(new Vector2d(12, -32*yMultiplier))
                 .strafeTo(new Vector2d(20, -35*yMultiplier))
                 .strafeToLinearHeading(new Vector2d(50, -35*yMultiplier), Math.toRadians(180))
-                .stopAndAdd(lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_LOW))
-                .stopAndAdd(lift.getClawAction(true))
-                .waitSeconds(1)
-                .stopAndAdd(lift.getClawAction(false))
                 .build();
 
         Action right = drive.actionBuilder(drive.pose)

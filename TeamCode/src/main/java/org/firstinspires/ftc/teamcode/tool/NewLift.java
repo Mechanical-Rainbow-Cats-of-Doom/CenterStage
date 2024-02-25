@@ -63,7 +63,7 @@ public class NewLift extends SubsystemBase {
 
 
         enum Default implements LiftPosition {
-            DOWN(0, 100, false, 0.43, 0.535, 0.9, false, true,
+            DOWN(0, 100, false, 0.43, 0.535, 0.85, false, true,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.VERY_EARLY, Time.VERY_EARLY, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY),
             T_LEFT_LOW(800, 100, true, 0.76, 0.76, 0.35, true, true,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY, Default.DOWN),
@@ -417,7 +417,7 @@ public class NewLift extends SubsystemBase {
     public static int POSITION_LIMIT = 3000;
     public static double CLAW_OPEN_POSITION = 0;
     public static double CLAW_CLOSED_POSITION = 0.2;
-    public static double ARM_IN_YAW = 0.34;
+    public static double ARM_IN_YAW = 0.32;
     public static double ARM_OUT_YAW = 0.44;
     public static double ARM_YAW_MOVE_TIME = 1.33;
     public static double CLAW_MOVE_TIME = 0.2;
@@ -718,7 +718,7 @@ public class NewLift extends SubsystemBase {
                 state = State.AT_POSITION;
             case AT_POSITION:
                 LiftPosition next = position.getNextLiftPosition();
-                if(next != null && toolGamepad.getButton(GamepadKeys.Button.Y)) {
+                if(next != null && (toolGamepad == null || toolGamepad.getButton(GamepadKeys.Button.Y))) {
                     setPosition(next);
                 }
                 break;
