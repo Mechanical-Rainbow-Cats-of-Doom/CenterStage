@@ -88,30 +88,24 @@ public class NewLift extends SubsystemBase {
 
             // NO WORK
             A_VLOW_MIDDLEDUMP_RIGHT_LEAN(0, 100, true, 0.7, 0.535, 1, false, true,
-                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, null, Time.VERY_EARLY),
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY),
             // NO WORK
             A_VLOW_MIDDLEDUMP_LEFT_LEAN(0, 100, true, 0.7, 0.535, 1, false, true,
-                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, null, Time.VERY_EARLY),
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY),
             A_MIDDLE_VLOW_LEFTDUMP(200, 100, true, 0.25, 0.3, 1, false, true,
-                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, null, Time.VERY_EARLY),
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY),
             A_MIDDLE_VLOW_RIGHTDUMP(100, 100, true, 0.5, 0.75, 1, false, true,
-                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, null, Time.VERY_EARLY),
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY),
 
             A_LEFT_VLOW_LEFTDUMP(100, 100, true, 0.5, 0.75, 0.35, false, true,
-                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, null, Time.VERY_EARLY),
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY),
             A_LEFT_VLOW_MIDDLEDUMP(300, 100, true, 0.8, 1, 0.35, false, true,
-                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, null, Time.VERY_EARLY),
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY),
 
             A_RIGHT_VLOW_RIGHTDUMP(100, 100, true, 0.36, 0.32, 0.35, false, true,
-                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY),
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY),
             A_RIGHT_VLOW_MIDDLEDUMP(300, 100, true, 0.06, 0.07, 0.35, false, true,
-                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY),
-
-
-            A_MEDIUM(2000, 100, true, 0.43, 0.535, 1, true, true,
-                     Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.EARLY, Time.LATE, null, Time.EARLY),
-            A_HIGH(3000, 100, true, 0.43, 0.535, 1, true, true,
-                   Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.EARLY, Time.LATE, null, Time.EARLY);
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY);
 
             private final int liftTicks;
             private final int liftTicksTwo;
