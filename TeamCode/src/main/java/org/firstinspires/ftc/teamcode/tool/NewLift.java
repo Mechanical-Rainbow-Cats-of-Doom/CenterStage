@@ -22,7 +22,7 @@ import java.util.Arrays;
 
 @Config
 public class NewLift extends SubsystemBase {
-    private final SimpleServo armYawRight;
+    private final SimpleServo armPitchPrimaryRight;
 
     public interface LiftPosition {
         int getLiftTicks();
@@ -417,9 +417,10 @@ public class NewLift extends SubsystemBase {
     public static double CLAW_OPEN_POSITION = 0;
     public static double CLAW_CLOSED_POSITION = 0.2;
     public static double ARM_IN_YAW = 0.32;
-    public static double ARM_OUT_YAW = 0.44;
+    public static double ARM_OUT_PITCH = 0.44;
     public static double ARM_YAW_MOVE_TIME = 1.33;
     public static double CLAW_MOVE_TIME = 0.2;
+    public static double CLAW_DROP_TIME = 1;
     public static double ARM_ROLL_TIME_P = 0.79;
     public static double CARRIAGE_ROLL_TIME_P = 0.6;
     public static double ARM_LENGTH_TIME_P = 1.3;
@@ -427,16 +428,17 @@ public class NewLift extends SubsystemBase {
     public static double SECOND_SERVO_MIDDLE = 0.5;
     public static boolean SECOND_SERVO_INVERTED = true;
     public static double ARM_RETRACTED_POSITION = 1;
-    public static double MIN_CARRIAGE_ANGLE = 0;
-    public static double MAX_CARRIAGE_ANGLE = 1;
+    public static double MIN_CARRIAGE_ANGLE = -65;
+    public static double MAX_CARRIAGE_ANGLE = 65;
     public static double CARRIAGE_ANGLE_OFFSET = 0;
+    public static double FLICK_STICK_DEADZONE = 0.8;
 
     public int direction = 0;
     public int height = 0;
 
     private final MotorGroup liftMotor;
     private final Motor liftLeader;
-    private final ServoEx armYawLeft;
+    private final ServoEx armPitchSecondaryLeft;
     private final ServoEx armRollServo;
     private final ServoEx armLengthServo;
     private final ServoEx carriageRollServo;
@@ -564,8 +566,8 @@ public class NewLift extends SubsystemBase {
         liftMotor.setPositionTolerance(POSITION_TOLERANCE);
         liftMotor.setRunMode(Motor.RunMode.PositionControl);
 
-        armYawLeft = new SimpleServo(hardwareMap, "armYawLeft", 0, 1);
-        armYawRight = new SimpleServo(hardwareMap, "armYawRight", 0, 1);
+        armPitchSecondaryLeft = new SimpleServo(hardwareMap, "armYawLeft", 0, 1);
+        armPitchPrimaryRight = new SimpleServo(hardwareMap, "armYawRight", 0, 1);
         armRollServo = new SimpleServo(hardwareMap, "armRoll", 0, 1);
         armLengthServo = new SimpleServo(hardwareMap, "armLength", MIN_CARRIAGE_ANGLE, MAX_CARRIAGE_ANGLE);
         carriageRollServo = new SimpleServo(hardwareMap, "carriageRoll", 0, 1);
@@ -627,8 +629,10 @@ public class NewLift extends SubsystemBase {
                 runMode = Motor.RunMode.RawPower;
             }
             liftMotor.set(toolGamepad.getLeftY() * LIFT_POWER);
-            double angle = Math.atan2(toolGamepad.getRightY(), toolGamepad.getRightX());
-            carriageRollServo.turnToAngle(angle);
+            if(Math.abs(toolGamepad.getRightY()) > FLICK_STICK_DEADZONE || Math.abs(toolGamepad.getRightX()) > FLICK_STICK_DEADZONE) {
+                double angle = Math.atan2(toolGamepad.getRightY(), toolGamepad.getRightX());
+                carriageRollServo.turnToAngle(angle + CARRIAGE_ANGLE_OFFSET);
+            }
             return;
         }
         if(runMode != Motor.RunMode.PositionControl) {
@@ -703,7 +707,6 @@ public class NewLift extends SubsystemBase {
                     }
                     state = State.VERY_LATE_BUTTON_MOVE;
                     prepareMove();
-                    maxMoveTime = Math.min(0.2, maxMoveTime);
                 }
             case VERY_LATE_BUTTON_MOVE:
                 if(waitingForLiftMove && !liftMotor.atTargetPosition()) {
@@ -742,10 +745,10 @@ public class NewLift extends SubsystemBase {
 
     public void toggleArmPosition() {
         if(!automatic) {
-            double requiredPosition = (armYawRight.getPosition() == ARM_IN_YAW) ? ARM_OUT_YAW : ARM_IN_YAW;
+            double requiredPosition = (armPitchPrimaryRight.getPosition() == ARM_IN_YAW) ? ARM_OUT_PITCH : ARM_IN_YAW;
 
-            armYawRight.setPosition(requiredPosition);
-            armYawLeft.setPosition((requiredPosition-FIRST_SERVO_MIDDLE)*(SECOND_SERVO_INVERTED ? -1 : 1)+SECOND_SERVO_MIDDLE);
+            armPitchPrimaryRight.setPosition(requiredPosition);
+            armPitchSecondaryLeft.setPosition((requiredPosition-FIRST_SERVO_MIDDLE)*(SECOND_SERVO_INVERTED ? -1 : 1)+SECOND_SERVO_MIDDLE);
         }
     }
 
@@ -808,17 +811,18 @@ public class NewLift extends SubsystemBase {
             carriageRollServo.setPosition(position.getCarriageRoll());
         }
         if(state.currentTime(position.getArmYawTime())) {
-            double requiredPosition = position.isArmOut() ? ARM_OUT_YAW : ARM_IN_YAW;
-            if(armYawRight.getPosition() != requiredPosition) {
+            double requiredPosition = position.isArmOut() ? ARM_OUT_PITCH : ARM_IN_YAW;
+            if(armPitchPrimaryRight.getPosition() != requiredPosition) {
                 maxMoveTime = Math.max(maxMoveTime, ARM_YAW_MOVE_TIME);
-                armYawRight.setPosition(requiredPosition);
-                armYawLeft.setPosition((requiredPosition-FIRST_SERVO_MIDDLE)*(SECOND_SERVO_INVERTED ? -1 : 1)+SECOND_SERVO_MIDDLE);
+                armPitchPrimaryRight.setPosition(requiredPosition);
+                armPitchSecondaryLeft.setPosition((requiredPosition-FIRST_SERVO_MIDDLE)*(SECOND_SERVO_INVERTED ? -1 : 1)+SECOND_SERVO_MIDDLE);
             }
         }
         if(state.currentTime(position.getClawTime())) {
             double requiredPosition = position.isClawOpen() ? CLAW_OPEN_POSITION : CLAW_CLOSED_POSITION;
             if(carriageClawServo.getPosition() != requiredPosition) {
-                maxMoveTime = Math.max(maxMoveTime, CLAW_MOVE_TIME);
+                boolean isDropping = armPitchPrimaryRight.getPosition() == ARM_OUT_PITCH && position.isClawOpen();
+                maxMoveTime = Math.max(maxMoveTime, (isDropping) ? CLAW_DROP_TIME : CLAW_MOVE_TIME);
                 carriageClawServo.setPosition(requiredPosition);
             }
         }
