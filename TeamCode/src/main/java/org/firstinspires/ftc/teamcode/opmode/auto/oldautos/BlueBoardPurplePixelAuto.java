@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.arcrobotics.ftclib.util.Timing;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.common.util.DelayStorage;
@@ -15,6 +16,7 @@ import org.firstinspires.ftc.teamcode.vision.PropDetector;
 import org.firstinspires.ftc.teamcode.vision.PropPipeline;
 
 @Autonomous
+@Disabled
 public class BlueBoardPurplePixelAuto extends LinearOpMode {
     protected boolean isRed = false;
     protected boolean closeRightTurn = false;
@@ -22,7 +24,7 @@ public class BlueBoardPurplePixelAuto extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         PropDetector detector = new PropDetector(hardwareMap, "webcam", true,
-                isRed, PropPipeline.PropPipelineRectsProvider.Default.RED_BOARD_SIDE);
+                isRed, PropPipeline.PropPipelineRectsProvider.Default.DEFAULT);
         OldIntake intake = new OldIntake(hardwareMap);
         Pose2d startPose = new Pose2d(12, -61.75, Math.toRadians(90));
         MecanumDrive drive = new MecanumDrive(hardwareMap, startPose);

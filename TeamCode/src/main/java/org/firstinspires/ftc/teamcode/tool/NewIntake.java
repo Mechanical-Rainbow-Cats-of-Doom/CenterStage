@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.tool;
 
 import androidx.annotation.NonNull;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.arcrobotics.ftclib.command.SubsystemBase;
@@ -16,40 +17,44 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.commands.SetIntakeCommand;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
+@Config
 public class NewIntake extends SubsystemBase {
     public static double TRIGGER_DEADZONE = 0.4;
+    public static double INTAKE_POWER = 0.75;
 
     private final MotorEx intakeMotor;
     private final ServoEx intakeHeight;
     private final GamepadEx toolGamepad;
-    private State state = State.OFF;
+    private DoubleSupplier state = State.OFF;
     private DoubleSupplier height = DefaultHeight.UP;
     private boolean leftTriggerPreviouslyDepressed = false;
     private boolean rightTriggerPreviouslyDepressed = false;
 
-    public enum State {
-        OFF(0),
-        FORWARD(1),
-        BACKWARD(-1);
+    public enum State implements DoubleSupplier {
+        OFF(() -> 0),
+        FORWARD(() -> INTAKE_POWER),
+        BACKWARD(() -> -INTAKE_POWER);
 
-        private final double power;
+        private final DoubleSupplier power;
 
-        State(double power) {
+        State(DoubleSupplier power) {
             this.power = power;
         }
 
-        public double getPower() {
-            return power;
+        public double getAsDouble() {
+            return power.getAsDouble();
         }
     }
 
     public enum DefaultHeight implements DoubleSupplier {
         UP(5, 0.24),
+        PIXEL_HOVER(6, 0.58),
         PIXEL_5(4, 0.645),
-        PIXEL_4(3, 0.665),
+        PIXEL_4(3, 0.666),
         PIXEL_3(2, 0.685),
         PIXEL_2(1, 0.71),
         BOTTOM(0, 0.73);
@@ -115,7 +120,7 @@ public class NewIntake extends SubsystemBase {
         this(map, null, null);
     }
 
-    public void setState(State state) {
+    public void setState(DoubleSupplier state) {
         this.state = state;
     }
 
@@ -125,7 +130,7 @@ public class NewIntake extends SubsystemBase {
 
     @Override
     public void periodic() {
-        intakeMotor.set(state.power);
+        intakeMotor.set(state.getAsDouble());
         intakeHeight.setPosition(height.getAsDouble());
 
         if(toolGamepad != null) {
@@ -157,11 +162,19 @@ public class NewIntake extends SubsystemBase {
     }
 
     private class SpinIntake implements Action {
+        private final DoubleSupplier speed;
         private final DoubleSupplier intakeHeight;
         private final BooleanSupplier finished;
         private boolean started = false;
 
+        public SpinIntake(BooleanSupplier finished, DoubleSupplier speed, DoubleSupplier intakeHeight) {
+            this.speed = speed;
+            this.intakeHeight = intakeHeight;
+            this.finished = finished;
+        }
+
         public SpinIntake(BooleanSupplier finished, DoubleSupplier intakeHeight) {
+            this.speed = State.FORWARD;
             this.intakeHeight = intakeHeight;
             this.finished = finished;
         }
@@ -169,7 +182,7 @@ public class NewIntake extends SubsystemBase {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             if(!started) {
-                setState(State.FORWARD);
+                setState(speed);
                 setHeight(intakeHeight);
                 started = true;
             }
@@ -186,6 +199,10 @@ public class NewIntake extends SubsystemBase {
         return new SpinIntake(finished, intakeHeight);
     }
 
+    public Action spinIntakeAction(BooleanSupplier finished, DoubleSupplier speed, DoubleSupplier intakeHeight) {
+        return new SpinIntake(finished, speed, intakeHeight);
+    }
+
     public Action spinIntakeAction(PixelSensor pixelSensor, int toCollect, DoubleSupplier intakeHeight) {
         return new SpinIntake(() -> {
             pixelSensor.periodic();
@@ -193,16 +210,72 @@ public class NewIntake extends SubsystemBase {
         }, intakeHeight);
     }
 
-    public Action spinIntakeAction(double timeSeconds, DoubleSupplier intakeHeight) {
-        boolean started = false;
+    public Action spinIntakeAction(PixelSensor pixelSensor, int toCollect, DoubleSupplier speed, DoubleSupplier intakeHeight) {
+        return new SpinIntake(() -> {
+            pixelSensor.periodic();
+            return toCollect >= pixelSensor.getPixelCount();
+        }, speed, intakeHeight);
+    }
+
+    public Action spinIntakeAction(double timeSeconds, DoubleSupplier speed, DoubleSupplier intakeHeight) {
+        AtomicBoolean started = new AtomicBoolean(false);
         Timing.Timer timer = new Timing.Timer((long) (timeSeconds * 1000), TimeUnit.MILLISECONDS);
         return new SpinIntake(() -> {
-            if(!started) {
+            if(!started.get()) {
                 timer.start();
+                started.set(true);
+            }
+            return timer.done();
+        }, speed, intakeHeight);
+    }
+
+    public Action spinIntakeAction(double timeSeconds, DoubleSupplier intakeHeight) {
+        AtomicBoolean started = new AtomicBoolean(false);
+        Timing.Timer timer = new Timing.Timer((long) (timeSeconds * 1000), TimeUnit.MILLISECONDS);
+        return new SpinIntake(() -> {
+            if(!started.get()) {
+                timer.start();
+                started.set(true);
             }
             return timer.done();
         }, intakeHeight);
     }
 
+    public Action spinIntakeTimerAction(PixelSensor pixelSensor, int toCollect,
+                                        double timeSecondsOverride, DoubleSupplier speed,
+                                        DoubleSupplier intakeHeight) {
+        AtomicBoolean started = new AtomicBoolean(false);
+        Timing.Timer timer = new Timing.Timer((long) (timeSecondsOverride * 1000), TimeUnit.MILLISECONDS);
+        return new SpinIntake(() -> {
+            if(!started.get()) {
+                timer.start();
+                started.set(true);
+            }
+            pixelSensor.periodic();
+            return timer.done() || toCollect >= pixelSensor.getPixelCount();
+        }, speed, intakeHeight);
+    }
 
+
+    public Action spinIntakeTimerAction(PixelSensor pixelSensor, int toCollect,
+                                        double timeSecondsOverride, DoubleSupplier intakeHeight) {
+        AtomicBoolean started = new AtomicBoolean(false);
+        Timing.Timer timer = new Timing.Timer((long) (timeSecondsOverride * 1000), TimeUnit.MILLISECONDS);
+        return new SpinIntake(() -> {
+            if(!started.get()) {
+                timer.start();
+                started.set(true);
+            }
+            pixelSensor.periodic();
+            return timer.done() || toCollect >= pixelSensor.getPixelCount();
+        }, intakeHeight);
+    }
+
+    public Action setIntakeHeightAction(DoubleSupplier height) {
+        return telemetryPacket -> {
+            setHeight(height);
+            periodic();
+            return false;
+        };
+    }
 }

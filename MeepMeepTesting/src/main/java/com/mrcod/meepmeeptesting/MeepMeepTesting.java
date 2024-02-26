@@ -79,6 +79,7 @@ public class MeepMeepTesting {
                         drive.trajectorySequenceBuilder(new Pose2d(-35, -63.75, Math.toRadians(90)))
                                 .lineToLinearHeading(new Pose2d(-35, -45, Math.toRadians(70)))
                                 .lineToLinearHeading(new Pose2d(-29, -40, Math.toRadians(50)))
+                                .lineToLinearHeading(new Pose2d(-57, -12, Math.toRadians(180)))
                                 .build());
 
         RoadRunnerBotEntity audienceCenter = new DefaultBotBuilder(meepMeep)
@@ -87,13 +88,12 @@ public class MeepMeepTesting {
                 .followTrajectorySequence(drive ->
                         drive.trajectorySequenceBuilder(new Pose2d(-35, -63.75, Math.toRadians(90)))
                                 .lineTo(new Vector2d(-35, -32))
-                                .lineTo(new Vector2d(-35, -40))
-                                .lineToLinearHeading(new Pose2d(-57, -40, Math.toRadians(180)))
+                                .lineTo(new Vector2d(-45, -40))
                                 .lineToLinearHeading(new Pose2d(-57, -12, Math.toRadians(180)))
-                                .lineToLinearHeading(new Pose2d(50, -12, Math.toRadians(180)))
-                                .lineToLinearHeading(new Pose2d(-57, -12, Math.toRadians(180)))
-                                .lineToLinearHeading(new Pose2d(50, -12, Math.toRadians(180)))
-                                .lineToLinearHeading(new Pose2d(60, -12, Math.toRadians(180)))
+//                                .lineToLinearHeading(new Pose2d(50, -12, Math.toRadians(180)))
+//                                .lineToLinearHeading(new Pose2d(-57, -12, Math.toRadians(180)))
+//                                .lineToLinearHeading(new Pose2d(50, -12, Math.toRadians(180)))
+//                                .lineToLinearHeading(new Pose2d(60, -12, Math.toRadians(180)))
                                 .build());
 
         RoadRunnerBotEntity audienceLeft = new DefaultBotBuilder(meepMeep)
@@ -162,7 +162,6 @@ public class MeepMeepTesting {
                 .addEntity(audienceLeft)
                 .addEntity(boardRight2)
                 .addEntity(blueBoardRight)
-                .addEntity(blueBoardCenter)
                 .addEntity(blueBoardCenter)
                 .start();
     }

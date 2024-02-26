@@ -9,6 +9,7 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.arcrobotics.ftclib.util.Timing;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.common.util.DelayStorage;
@@ -18,14 +19,15 @@ import org.firstinspires.ftc.teamcode.vision.PropDetector;
 import org.firstinspires.ftc.teamcode.vision.PropPipeline;
 
 @Autonomous
+@Disabled
 public class BlueBoardPlacePixelAuto extends LinearOpMode {
     protected boolean isRed = false;
     protected boolean closeRightTurn = false;
 
     @Override
     public void runOpMode() throws InterruptedException {
-        PropDetector detector = new PropDetector(hardwareMap, "webcam", true,
-                isRed, PropPipeline.PropPipelineRectsProvider.Default.RED_BOARD_SIDE);
+//        PropDetector detector = new PropDetector(hardwareMap, "webcam", true,
+//                isRed, PropPipeline.PropPipelineRectsProvider.Default.RED_BOARD_SIDE);
         OldLift lift = new OldLift(hardwareMap, null, false, false, null);
         Pose2d startPose = new Pose2d(12, -61.75, Math.toRadians(90));
         final Pose2d secondInitialPose = new Pose2d(12, -50, Math.toRadians(90));
@@ -81,13 +83,14 @@ public class BlueBoardPlacePixelAuto extends LinearOpMode {
 
         timer.start();
         float startTime = System.currentTimeMillis() / 1000f;
-        int detection = detector.run(() -> {
-            int time = (int)((System.currentTimeMillis() - startTime) / 10f) % 4;
-            telemetry.addLine("Waiting for detector" + (time > 1 ? "." : "") +
-                    (time > 2 ? "." : "") +
-                    (time > 3 ? "." : ""));
-            telemetry.update();
-        });
+        int detection =0;
+//                detector.run(() -> {
+//            int time = (int)((System.currentTimeMillis() - startTime) / 10f) % 4;
+//            telemetry.addLine("Waiting for detector" + (time > 1 ? "." : "") +
+//                    (time > 2 ? "." : "") +
+//                    (time > 3 ? "." : ""));
+//            telemetry.update();
+//        });
 
         while(!timer.done()) {
             telemetry.addLine("Waiting for delay");
