@@ -76,7 +76,7 @@ public class MecanumDriveSubsystem extends SubsystemBase implements HolonomicDri
             currVelocity.omegaRadiansPerSecond = Math.signum(currVelocity.omegaRadiansPerSecond)*currVelocity.omegaRadiansPerSecond*currVelocity.omegaRadiansPerSecond;
         }
         drive.setDrivePowers(new PoseVelocity2d(
-                new Vector2d(currVelocity.vxMetersPerSecond, currVelocity.omegaRadiansPerSecond),
+                new Vector2d(currVelocity.vxMetersPerSecond, -currVelocity.omegaRadiansPerSecond),
                 currVelocity.vyMetersPerSecond));
 //        if (fieldOriented.getAsBoolean()) {
 //            drive.driveFieldCentric(currVelocity.vyMetersPerSecond, currVelocity.vxMetersPerSecond, currVelocity.omegaRadiansPerSecond, imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES), teleOp);

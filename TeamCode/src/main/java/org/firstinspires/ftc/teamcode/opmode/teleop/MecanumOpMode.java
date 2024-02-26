@@ -40,7 +40,7 @@ public class MecanumOpMode extends CommandOpMode {
             fieldOrientedReader.readValue();
             return fieldOrientedReader.getState();
         }, true, telemetry, squareInputs);
-        lift = new NewLift(hardwareMap, driver2);
+        lift = new NewLift(hardwareMap, driver2, telemetry, false, true);
         droneLauncher = new DroneLauncher(hardwareMap, () -> driver1.getButton(GamepadKeys.Button.BACK));
         intake = new NewIntake(hardwareMap, driver2);
 
@@ -54,6 +54,11 @@ public class MecanumOpMode extends CommandOpMode {
 //                .whenPressed(toggleForward).whenReleased(toggleForward);
 //        driver2.getGamepadButton(GamepadKeys.Button.B)
 //                .whenPressed(toggleBackward).whenReleased(toggleBackward);
+        driver2.getGamepadButton(GamepadKeys.Button.X).whenPressed(()->{
+            if(!lift.isAutomatic()) {
+                lift.toggleArmPosition();
+            }
+        });
         driver2.getGamepadButton(GamepadKeys.Button.Y).whenPressed(()->{
             if(!lift.isAutomatic()) {
                 lift.setClaw(!lift.isClawOpen());
