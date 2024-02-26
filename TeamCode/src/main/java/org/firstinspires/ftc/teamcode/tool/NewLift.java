@@ -67,8 +67,8 @@ public class NewLift extends SubsystemBase {
         enum Default implements LiftPosition {
             DOWN(0, 140, false, 0.43, 0.535, 0.85, false, true, true,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.VERY_EARLY, Time.VERY_EARLY, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, Time.VV_EARLY, null),
-            T_LEFT_LOW(1120, 140, true, 0.76, 0.76, 0.35, true, true, false,
-                    Time.EARLY, null, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY, null, Time.NORMAL, Default.DOWN),
+            T_LEFT_LOW(1120, 140, true, 0.8, 0.76, 0.35, true, true, false,
+                    Time.NORMAL, Time.EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY, null, null, Default.DOWN),
             T_LEFT_MEDIUM(1960, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, T_LEFT_LOW.armRoll, T_LEFT_LOW.carriageRoll, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime, T_LEFT_LOW.nextLiftPosition),
             T_LEFT_HIGH(2870, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, T_LEFT_LOW.armRoll, T_LEFT_LOW.carriageRoll, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
@@ -525,7 +525,7 @@ public class NewLift extends SubsystemBase {
     public static boolean FLICK_STICK_ARM = true;
     public static boolean FLICK_STICK_CARRIAGE = true;
 
-    public int direction = 0;
+    public int direction = 1;
     public int height = 0;
 
     private final MotorGroup liftMotor;
@@ -1031,7 +1031,7 @@ public class NewLift extends SubsystemBase {
                     case 2:
                         return opposingSides ? LiftPosition.Default.T_MIDDLE_HIGH_RTL: LiftPosition.Default.T_LEFT_HIGH;
                     case 3:
-                        return opposingSides ? LiftPosition.Default.T_MIDDLE_VHIGH_RTL : LiftPosition.Default.T_LEFT_MEDIUM;
+                        return opposingSides ? LiftPosition.Default.T_MIDDLE_VHIGH_RTL : LiftPosition.Default.T_LEFT_VHIGH;
                     default:
                         return LiftPosition.Default.DOWN;
                 }
@@ -1053,11 +1053,11 @@ public class NewLift extends SubsystemBase {
                     case 0:
                         return opposingSides ? LiftPosition.Default.T_MIDDLE_LOW_LTR : LiftPosition.Default.T_RIGHT_LOW;
                     case 1:
-                        return opposingSides ? LiftPosition.Default.T_MIDDLE_MEDIUM_LTR : LiftPosition.Default.T_LEFT_MEDIUM;
+                        return opposingSides ? LiftPosition.Default.T_MIDDLE_MEDIUM_LTR : LiftPosition.Default.T_RIGHT_MEDIUM;
                     case 2:
-                        return opposingSides ? LiftPosition.Default.T_MIDDLE_HIGH_LTR : LiftPosition.Default.T_LEFT_HIGH;
+                        return opposingSides ? LiftPosition.Default.T_MIDDLE_HIGH_LTR : LiftPosition.Default.T_RIGHT_HIGH;
                     case 3:
-                        return opposingSides ? LiftPosition.Default.T_MIDDLE_VHIGH_LTR : LiftPosition.Default.T_LEFT_VHIGH;
+                        return opposingSides ? LiftPosition.Default.T_MIDDLE_VHIGH_LTR : LiftPosition.Default.T_RIGHT_VHIGH;
                     default:
                         return LiftPosition.Default.DOWN;
                 }
