@@ -94,7 +94,7 @@ public class NewIntake extends SubsystemBase {
         }
     }
 
-    public NewIntake(HardwareMap map, GamepadEx toolGamepad) {
+    public NewIntake(HardwareMap map, GamepadEx toolGamepad, NewLift lift) {
         intakeMotor = new MotorEx(map, "intake");
         intakeHeight = new SimpleServo(map, "intakeHeight", 0, 1);
         intakeMotor.setInverted(true);
@@ -102,7 +102,7 @@ public class NewIntake extends SubsystemBase {
         if(toolGamepad != null) {
             toolGamepad.getGamepadButton(GamepadKeys.Button.A)
                     .whenReleased(new SetIntakeCommand(this, State.OFF))
-                    .whenHeld(new SetIntakeCommand(this, State.FORWARD));
+                    .whenHeld(new SetIntakeCommand(this, State.FORWARD, lift));
 
             toolGamepad.getGamepadButton(GamepadKeys.Button.B)
                     .whenReleased(new SetIntakeCommand(this, State.OFF))
@@ -112,7 +112,7 @@ public class NewIntake extends SubsystemBase {
     }
 
     public NewIntake(HardwareMap map) {
-        this(map, null);
+        this(map, null, null);
     }
 
     public void setState(State state) {

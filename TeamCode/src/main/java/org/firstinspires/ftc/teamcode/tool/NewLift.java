@@ -88,6 +88,29 @@ public class NewLift extends SubsystemBase {
             T_RIGHT_HIGH(2310, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, T_RIGHT_LOW.armRoll, T_RIGHT_LOW.carriageRoll, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime, T_LEFT_LOW.nextLiftPosition),
 
+            T_MIDDLE_LOW_LTR(560, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime,
+                    T_RIGHT_LOW),
+            T_MIDDLE_MEDIUM_LTR(1400, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime,
+                    T_RIGHT_MEDIUM),
+            T_MIDDLE_HIGH_LTR(2310, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime,
+                    T_RIGHT_HIGH),
+
+            T_MIDDLE_LOW_RTL(560, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime,
+                    T_LEFT_LOW),
+            T_MIDDLE_MEDIUM_RTL(1400, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime,
+                    T_LEFT_MEDIUM),
+            T_MIDDLE_HIGH_RTL(2310, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime,
+                    T_LEFT_HIGH),
+
+
+
+
             // NO WORK
             A_VLOW_MIDDLEDUMP_RIGHT_LEAN(0, 140, true, 0.7, 0.535, 1, false, true, false,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, null, null),
@@ -840,6 +863,10 @@ public class NewLift extends SubsystemBase {
         return position;
     }
 
+    public boolean isArmDown() {
+        return armPitchPrimaryRight.getPosition() == ARM_IN_PITCH;
+    }
+
     public void toggleArmPosition() {
         if(!automatic) {
             double requiredPosition = (armPitchPrimaryRight.getPosition() == ARM_IN_PITCH) ? ARM_OUT_PITCH : ARM_IN_PITCH;
@@ -951,13 +978,15 @@ public class NewLift extends SubsystemBase {
 
         @Override
         public void execute() {
+            int diff = Math.abs(o - direction);
+
             if(height) {
                 NewLift.this.height = Math.max(0, Math.min(NewLift.this.height + o, 2));
             } else {
                 NewLift.this.direction = o;
             }
 
-            chooseNewLiftPosition();
+            chooseNewLiftPosition(diff == 2 && !height);
         }
 
         @Override
@@ -966,13 +995,13 @@ public class NewLift extends SubsystemBase {
         }
     }
 
-    private void chooseNewLiftPosition() {
+    private void chooseNewLiftPosition(boolean opposingSides) {
         direction = direction % 3;
         height = height % 3;
-        setPosition(selectPosition(direction, height));
+        setPosition(selectPosition(opposingSides, direction, height));
     }
 
-    private static LiftPosition selectPosition(int direction, int height) {
+    private static LiftPosition selectPosition(boolean opposingSides, int direction, int height) {
         switch(direction) {
             case 0:
                 switch(height) {

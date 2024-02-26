@@ -42,7 +42,7 @@ public class MecanumOpMode extends CommandOpMode {
         }, true, telemetry, squareInputs);
         lift = new NewLift(hardwareMap, driver2, telemetry, false, true);
         droneLauncher = new DroneLauncher(hardwareMap, () -> driver1.getButton(GamepadKeys.Button.BACK));
-        intake = new NewIntake(hardwareMap, driver2);
+        intake = new NewIntake(hardwareMap, driver2, lift);
 
         // schedule all commands
         schedule(new ControllerDriveCommand(drive, driver1, () -> false));
