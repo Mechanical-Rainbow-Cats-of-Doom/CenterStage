@@ -34,7 +34,7 @@ public class Mecanum20Point extends LinearOpMode {
         final AutoMecanum mecanum = new AutoMecanum(hardwareMap);
 
         PropDetector detector = new PropDetector(hardwareMap, "webcam", true,
-                true, PropPipeline.PropPipelineRectsProvider.Default.RED_AUDIENCE_SIDE
+                true, PropPipeline.PropPipelineRectsProvider.Default.DEFAULT
         );
         int result = -1;
         float startTime = System.currentTimeMillis() / 1000f;

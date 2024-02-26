@@ -101,11 +101,17 @@ public class NewLift extends SubsystemBase {
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, null, Time.VERY_EARLY),
             A_LEFT_VLOW_MIDDLEDUMP(300, 100, true, 0.8, 1, 0.35, false, true,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, null, Time.VERY_EARLY),
+            A_LEFT_VLOW_RIGHTDUMP(500, 100, true, 0.8, 0.95, 0.35, false, true,
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, null, Time.VERY_EARLY),
+            A_LEFT_LOW(T_LEFT_LOW.liftTicks, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, T_LEFT_LOW.armRoll, T_LEFT_LOW.carriageRoll, T_LEFT_LOW.armLength, false, T_LEFT_LOW.retractArm,
+                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armYawTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, null, T_LEFT_LOW.retractArmTime),
 
             A_RIGHT_VLOW_RIGHTDUMP(100, 100, true, 0.36, 0.32, 0.35, false, true,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY),
             A_RIGHT_VLOW_MIDDLEDUMP(300, 100, true, 0.06, 0.07, 0.35, false, true,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY),
+            A_RIGHT_LOW(T_LEFT_LOW.liftTicks, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, T_RIGHT_LOW.armRoll, T_RIGHT_LOW.carriageRoll, T_RIGHT_LOW.armLength, false, T_RIGHT_LOW.retractArm,
+                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armYawTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, null, T_LEFT_LOW.retractArmTime),
 
 
             A_MEDIUM(2000, 100, true, 0.43, 0.535, 1, true, true,

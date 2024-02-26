@@ -29,8 +29,8 @@ public class BlueAudiencePlacePixelAuto extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        PropDetector detector = new PropDetector(hardwareMap, "webcam", true,
-                isRed, PropPipeline.PropPipelineRectsProvider.Default.RED_BOARD_SIDE);
+//        PropDetector detector = new PropDetector(hardwareMap, "webcam", true,
+//                isRed, PropPipeline.PropPipelineRectsProvider.Default.RED_BOARD_SIDE);
         OldLift lift = new OldLift(hardwareMap, null, false, false, null);
         Pose2d startPose = new Pose2d(12, -61.75, Math.toRadians(90));
         Pose2d secondInitialPose = new Pose2d(12, -50, Math.toRadians(90));
@@ -80,13 +80,14 @@ public class BlueAudiencePlacePixelAuto extends LinearOpMode {
         lift.toggleClawOpen();
 
         float startTime = System.currentTimeMillis() / 1000f;
-        int detection = detector.run(() -> {
-            int time = (int)((System.currentTimeMillis() - startTime) / 10f) % 4;
-            telemetry.addLine("Waiting for detector" + (time > 1 ? "." : "") +
-                    (time > 2 ? "." : "") +
-                    (time > 3 ? "." : ""));
-            telemetry.update();
-        });
+        int detection = 0;
+//                detector.run(() -> {
+//            int time = (int)((System.currentTimeMillis() - startTime) / 10f) % 4;
+//            telemetry.addLine("Waiting for detector" + (time > 1 ? "." : "") +
+//                    (time > 2 ? "." : "") +
+//                    (time > 3 ? "." : ""));
+//            telemetry.update();
+//        });
 
         switch (detection) {
             case 0:
