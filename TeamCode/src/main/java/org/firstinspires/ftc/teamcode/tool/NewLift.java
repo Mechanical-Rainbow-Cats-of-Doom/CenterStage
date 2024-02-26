@@ -15,14 +15,16 @@ import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorGroup;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.commands.LiftGoToPositionCommand;
 
 import java.util.Arrays;
 
 @Config
 public class NewLift extends SubsystemBase {
-    private final SimpleServo armYawRight;
+    private final SimpleServo armPitchPrimaryRight;
 
     public interface LiftPosition {
         int getLiftTicks();
@@ -45,7 +47,7 @@ public class NewLift extends SubsystemBase {
         boolean retractArm();
         Time getLiftMoveTime();
         Time getLiftMoveTwoTime();
-        Time getArmYawTime();
+        Time getArmPitchTime();
         Time getArmRollTime();
         Time getCarriageRollTime();
         Time getArmLengthTime();
@@ -88,18 +90,19 @@ public class NewLift extends SubsystemBase {
 
             // NO WORK
             A_VLOW_MIDDLEDUMP_RIGHT_LEAN(0, 100, true, 0.7, 0.535, 1, false, true,
-                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, null, Time.VERY_EARLY),
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY),
             // NO WORK
             A_VLOW_MIDDLEDUMP_LEFT_LEAN(0, 100, true, 0.7, 0.535, 1, false, true,
-                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, null, Time.VERY_EARLY),
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY),
             A_MIDDLE_VLOW_LEFTDUMP(200, 100, true, 0.25, 0.3, 1, false, true,
-                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, null, Time.VERY_EARLY),
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY),
             A_MIDDLE_VLOW_RIGHTDUMP(100, 100, true, 0.5, 0.75, 1, false, true,
-                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, null, Time.VERY_EARLY),
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY),
 
             A_LEFT_VLOW_LEFTDUMP(100, 100, true, 0.5, 0.75, 0.35, false, true,
-                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, null, Time.VERY_EARLY),
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY),
             A_LEFT_VLOW_MIDDLEDUMP(300, 100, true, 0.8, 1, 0.35, false, true,
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY),
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, null, Time.VERY_EARLY),
             A_LEFT_VLOW_RIGHTDUMP(500, 100, true, 0.8, 0.95, 0.35, false, true,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, null, Time.VERY_EARLY),
@@ -107,8 +110,9 @@ public class NewLift extends SubsystemBase {
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armYawTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, null, T_LEFT_LOW.retractArmTime),
 
             A_RIGHT_VLOW_RIGHTDUMP(100, 100, true, 0.36, 0.32, 0.35, false, true,
-                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY),
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY),
             A_RIGHT_VLOW_MIDDLEDUMP(300, 100, true, 0.06, 0.07, 0.35, false, true,
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY);
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY),
             A_RIGHT_LOW(T_LEFT_LOW.liftTicks, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, T_RIGHT_LOW.armRoll, T_RIGHT_LOW.carriageRoll, T_RIGHT_LOW.armLength, false, T_RIGHT_LOW.retractArm,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armYawTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, null, T_LEFT_LOW.retractArmTime),
@@ -217,7 +221,7 @@ public class NewLift extends SubsystemBase {
             }
 
             @Override
-            public Time getArmYawTime() {
+            public Time getArmPitchTime() {
                 return armYawTime;
             }
 
@@ -351,7 +355,7 @@ public class NewLift extends SubsystemBase {
             }
 
             @Override
-            public Time getArmYawTime() {
+            public Time getArmPitchTime() {
                 return armYawTime;
             }
 
@@ -429,9 +433,10 @@ public class NewLift extends SubsystemBase {
     public static double CLAW_OPEN_POSITION = 0;
     public static double CLAW_CLOSED_POSITION = 0.2;
     public static double ARM_IN_YAW = 0.32;
-    public static double ARM_OUT_YAW = 0.44;
+    public static double ARM_OUT_PITCH = 0.44;
     public static double ARM_YAW_MOVE_TIME = 1.33;
     public static double CLAW_MOVE_TIME = 0.2;
+    public static double CLAW_DROP_TIME = 1;
     public static double ARM_ROLL_TIME_P = 0.79;
     public static double CARRIAGE_ROLL_TIME_P = 0.6;
     public static double ARM_LENGTH_TIME_P = 1.3;
@@ -440,15 +445,21 @@ public class NewLift extends SubsystemBase {
     public static boolean SECOND_SERVO_INVERTED = true;
     public static double ARM_RETRACTED_POSITION = 1;
     public static double MIN_CARRIAGE_ANGLE = 0;
-    public static double MAX_CARRIAGE_ANGLE = 1;
+    public static double MAX_CARRIAGE_ANGLE = 300;
+    public static double MIN_ARM_ANGLE = 0;
+    public static double MAX_ARM_ANGLE = 264;
+    public static double ARM_ANGLE_OFFSET = 0;
+    public static double MIN_CLIPPED_ARM_ANGLE = 0;
+    public static double MAX_CLIPPED_ARM_ANGLE = 300;
     public static double CARRIAGE_ANGLE_OFFSET = 0;
+    public static double FLICK_STICK_DEADZONE = 0.8;
 
     public int direction = 0;
     public int height = 0;
 
     private final MotorGroup liftMotor;
     private final Motor liftLeader;
-    private final ServoEx armYawLeft;
+    private final ServoEx armPitchSecondaryLeft;
     private final ServoEx armRollServo;
     private final ServoEx armLengthServo;
     private final ServoEx carriageRollServo;
@@ -507,7 +518,7 @@ public class NewLift extends SubsystemBase {
         }
 
         @Override
-        public Time getArmYawTime() {
+        public Time getArmPitchTime() {
             return Time.NORMAL;
         }
 
@@ -554,11 +565,15 @@ public class NewLift extends SubsystemBase {
     private double lastPositionTolerance = POSITION_TOLERANCE;
     private double lastMinCarriageAngle = MIN_CARRIAGE_ANGLE;
     private double lastMaxCarriageAngle = MAX_CARRIAGE_ANGLE;
+    private double lastMinArmAngle = MIN_ARM_ANGLE;
+    private double lastMaxArmAngle = MAX_ARM_ANGLE;
+
 
     private final boolean isTeleOp;
+    private final Telemetry telemetry;
 
     @SuppressWarnings("ConstantConditions")
-    public NewLift(HardwareMap hardwareMap, GamepadEx toolGamepad, boolean debug, boolean teleOp) {
+    public NewLift(HardwareMap hardwareMap, GamepadEx toolGamepad, Telemetry telemetry, boolean debug, boolean teleOp) {
         final Motor.GoBILDA motorType = Motor.GoBILDA.RPM_312;
         final String[] liftMotorIds = {"liftRight", "liftLeft"};
         final boolean[] isInverted = {false, true};
@@ -576,11 +591,11 @@ public class NewLift extends SubsystemBase {
         liftMotor.setPositionTolerance(POSITION_TOLERANCE);
         liftMotor.setRunMode(Motor.RunMode.PositionControl);
 
-        armYawLeft = new SimpleServo(hardwareMap, "armYawLeft", 0, 1);
-        armYawRight = new SimpleServo(hardwareMap, "armYawRight", 0, 1);
-        armRollServo = new SimpleServo(hardwareMap, "armRoll", 0, 1);
-        armLengthServo = new SimpleServo(hardwareMap, "armLength", MIN_CARRIAGE_ANGLE, MAX_CARRIAGE_ANGLE);
-        carriageRollServo = new SimpleServo(hardwareMap, "carriageRoll", 0, 1);
+        armPitchSecondaryLeft = new SimpleServo(hardwareMap, "armYawLeft", 0, 1);
+        armPitchPrimaryRight = new SimpleServo(hardwareMap, "armYawRight", 0, 1);
+        armRollServo = new SimpleServo(hardwareMap, "armRoll", MIN_ARM_ANGLE, MAX_ARM_ANGLE);
+        armLengthServo = new SimpleServo(hardwareMap, "armLength", 0, 1);
+        carriageRollServo = new SimpleServo(hardwareMap, "carriageRoll", MIN_CARRIAGE_ANGLE, MAX_CARRIAGE_ANGLE);
         carriageClawServo = new SimpleServo(hardwareMap, "carriageClaw", 0, 1);
 
         // TODO reimplement inputs
@@ -593,6 +608,7 @@ public class NewLift extends SubsystemBase {
                     .whenPressed(new SelectPositionCommand(1, false));
             toolGamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT)
                     .whenPressed(new SelectPositionCommand(0, false));
+
             toolGamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
                     .whenPressed(new SelectPositionCommand(-1, true));
             toolGamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
@@ -600,10 +616,11 @@ public class NewLift extends SubsystemBase {
         }
 
         this.isTeleOp = teleOp;
+        this.telemetry = telemetry;
     }
 
     public NewLift(HardwareMap hardwareMap, GamepadEx toolGamepad, boolean debug) {
-        this(hardwareMap, toolGamepad, debug, true);
+        this(hardwareMap, toolGamepad, null, debug, true);
     }
 
     public NewLift(HardwareMap hardwareMap, boolean debug) {
@@ -625,6 +642,11 @@ public class NewLift extends SubsystemBase {
             lastMinCarriageAngle = MIN_CARRIAGE_ANGLE;
             lastMaxCarriageAngle = MAX_CARRIAGE_ANGLE;
         }
+        if(lastMinArmAngle != MIN_ARM_ANGLE || lastMaxArmAngle != MAX_ARM_ANGLE) {
+            armRollServo.setRange(MIN_ARM_ANGLE, MAX_ARM_ANGLE);
+            lastMinArmAngle = MIN_ARM_ANGLE;
+            lastMaxArmAngle = MAX_ARM_ANGLE;
+        }
         if(kP != lastKP) {
             liftMotor.setPositionCoefficient(kP);
             lastKP = kP;
@@ -639,8 +661,13 @@ public class NewLift extends SubsystemBase {
                 runMode = Motor.RunMode.RawPower;
             }
             liftMotor.set(toolGamepad.getLeftY() * LIFT_POWER);
-            double angle = Math.atan2(toolGamepad.getRightY(), toolGamepad.getRightX());
-            carriageRollServo.turnToAngle(angle);
+            if(Math.abs(toolGamepad.getRightY()) > FLICK_STICK_DEADZONE || Math.abs(toolGamepad.getRightX()) > FLICK_STICK_DEADZONE) {
+                double angle = Math.atan2(toolGamepad.getRightY(), toolGamepad.getRightX());
+                if(telemetry != null)
+                    telemetry.addData("Flick Stick Angle", angle);
+                carriageRollServo.turnToAngle(Range.clip(unsignedMod(-angle + CARRIAGE_ANGLE_OFFSET, 360), MIN_CARRIAGE_ANGLE, MAX_CARRIAGE_ANGLE));
+                armRollServo.turnToAngle(Range.clip(unsignedMod(-angle + ARM_ANGLE_OFFSET, 360), MIN_CLIPPED_ARM_ANGLE, MAX_CLIPPED_ARM_ANGLE));
+            }
             return;
         }
         if(runMode != Motor.RunMode.PositionControl) {
@@ -715,7 +742,7 @@ public class NewLift extends SubsystemBase {
                     }
                     state = State.VERY_LATE_BUTTON_MOVE;
                     prepareMove();
-                    maxMoveTime = Math.min(0.2, maxMoveTime);
+                    time.reset();
                 }
             case VERY_LATE_BUTTON_MOVE:
                 if(waitingForLiftMove && !liftMotor.atTargetPosition()) {
@@ -754,10 +781,10 @@ public class NewLift extends SubsystemBase {
 
     public void toggleArmPosition() {
         if(!automatic) {
-            double requiredPosition = (armYawRight.getPosition() == ARM_IN_YAW) ? ARM_OUT_YAW : ARM_IN_YAW;
+            double requiredPosition = (armPitchPrimaryRight.getPosition() == ARM_IN_YAW) ? ARM_OUT_PITCH : ARM_IN_YAW;
 
-            armYawRight.setPosition(requiredPosition);
-            armYawLeft.setPosition((requiredPosition-FIRST_SERVO_MIDDLE)*(SECOND_SERVO_INVERTED ? -1 : 1)+SECOND_SERVO_MIDDLE);
+            armPitchPrimaryRight.setPosition(requiredPosition);
+            armPitchSecondaryLeft.setPosition((requiredPosition-FIRST_SERVO_MIDDLE)*(SECOND_SERVO_INVERTED ? -1 : 1)+SECOND_SERVO_MIDDLE);
         }
     }
 
@@ -783,7 +810,7 @@ public class NewLift extends SubsystemBase {
 
     private static boolean usesTime(@NonNull LiftPosition position, LiftPosition.Time time) {
         return position.getLiftMoveTime() == time || position.getClawTime() == time ||
-                position.getArmLengthTime() == time || position.getArmYawTime() == time ||
+                position.getArmLengthTime() == time || position.getArmPitchTime() == time ||
                 position.getArmRollTime() == time || position.getCarriageRollTime() == time ||
                 position.getRetractArmTime() == time || position.getLiftMoveTwoTime() == time;
     }
@@ -819,18 +846,19 @@ public class NewLift extends SubsystemBase {
             maxMoveTime = Math.max(maxMoveTime, timeRequired);
             carriageRollServo.setPosition(position.getCarriageRoll());
         }
-        if(state.currentTime(position.getArmYawTime())) {
-            double requiredPosition = position.isArmOut() ? ARM_OUT_YAW : ARM_IN_YAW;
-            if(armYawRight.getPosition() != requiredPosition) {
+        if(state.currentTime(position.getArmPitchTime())) {
+            double requiredPosition = position.isArmOut() ? ARM_OUT_PITCH : ARM_IN_YAW;
+            if(armPitchPrimaryRight.getPosition() != requiredPosition) {
                 maxMoveTime = Math.max(maxMoveTime, ARM_YAW_MOVE_TIME);
-                armYawRight.setPosition(requiredPosition);
-                armYawLeft.setPosition((requiredPosition-FIRST_SERVO_MIDDLE)*(SECOND_SERVO_INVERTED ? -1 : 1)+SECOND_SERVO_MIDDLE);
+                armPitchPrimaryRight.setPosition(requiredPosition);
+                armPitchSecondaryLeft.setPosition((requiredPosition-FIRST_SERVO_MIDDLE)*(SECOND_SERVO_INVERTED ? -1 : 1)+SECOND_SERVO_MIDDLE);
             }
         }
         if(state.currentTime(position.getClawTime())) {
             double requiredPosition = position.isClawOpen() ? CLAW_OPEN_POSITION : CLAW_CLOSED_POSITION;
             if(carriageClawServo.getPosition() != requiredPosition) {
-                maxMoveTime = Math.max(maxMoveTime, CLAW_MOVE_TIME);
+                boolean isDropping = armPitchPrimaryRight.getPosition() == ARM_OUT_PITCH && position.isClawOpen();
+                maxMoveTime = Math.max(maxMoveTime, (isDropping) ? CLAW_DROP_TIME : CLAW_MOVE_TIME);
                 carriageClawServo.setPosition(requiredPosition);
             }
         }
@@ -964,4 +992,11 @@ public class NewLift extends SubsystemBase {
         return new MoveLiftToPosition(position);
     }
 
+    private double unsignedMod(double toMod, double modBy) {
+        double out = toMod % modBy;
+        if(out < 0) {
+            out = modBy + out;
+        }
+        return out;
+    }
 }
