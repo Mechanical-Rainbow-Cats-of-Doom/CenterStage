@@ -104,6 +104,9 @@ public class NewLift extends SubsystemBase {
             T_MIDDLE_HIGH_LTR(2310, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime,
                     T_RIGHT_HIGH),
+            T_MIDDLE_VHIGH_LTR(3700, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime,
+                    T_RIGHT_VHIGH),
 
             T_MIDDLE_LOW_RTL(560, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime,
@@ -114,6 +117,9 @@ public class NewLift extends SubsystemBase {
             T_MIDDLE_HIGH_RTL(2310, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime,
                     T_LEFT_HIGH),
+            T_MIDDLE_VHIGH_RTL(3700, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime,
+                    T_LEFT_VHIGH),
 
 
 
@@ -994,7 +1000,7 @@ public class NewLift extends SubsystemBase {
             int diff = Math.abs(o - direction);
 
             if(height) {
-                NewLift.this.height = Math.max(0, Math.min(NewLift.this.height + o, 2));
+                NewLift.this.height = Math.max(0, Math.min(NewLift.this.height + o, 3));
             } else {
                 NewLift.this.direction = o;
             }
@@ -1010,7 +1016,7 @@ public class NewLift extends SubsystemBase {
 
     private void chooseNewLiftPosition(boolean opposingSides) {
         direction = direction % 3;
-        height = height % 3;
+        height = height % 4;
         setPosition(selectPosition(opposingSides, direction, height));
     }
 
@@ -1019,11 +1025,13 @@ public class NewLift extends SubsystemBase {
             case 0:
                 switch(height) {
                     case 0:
-                        return LiftPosition.Default.T_LEFT_LOW;
+                        return opposingSides ? LiftPosition.Default.T_MIDDLE_LOW_RTL : LiftPosition.Default.T_LEFT_LOW;
                     case 1:
-                        return LiftPosition.Default.T_LEFT_MEDIUM;
+                        return opposingSides ? LiftPosition.Default.T_MIDDLE_MEDIUM_RTL : LiftPosition.Default.T_LEFT_MEDIUM;
                     case 2:
-                        return LiftPosition.Default.T_LEFT_HIGH;
+                        return opposingSides ? LiftPosition.Default.T_MIDDLE_HIGH_RTL: LiftPosition.Default.T_LEFT_HIGH;
+                    case 3:
+                        return opposingSides ? LiftPosition.Default.T_MIDDLE_VHIGH_RTL : LiftPosition.Default.T_LEFT_MEDIUM;
                     default:
                         return LiftPosition.Default.DOWN;
                 }
@@ -1035,17 +1043,21 @@ public class NewLift extends SubsystemBase {
                         return LiftPosition.Default.T_MIDDLE_MEDIUM;
                     case 2:
                         return LiftPosition.Default.T_MIDDLE_HIGH;
+                    case 3:
+                        return LiftPosition.Default.T_MIDDLE_VHIGH;
                     default:
                         return LiftPosition.Default.DOWN;
                 }
             case 2:
                 switch(height) {
                     case 0:
-                        return LiftPosition.Default.T_RIGHT_LOW;
+                        return opposingSides ? LiftPosition.Default.T_MIDDLE_LOW_LTR : LiftPosition.Default.T_RIGHT_LOW;
                     case 1:
-                        return LiftPosition.Default.T_RIGHT_MEDIUM;
+                        return opposingSides ? LiftPosition.Default.T_MIDDLE_MEDIUM_LTR : LiftPosition.Default.T_LEFT_MEDIUM;
                     case 2:
-                        return LiftPosition.Default.T_RIGHT_HIGH;
+                        return opposingSides ? LiftPosition.Default.T_MIDDLE_HIGH_LTR : LiftPosition.Default.T_LEFT_HIGH;
+                    case 3:
+                        return opposingSides ? LiftPosition.Default.T_MIDDLE_VHIGH_LTR : LiftPosition.Default.T_LEFT_VHIGH;
                     default:
                         return LiftPosition.Default.DOWN;
                 }
