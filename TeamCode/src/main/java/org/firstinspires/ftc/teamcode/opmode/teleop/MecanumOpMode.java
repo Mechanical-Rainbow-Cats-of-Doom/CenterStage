@@ -54,11 +54,11 @@ public class MecanumOpMode extends CommandOpMode {
 //                .whenPressed(toggleForward).whenReleased(toggleForward);
 //        driver2.getGamepadButton(GamepadKeys.Button.B)
 //                .whenPressed(toggleBackward).whenReleased(toggleBackward);
-//        driver2.getGamepadButton(GamepadKeys.Button.Y).whenPressed(()->{
-//            if(!lift.isAutomatic()) {
-//                lift.toggleClawOpen();
-//            }
-//        });
+        driver2.getGamepadButton(GamepadKeys.Button.Y).whenPressed(()->{
+            if(!lift.isAutomatic()) {
+                lift.setClaw(!lift.isClawOpen());
+            }
+        });
         driver2.getGamepadButton(GamepadKeys.Button.BACK).whenPressed(()->lift.toggleAutomatic());
 
         // register unregistered subsystems
