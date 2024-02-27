@@ -66,7 +66,7 @@ public class BoardWall extends LinearOpMode {
 
         Action cycleDown = drive.actionBuilder(new Pose2d(12, -61 * (isRed ? 1 : -1), Math.toRadians(170)))
                 .strafeToLinearHeading(new Vector2d(-52.5, -60 * (isRed ? 1 : -1)), Math.toRadians(180))
-                .strafeTo(new Vector2d(-54, -33.5 * (isRed ? 1 : -1)))
+                .strafeTo(new Vector2d(-53, -36 * (isRed ? 1 : -1)))
                 .build();
 
         Action cycleBack = drive.actionBuilder(new Pose2d(-54, -35 * (isRed ? 1 : -1), Math.toRadians(180)))
@@ -170,22 +170,24 @@ public class BoardWall extends LinearOpMode {
                                 middleToWall
                         ),
                         cycleDown,
-                        intake.spinIntakeAction(0.2, () -> 0.6, NewIntake.DefaultHeight.UP),
-                        intake.spinIntakeAction(1, () -> 0.8, NewIntake.DefaultHeight.PIXEL_5),
+                        intake.spinIntakeAction(0.3, () -> 0.75, NewIntake.DefaultHeight.UP),
+                        intake.spinIntakeAction(1, () -> 0.75, NewIntake.DefaultHeight.PIXEL_5),
                         intake.spinIntakeAction(1.5, () -> 0.8, NewIntake.DefaultHeight.PIXEL_4),
 //                        intake.spinIntakeAction(0.5, () -> 1, NewIntake.DefaultHeight.UP),
-                        intake.spinIntakeTimerAction(pixelSensor, 2, 1.5, ()->1, NewIntake.DefaultHeight.UP),
+//                        intake.spinIntakeTimerAction(pixelSensor, 2, 1.5, () -> 1, NewIntake.DefaultHeight.UP),
+//                        intake.setIntakeHeightAction(NewIntake.DefaultHeight.UP),
                         new ParallelAction(
-                                intake.setIntakeHeightAction(NewIntake.DefaultHeight.UP),
-                                cycleBack
+                                cycleBack,
+                                intake.spinIntakeAction(3, () -> 1, NewIntake.DefaultHeight.UP)
                         ),
+                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_RIGHT_VLOW_LEFTDUMP),
                         new ParallelAction(
                                 lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_RIGHT_LOW),
                                 cycleDump
                         ),
                         new SleepAction(0.4),
                         lift.getClawAction(true),
-                        new SleepAction(1.5),
+                        new SleepAction(1),
                         lift.getClawAction(false),
                         lift.moveLiftToPosition(NewLift.LiftPosition.Default.DOWN)
                 )

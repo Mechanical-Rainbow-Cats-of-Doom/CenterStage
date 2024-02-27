@@ -24,7 +24,7 @@ public class AudienceAlley extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         boolean isRed = SwapSides.isRed;
-        startPose = new Pose2d(-35, -63.75*(isRed ? 1 : -1), Math.toRadians(270));
+        startPose = new Pose2d(-35, -63.75 * (isRed ? 1 : -1), Math.toRadians(270));
 
         // initialize camera
         PropDetector detector = new PropDetector(hardwareMap, "webcam", true,
@@ -38,38 +38,37 @@ public class AudienceAlley extends LinearOpMode {
 
         // Purple pixel movements
         Action leftPurple = drive.actionBuilder(drive.pose)
-                .strafeToLinearHeading(new Vector2d(-41, -37*(isRed ? 1 : -1)), Math.toRadians(290))
-                .strafeToLinearHeading(new Vector2d(-35, -38*(isRed ? 1 : -1)), Math.toRadians(180))
+                .strafeToLinearHeading(new Vector2d(-41, -37 * (isRed ? 1 : -1)), Math.toRadians(190))
                 .build();
-        Action leftIntake = drive.actionBuilder(new Pose2d(-35, -38*(isRed ? 1 : -1), Math.toRadians(180)))
-                .strafeToLinearHeading(new Vector2d(-35, -13*(isRed ? 1 : -1)), Math.toRadians(180))
-                .strafeToLinearHeading(new Vector2d(-53, -13*(isRed ? 1 : -1)), Math.toRadians(180))
+        Action leftIntake = drive.actionBuilder(new Pose2d(-41, -37 * (isRed ? 1 : -1), Math.toRadians(180)))
+                .strafeToLinearHeading(new Vector2d(-35, -13 * (isRed ? 1 : -1)), Math.toRadians(180))
+                .strafeToLinearHeading(new Vector2d(-53, -13 * (isRed ? 1 : -1)), Math.toRadians(180))
                 .build();
 
         Action centerPurple = drive.actionBuilder(drive.pose)
-                .strafeTo(new Vector2d(-35, -32*(isRed ? 1 : -1)))
+                .strafeTo(new Vector2d(-35, -37.2 * (isRed ? 1 : -1)))
                 .build();
-        Action centerIntake = drive.actionBuilder(new Pose2d(-35, -32*(isRed ? 1 : -1), Math.toRadians(270)))
-                .strafeTo(new Vector2d(-45, -40*(isRed ? 1 : -1)))
-                .strafeToLinearHeading(new Vector2d(-53, -13*(isRed ? 1 : -1)), Math.toRadians(180))
+        Action centerIntake = drive.actionBuilder(new Pose2d(-35, -37.2 * (isRed ? 1 : -1), Math.toRadians(270)))
+                .strafeTo(new Vector2d(-50, -40 * (isRed ? 1 : -1)))
+                .strafeToLinearHeading(new Vector2d(-53, -13 * (isRed ? 1 : -1)), Math.toRadians(180))
                 .build();
 
         Action rightPurple = drive.actionBuilder(drive.pose)
-                .strafeToLinearHeading(new Vector2d(-35, -45*(isRed ? 1 : -1)), Math.toRadians(250))
+                .strafeToLinearHeading(new Vector2d(-41, -38 * (isRed ? 1 : -1)), Math.toRadians(220))
+                .strafeToLinearHeading(new Vector2d(-26, -38 * (isRed ? 1 : -1)), Math.toRadians(180))
                 .build();
-        Action rightIntake = drive.actionBuilder(new Pose2d(-35, -45*(isRed ? 1 : -1), Math.toRadians(250)))
-                .strafeToLinearHeading(new Vector2d(-29, -40*(isRed ? 1 : -1)), Math.toRadians(230))
-                .strafeToLinearHeading(new Vector2d(-53, -13*(isRed ? 1 : -1)), Math.toRadians(180))
+        Action rightIntake = drive.actionBuilder(new Pose2d(-26, -38 * (isRed ? 1 : -1), Math.toRadians(250)))
+                .strafeToLinearHeading(new Vector2d(-53, -13 * (isRed ? 1 : -1)), Math.toRadians(180))
                 .build();
-        Action rightDump = drive.actionBuilder(new Pose2d(53.5, -19*(isRed ? 1 : -1), Math.toRadians(180)))
-                .strafeToLinearHeading(new Vector2d(53.5, -24*(isRed ? 1 : -1)), Math.toRadians(250))
+        Action rightDump = drive.actionBuilder(new Pose2d(53.5, -19 * (isRed ? 1 : -1), Math.toRadians(180)))
+                .strafeToLinearHeading(new Vector2d(53.5, -24 * (isRed ? 1 : -1)), Math.toRadians(250))
                 .build();
 
-        Action cycleBack = drive.actionBuilder(new Pose2d(-53, -13*(isRed ? 1 : -1), Math.toRadians(180)))
-                .strafeToLinearHeading(new Vector2d(45, -15*(isRed ? 1 : -1)), Math.toRadians(180))
+        Action cycleBack = drive.actionBuilder(new Pose2d(-53, -13 * (isRed ? 1 : -1), Math.toRadians(180)))
+                .strafeToLinearHeading(new Vector2d(45, -15 * (isRed ? 1 : -1)), Math.toRadians(180))
                 .build();
-        Action cycleDump = drive.actionBuilder(new Pose2d(45, -15*(isRed ? 1 : -1), Math.toRadians(180)))
-                .strafeToLinearHeading(new Vector2d(54.2, -19*(isRed ? 1 : -1)), Math.toRadians(180))
+        Action cycleDump = drive.actionBuilder(new Pose2d(45, -15 * (isRed ? 1 : -1), Math.toRadians(180)))
+                .strafeToLinearHeading(new Vector2d(54.2, -19 * (isRed ? 1 : -1)), Math.toRadians(180))
                 .build();
 
         int visionOutput = -1;
@@ -110,15 +109,18 @@ public class AudienceAlley extends LinearOpMode {
                                 leftIntake,
                                 intake.setIntakeHeightAction(NewIntake.DefaultHeight.PIXEL_HOVER)
                         ),
+                        intake.spinIntakeAction(0.3, () -> 0.6, NewIntake.DefaultHeight.PIXEL_HOVER),
                         intake.spinIntakeAction(1, () -> 0.75, NewIntake.DefaultHeight.PIXEL_5),
-                        intake.setIntakeHeightAction(NewIntake.DefaultHeight.UP),
-                        cycleBack,
-                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_LEFT_VLOW_LEFTDUMP),
+                        new ParallelAction(
+                                intake.spinIntakeAction(3,()->1,NewIntake.DefaultHeight.UP),
+                                cycleBack
+                        ),
+//                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_LEFT_VLOW_LEFTDUMP),
                         cycleDump,
-                        lift.getClawAction(true),
-                        new SleepAction(1.5),
-                        lift.getClawAction(false),
-                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.DOWN)
+//                        lift.getClawAction(true),
+                        new SleepAction(1.5)
+//                        lift.getClawAction(false),
+//                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.DOWN)
                 );
                 break;
             case 1:
@@ -128,15 +130,18 @@ public class AudienceAlley extends LinearOpMode {
                                 centerIntake,
                                 intake.setIntakeHeightAction(NewIntake.DefaultHeight.PIXEL_HOVER)
                         ),
+                        intake.spinIntakeAction(0.3, () -> 0.6, NewIntake.DefaultHeight.PIXEL_HOVER),
                         intake.spinIntakeAction(1, () -> 0.75, NewIntake.DefaultHeight.PIXEL_5),
-                        intake.setIntakeHeightAction(NewIntake.DefaultHeight.UP),
-                        cycleBack,
-                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_LEFT_VLOW_MIDDLEDUMP),
+                        new ParallelAction(
+                                intake.spinIntakeAction(3,()->1,NewIntake.DefaultHeight.UP),
+                                cycleBack
+                        ),
+//                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_LEFT_VLOW_MIDDLEDUMP),
                         cycleDump,
-                        lift.getClawAction(true),
-                        new SleepAction(1.5),
-                        lift.getClawAction(false),
-                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.DOWN)
+//                        lift.getClawAction(true),
+                        new SleepAction(1.5)
+//                        lift.getClawAction(false),
+//                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.DOWN)
                 );
                 break;
             case 2:
@@ -146,34 +151,38 @@ public class AudienceAlley extends LinearOpMode {
                                 rightIntake,
                                 intake.setIntakeHeightAction(NewIntake.DefaultHeight.PIXEL_HOVER)
                         ),
+                        intake.spinIntakeAction(0.3, () -> 0.6, NewIntake.DefaultHeight.PIXEL_HOVER),
                         intake.spinIntakeAction(1, () -> 0.75, NewIntake.DefaultHeight.PIXEL_5),
-                        intake.setIntakeHeightAction(NewIntake.DefaultHeight.UP),
-                        cycleBack,
-                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_LEFT_VLOW_RIGHTDUMP),
+                        new ParallelAction(
+                                intake.spinIntakeAction(3,()->1,NewIntake.DefaultHeight.UP),
+                                cycleBack
+                        ),
+//                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_LEFT_VLOW_RIGHTDUMP),
                         cycleDump,
                         rightDump, // if moving later, you need to account for the fact that right goes to a different position
-                        lift.getClawAction(true),
-                        new SleepAction(1.5),
-                        lift.getClawAction(false),
-                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.DOWN)
+//                        lift.getClawAction(true),
+                        new SleepAction(1.5)
+//                        lift.getClawAction(false),
+//                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.DOWN)
                 );
                 break;
             default:
                 purplePixel = new SequentialAction(
                         centerPurple,
-                        new ParallelAction(
-                                centerIntake,
-                                intake.setIntakeHeightAction(NewIntake.DefaultHeight.PIXEL_HOVER)
-                        ),
+                        centerIntake,
+                        intake.setIntakeHeightAction(NewIntake.DefaultHeight.PIXEL_HOVER),
+                        intake.spinIntakeAction(0.3, () -> 0.6, NewIntake.DefaultHeight.PIXEL_HOVER),
                         intake.spinIntakeAction(1, () -> 0.75, NewIntake.DefaultHeight.PIXEL_5),
-                        intake.setIntakeHeightAction(NewIntake.DefaultHeight.UP),
-                        cycleBack,
-                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_LEFT_VLOW_MIDDLEDUMP),
+                        new ParallelAction(
+                                intake.spinIntakeAction(3,()->1,NewIntake.DefaultHeight.UP),
+                                cycleBack
+                        ),
+//                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_LEFT_VLOW_MIDDLEDUMP),
                         cycleDump,
-                        lift.getClawAction(true),
-                        new SleepAction(1.5),
-                        lift.getClawAction(false),
-                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.DOWN)
+//                        lift.getClawAction(true),
+                        new SleepAction(1.5)
+//                        lift.getClawAction(false)
+//                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.DOWN)
                 );
                 break;
         }

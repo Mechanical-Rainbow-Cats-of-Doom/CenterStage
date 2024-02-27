@@ -99,48 +99,48 @@ public class BoardAlley extends LinearOpMode {
                 purplePixel = new SequentialAction(
                         leftPurple,
                         new ParallelAction(
-                                leftDump,
-                                lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_MIDDLE_VLOW_LEFTDUMP)
+                                leftDump
+//                                lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_MIDDLE_VLOW_LEFTDUMP)
                         ),
-                        lift.getClawAction(true),
-                        new SleepAction(0.5),
-                        lift.getClawAction(false)
+//                        lift.getClawAction(true),
+                        new SleepAction(0.5)
+//                        lift.getClawAction(false)
                 );
                 break;
             case 1:
                 purplePixel = new SequentialAction(
                         centerPurple,
                         new ParallelAction(
-                                centerDump,
-                                lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_VLOW_MIDDLEDUMP_RIGHT_LEAN)
+                                centerDump
+//                                lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_VLOW_MIDDLEDUMP_RIGHT_LEAN)
                         ),
-                        lift.getClawAction(true),
-                        new SleepAction(0.5),
-                        lift.getClawAction(false)
+//                        lift.getClawAction(true),
+                        new SleepAction(0.5)
+//                        lift.getClawAction(false)
                 );
                 break;
             case 2:
                 purplePixel = new SequentialAction(
                         rightPurple,
                         new ParallelAction(
-                                rightDump,
-                                lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_MIDDLE_VLOW_RIGHTDUMP)
+                                rightDump
+//                                lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_MIDDLE_VLOW_RIGHTDUMP)
                         ),
-                        lift.getClawAction(true),
-                        new SleepAction(0.5),
-                        lift.getClawAction(false)
+//                        lift.getClawAction(true),
+                        new SleepAction(0.5)
+//                        lift.getClawAction(false)
                 );
                 break;
             default:
                 purplePixel = new SequentialAction(
                         centerPurple,
                         new ParallelAction(
-                                centerDump,
-                                lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_VLOW_MIDDLEDUMP_RIGHT_LEAN)
+                                centerDump
+//                                lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_VLOW_MIDDLEDUMP_RIGHT_LEAN)
                         ),
-                        lift.getClawAction(true),
-                        new SleepAction(0.5),
-                        lift.getClawAction(false)
+//                        lift.getClawAction(true),
+                        new SleepAction(0.5)
+//                        lift.getClawAction(false)
                 );
                 break;
         }
@@ -162,8 +162,8 @@ public class BoardAlley extends LinearOpMode {
 
         Actions.runBlocking(
                 new SequentialAction(
-                        purplePixel,
-                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.DOWN)
+                        purplePixel
+//                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.DOWN)
                 ));
         Actions.runBlocking(
                 new SequentialAction(
@@ -178,13 +178,13 @@ public class BoardAlley extends LinearOpMode {
                                 intake.spinIntakeAction(2, NewIntake.State.BACKWARD, NewIntake.DefaultHeight.UP),
                                 cycleBack
                         ),
-                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_LEFT_LOW),
+//                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_LEFT_LOW),
                         cycleDump,
                         new SleepAction(0.4),
-                        lift.getClawAction(true),
-                        new SleepAction(1.5),
-                        lift.getClawAction(false),
-                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.DOWN)
+//                        lift.getClawAction(true),
+                        new SleepAction(1.5)
+//                        lift.getClawAction(false),
+//                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.DOWN)
                 )
         );
 

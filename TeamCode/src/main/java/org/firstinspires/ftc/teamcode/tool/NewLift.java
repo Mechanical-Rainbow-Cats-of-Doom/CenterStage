@@ -144,9 +144,11 @@ public class NewLift extends SubsystemBase {
             A_LEFT_LOW(T_LEFT_LOW.liftTicks, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, T_LEFT_LOW.armRoll, T_LEFT_LOW.carriageRoll, T_LEFT_LOW.armLength, false, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, null, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime),
 
-            A_RIGHT_VLOW_RIGHTDUMP(140, 140, true, 0.36, 0.32, 0.35, false, true, false,
+            A_RIGHT_VLOW_RIGHTDUMP(400, 140, true, 0.06, 0.45, 0.34, false, true, false,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, null, null),
-            A_RIGHT_VLOW_MIDDLEDUMP(420, 140, true, 0.06, 0.07, 0.35, false, true, false,
+            A_RIGHT_VLOW_MIDDLEDUMP(420, 140, true, 0.06, 0.15, 0.34, false, true, false,
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, null, null),
+            A_RIGHT_VLOW_LEFTDUMP(750, 140, true, 0.06, 0.1, 0.34, false, true, false,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, null, null),
             A_RIGHT_LOW(T_LEFT_LOW.liftTicks, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, T_RIGHT_LOW.armRoll, T_RIGHT_LOW.carriageRoll, T_RIGHT_LOW.armLength, false, T_RIGHT_LOW.retractArm, false,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, null, T_LEFT_LOW.retractArmTime, null, null);

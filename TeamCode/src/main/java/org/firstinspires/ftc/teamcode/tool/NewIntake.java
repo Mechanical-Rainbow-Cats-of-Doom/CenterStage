@@ -54,7 +54,7 @@ public class NewIntake extends SubsystemBase {
         UP(5, 0.24),
         PIXEL_HOVER(6, 0.58),
         PIXEL_5(4, 0.645),
-        PIXEL_4(3, 0.666),
+        PIXEL_4(3, 0.664),
         PIXEL_3(2, 0.685),
         PIXEL_2(1, 0.71),
         BOTTOM(0, 0.73);
