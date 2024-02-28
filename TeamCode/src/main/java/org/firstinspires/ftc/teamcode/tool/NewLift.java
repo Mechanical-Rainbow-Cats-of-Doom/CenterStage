@@ -508,7 +508,7 @@ public class NewLift extends SubsystemBase {
     public static int POSITION_LIMIT = 4200;
     public static double CLAW_OPEN_POSITION = 0;
     public static double CLAW_CLOSED_POSITION = 0.2;
-    public static double ARM_IN_PITCH = 0.32;
+    public static double ARM_IN_PITCH = 0.325;
     public static double ARM_SAFE_PITCH = 0.40;
     public static double ARM_OUT_PITCH = 0.44;
     public static double ARM_PITCH_MOVE_TIME = 1.33;
@@ -759,11 +759,6 @@ public class NewLift extends SubsystemBase {
             lastPositionTolerance = POSITION_TOLERANCE;
         }
         if(!automatic) {
-            if(runMode != Motor.RunMode.RawPower) {
-                liftMotor.setRunMode(Motor.RunMode.RawPower);
-                runMode = Motor.RunMode.RawPower;
-            }
-            liftMotor.set(toolGamepad.getLeftY() * LIFT_POWER);
             if(Math.pow(Math.abs(toolGamepad.getRightY()), 2) + Math.pow(Math.abs(toolGamepad.getRightX()), 2) > FLICK_STICK_DEADZONE*FLICK_STICK_DEADZONE) {
                 double angle = Math.toDegrees(Math.atan2(toolGamepad.getRightX(), toolGamepad.getRightY()));
                 if(telemetry != null)
@@ -773,6 +768,18 @@ public class NewLift extends SubsystemBase {
                 if(FLICK_STICK_ARM)
                     armRollServo.turnToAngle(Range.clip(unsignedMod(-angle + ARM_ANGLE_OFFSET, 360), MIN_CLIPPED_ARM_ANGLE, MAX_CLIPPED_ARM_ANGLE));
             }
+
+            if(getCurrentLiftPosition() > POSITION_LIMIT && toolGamepad.getLeftY() >= 0) {
+                liftMotor.setTargetPosition(POSITION_LIMIT);
+                liftMotor.set(1);
+                return;
+            }
+
+            if(runMode != Motor.RunMode.RawPower) {
+                liftMotor.setRunMode(Motor.RunMode.RawPower);
+                runMode = Motor.RunMode.RawPower;
+            }
+            liftMotor.set(toolGamepad.getLeftY() * LIFT_POWER);
             return;
         }
         if(runMode != Motor.RunMode.PositionControl) {
@@ -1011,7 +1018,7 @@ public class NewLift extends SubsystemBase {
     }
 
     private void doForceMove() {
-        if(currentForceUpdateTime.seconds() < FORCE_UPDATE_RATE) return;
+        if(currentForceUpdateTime.milliseconds() < FORCE_UPDATE_RATE*1000) return;
 
         currentForceUpdateTime.reset();
         if(state.isAtOrAfter(position.getArmRollTime())) {
