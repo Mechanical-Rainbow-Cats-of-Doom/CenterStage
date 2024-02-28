@@ -61,7 +61,14 @@ public class NewLift extends SubsystemBase {
          * press before it starts.
          */
         enum Time {
-            VV_EARLY, VERY_EARLY, EARLY, NORMAL, LATE, VERY_LATE_BUTTON
+            VV_EARLY(1000), VERY_EARLY(2000), EARLY(3000),
+            NORMAL(4000), LATE(5000), VERY_LATE_BUTTON(6000);
+
+            private final int index;
+
+            Time(int index) {
+                this.index = index;
+            }
         }
 
         enum Default implements LiftPosition {
@@ -488,6 +495,11 @@ public class NewLift extends SubsystemBase {
         public boolean currentTime(LiftPosition.Time time) {
             return time == this.time;
         }
+
+        public boolean isAtOrAfter(LiftPosition.Time time) {
+            if(this.time == null) return true;
+            return time.index <= this.time.index;
+        }
     }
 
     public static double LIFT_POWER = 1;
@@ -526,6 +538,7 @@ public class NewLift extends SubsystemBase {
     public static double FLICK_STICK_DEADZONE = 0.8;
     public static boolean FLICK_STICK_ARM = true;
     public static boolean FLICK_STICK_CARRIAGE = true;
+    public static double FORCE_UPDATE_RATE = 0.1;
 
     public int direction = 1;
     public int height = 0;
@@ -647,6 +660,7 @@ public class NewLift extends SubsystemBase {
     private Motor.RunMode runMode = Motor.RunMode.PositionControl;
     private boolean waitingForLiftMove = false;
     private double maxMoveTime = 0;
+    private final ElapsedTime currentForceUpdateTime = new ElapsedTime();
     private final ElapsedTime time = new ElapsedTime();
     private boolean initial = true;
 
@@ -750,7 +764,7 @@ public class NewLift extends SubsystemBase {
                 runMode = Motor.RunMode.RawPower;
             }
             liftMotor.set(toolGamepad.getLeftY() * LIFT_POWER);
-            if(Math.abs(toolGamepad.getRightY()) > FLICK_STICK_DEADZONE || Math.abs(toolGamepad.getRightX()) > FLICK_STICK_DEADZONE) {
+            if(Math.pow(Math.abs(toolGamepad.getRightY()), 2) + Math.pow(Math.abs(toolGamepad.getRightX()), 2) > FLICK_STICK_DEADZONE*FLICK_STICK_DEADZONE) {
                 double angle = Math.toDegrees(Math.atan2(toolGamepad.getRightX(), toolGamepad.getRightY()));
                 if(telemetry != null)
                     telemetry.addData("Flick Stick Angle", angle);
@@ -772,12 +786,14 @@ public class NewLift extends SubsystemBase {
                 state = State.VV_EARLY_MOVE;
                 waitingForLiftMove = false;
                 maxMoveTime = 0;
+                currentForceUpdateTime.reset();
                 if(previousLiftPosition.isArmOut() != position.isArmOut()) {
                     prepareMove();
                     time.reset();
                 }
             case VV_EARLY_MOVE:
                 if(previousLiftPosition.isArmOut() != position.isArmOut() || initial) {
+                    doForceMove();
                     if (waitingForLiftMove && !liftMotor.atTargetPosition()) {
                         break;
                     }
@@ -792,6 +808,7 @@ public class NewLift extends SubsystemBase {
                 }
             case VERY_EARLY_MOVE:
                 if(previousLiftPosition.isArmOut() != position.isArmOut() || initial) {
+                    doForceMove();
                     if (waitingForLiftMove && !liftMotor.atTargetPosition()) {
                         break;
                     }
@@ -806,6 +823,7 @@ public class NewLift extends SubsystemBase {
                 }
             case EARLY_MOVE:
                 if(previousLiftPosition.isArmOut() != position.isArmOut()) {
+                    doForceMove();
                     if (waitingForLiftMove && !liftMotor.atTargetPosition()) {
                         break;
                     }
@@ -819,6 +837,7 @@ public class NewLift extends SubsystemBase {
                 prepareMove();
                 time.reset();
             case MOVE:
+                doForceMove();
                 if(waitingForLiftMove && !liftMotor.atTargetPosition()) {
                     break;
                 }
@@ -831,6 +850,7 @@ public class NewLift extends SubsystemBase {
                 prepareMove();
                 time.reset();
             case LATE_MOVE:
+                doForceMove();
                 if(waitingForLiftMove && !liftMotor.atTargetPosition()) {
                     break;
                 }
@@ -850,6 +870,7 @@ public class NewLift extends SubsystemBase {
                     time.reset();
                 }
             case VERY_LATE_BUTTON_MOVE:
+                doForceMove();
                 if(waitingForLiftMove && !liftMotor.atTargetPosition()) {
                     break;
                 }
@@ -860,6 +881,7 @@ public class NewLift extends SubsystemBase {
                 maxMoveTime = 0;
                 state = State.AT_POSITION;
             case AT_POSITION:
+                doForceMove();
                 LiftPosition next = position.getNextLiftPosition();
                 if(next != null && (toolGamepad == null || toolGamepad.getButton(GamepadKeys.Button.Y))) {
                     setPosition(next);
@@ -985,6 +1007,26 @@ public class NewLift extends SubsystemBase {
                 maxMoveTime = Math.max(maxMoveTime, (isDropping) ? CLAW_DROP_TIME : CLAW_MOVE_TIME);
                 carriageClawServo.setPosition(requiredPosition);
             }
+        }
+    }
+
+    private void doForceMove() {
+        if(currentForceUpdateTime.seconds() < FORCE_UPDATE_RATE) return;
+
+        currentForceUpdateTime.reset();
+        if(state.isAtOrAfter(position.getArmRollTime())) {
+            armRollServo.setPosition(position.getArmRoll());
+        }
+        if(state.isAtOrAfter(position.getCarriageRollTime())) {
+            carriageRollServo.setPosition(position.getCarriageRoll());
+        }
+        if(state.isAtOrAfter(position.getArmLengthTime())) {
+            armLengthServo.setPosition(position.getArmLength());
+        }
+        if(state.isAtOrAfter(position.getArmPitchTime())) {
+            double requiredPosition = position.isArmOut() ? ARM_OUT_PITCH : ARM_IN_PITCH;
+            armPitchPrimaryRight.setPosition(requiredPosition);
+            armPitchSecondaryLeft.setPosition((requiredPosition-FIRST_SERVO_MIDDLE)*(SECOND_SERVO_INVERTED ? -1 : 1)+SECOND_SERVO_MIDDLE);
         }
     }
 

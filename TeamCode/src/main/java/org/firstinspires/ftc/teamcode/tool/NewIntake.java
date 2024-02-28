@@ -107,13 +107,14 @@ public class NewIntake extends SubsystemBase {
         if(toolGamepad != null) {
             toolGamepad.getGamepadButton(GamepadKeys.Button.A)
                     .whenReleased(new SetIntakeCommand(this, State.OFF))
-                    .whenHeld(new SetIntakeCommand(this, State.FORWARD, lift));
+                    .whenHeld(new SetIntakeCommand(this, State.FORWARD));
 
             toolGamepad.getGamepadButton(GamepadKeys.Button.B)
                     .whenReleased(new SetIntakeCommand(this, State.OFF))
                     .whenHeld(new SetIntakeCommand(this, State.BACKWARD));
         }
         this.toolGamepad = toolGamepad;
+        periodic();
     }
 
     public NewIntake(HardwareMap map) {
