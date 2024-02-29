@@ -10,7 +10,8 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.arcrobotics.ftclib.hardware.SimpleServo;
-import com.arcrobotics.ftclib.hardware.motors.MotorEx;
+import com.arcrobotics.ftclib.hardware.motors.Motor;
+import com.arcrobotics.ftclib.hardware.motors.MotorGroup;
 import com.arcrobotics.ftclib.util.Timing;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -26,7 +27,7 @@ public class NewIntake extends SubsystemBase {
     public static double TRIGGER_DEADZONE = 0.4;
     public static double INTAKE_POWER = 0.75;
 
-    private final MotorEx intakeMotor;
+    private final Motor intakeMotor;
     private final ServoEx intakeHeight;
     private final GamepadEx toolGamepad;
     private DoubleSupplier state = State.OFF;
@@ -100,7 +101,8 @@ public class NewIntake extends SubsystemBase {
     }
 
     public NewIntake(HardwareMap map, GamepadEx toolGamepad, NewLift lift) {
-        intakeMotor = new MotorEx(map, "intake");
+        intakeMotor = new MotorGroup(new Motor(map, "intake"), new Motor(map, "intake2"));
+
         intakeHeight = new SimpleServo(map, "intakeHeight", 0, 1);
         intakeMotor.setInverted(true);
 

@@ -72,59 +72,59 @@ public class NewLift extends SubsystemBase {
         }
 
         enum Default implements LiftPosition {
-            DOWN(0, 140, false, 0.43, 0.535, 0.85, false, true, true,
+            DOWN(0, 203, false, 0.43, 0.535, 0.85, false, true, true,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.VERY_EARLY, Time.VERY_EARLY, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, Time.VV_EARLY, null),
-            T_LEFT_LOW(1120, 140, true, 0.8, 0.76, 0.35, true, true, false,
+            T_LEFT_LOW(1120, DOWN.liftTicksTwo, true, 0.8, 0.76, 0.35, true, true, false,
                     Time.NORMAL, Time.EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY, null, null, Default.DOWN),
-            T_LEFT_MEDIUM(1960, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, T_LEFT_LOW.armRoll, T_LEFT_LOW.carriageRoll, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+            T_LEFT_MEDIUM(1960, DOWN.liftTicksTwo, T_LEFT_LOW.armOut, T_LEFT_LOW.armRoll, T_LEFT_LOW.carriageRoll, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime, T_LEFT_LOW.nextLiftPosition),
-            T_LEFT_HIGH(2870, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, T_LEFT_LOW.armRoll, T_LEFT_LOW.carriageRoll, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+            T_LEFT_HIGH(2870, DOWN.liftTicksTwo, T_LEFT_LOW.armOut, T_LEFT_LOW.armRoll, T_LEFT_LOW.carriageRoll, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime, T_LEFT_LOW.nextLiftPosition),
-            T_LEFT_VHIGH(3900, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.76, 0.6, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
-                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime, T_LEFT_LOW.nextLiftPosition),
-
-            T_MIDDLE_LOW(560, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
-                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime, T_LEFT_LOW.nextLiftPosition),
-            T_MIDDLE_MEDIUM(1400, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
-                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime, T_LEFT_LOW.nextLiftPosition),
-            T_MIDDLE_HIGH(2310, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
-                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime, T_LEFT_LOW.nextLiftPosition),
-            T_MIDDLE_VHIGH(3700, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+            T_LEFT_VHIGH(3900, DOWN.liftTicksTwo, T_LEFT_LOW.armOut, 0.76, 0.6, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime, T_LEFT_LOW.nextLiftPosition),
 
-            T_RIGHT_LOW(1120, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.14, 0.33, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+            T_MIDDLE_LOW(560, DOWN.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime, T_LEFT_LOW.nextLiftPosition),
-            T_RIGHT_MEDIUM(1960, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, T_RIGHT_LOW.armRoll, T_RIGHT_LOW.carriageRoll, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+            T_MIDDLE_MEDIUM(1400, DOWN.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime, T_LEFT_LOW.nextLiftPosition),
-            T_RIGHT_HIGH(2870, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, T_RIGHT_LOW.armRoll, T_RIGHT_LOW.carriageRoll, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+            T_MIDDLE_HIGH(2310, DOWN.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime, T_LEFT_LOW.nextLiftPosition),
-            T_RIGHT_VHIGH(2870, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.14, 0.47, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+            T_MIDDLE_VHIGH(3700, DOWN.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime, T_LEFT_LOW.nextLiftPosition),
+
+            T_RIGHT_LOW(1120, DOWN.liftTicksTwo, T_LEFT_LOW.armOut, 0.14, 0.33, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime, T_LEFT_LOW.nextLiftPosition),
+            T_RIGHT_MEDIUM(1960, DOWN.liftTicksTwo, T_LEFT_LOW.armOut, T_RIGHT_LOW.armRoll, T_RIGHT_LOW.carriageRoll, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime, T_LEFT_LOW.nextLiftPosition),
+            T_RIGHT_HIGH(2870, DOWN.liftTicksTwo, T_LEFT_LOW.armOut, T_RIGHT_LOW.armRoll, T_RIGHT_LOW.carriageRoll, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+                    T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime, T_LEFT_LOW.nextLiftPosition),
+            T_RIGHT_VHIGH(2870, DOWN.liftTicksTwo, T_LEFT_LOW.armOut, 0.14, 0.47, T_LEFT_LOW.armLength, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime, T_LEFT_LOW.nextLiftPosition),
 
 
-            T_MIDDLE_LOW_LTR(560, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+            T_MIDDLE_LOW_LTR(560, DOWN.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime,
                     T_RIGHT_LOW),
-            T_MIDDLE_MEDIUM_LTR(1400, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+            T_MIDDLE_MEDIUM_LTR(1400, DOWN.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime,
                     T_RIGHT_MEDIUM),
-            T_MIDDLE_HIGH_LTR(2310, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+            T_MIDDLE_HIGH_LTR(2310, DOWN.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime,
                     T_RIGHT_HIGH),
-            T_MIDDLE_VHIGH_LTR(3700, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+            T_MIDDLE_VHIGH_LTR(3700, DOWN.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime,
                     T_RIGHT_VHIGH),
 
-            T_MIDDLE_LOW_RTL(560, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+            T_MIDDLE_LOW_RTL(560, DOWN.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime,
                     T_LEFT_LOW),
-            T_MIDDLE_MEDIUM_RTL(1400, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+            T_MIDDLE_MEDIUM_RTL(1400, DOWN.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime,
                     T_LEFT_MEDIUM),
-            T_MIDDLE_HIGH_RTL(2310, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+            T_MIDDLE_HIGH_RTL(2310, DOWN.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime,
                     T_LEFT_HIGH),
-            T_MIDDLE_VHIGH_RTL(3700, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+            T_MIDDLE_VHIGH_RTL(3700, DOWN.liftTicksTwo, T_LEFT_LOW.armOut, 0.43, 0.535, 0.75, T_LEFT_LOW.clawOpen, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime,
                     T_LEFT_VHIGH),
 
@@ -132,32 +132,32 @@ public class NewLift extends SubsystemBase {
 
 
             // NO WORK
-            A_VLOW_MIDDLEDUMP_RIGHT_LEAN(0, 140, true, 0.7, 0.535, 1, false, true, false,
+            A_VLOW_MIDDLEDUMP_RIGHT_LEAN(0, DOWN.liftTicksTwo, true, 0.7, 0.535, 1, false, true, false,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, null, null),
             // NO WORK
-            A_VLOW_MIDDLEDUMP_LEFT_LEAN(0, 140, true, 0.7, 0.535, 1, false, true, false,
+            A_VLOW_MIDDLEDUMP_LEFT_LEAN(0, DOWN.liftTicksTwo, true, 0.7, 0.535, 1, false, true, false,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, null, null),
-            A_MIDDLE_VLOW_LEFTDUMP(280, 140, true, 0.25, 0.3, 1, false, true, false,
+            A_MIDDLE_VLOW_LEFTDUMP(280, DOWN.liftTicksTwo, true, 0.25, 0.3, 1, false, true, false,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, null, null),
-            A_MIDDLE_VLOW_RIGHTDUMP(140, 140, true, 0.5, 0.75, 1, false, true, false,
+            A_MIDDLE_VLOW_RIGHTDUMP(140, DOWN.liftTicksTwo, true, 0.5, 0.75, 1, false, true, false,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, null, null),
 
-            A_LEFT_VLOW_LEFTDUMP(800, 140, true, 0.8, 0.72, 0.35, false, true, false,
+            A_LEFT_VLOW_LEFTDUMP(800, DOWN.liftTicksTwo, true, 0.8, 0.72, 0.35, false, true, false,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, null, null),
-            A_LEFT_VLOW_MIDDLEDUMP(500, 140, true, 0.8, 0.98, 0.35, false, true, false,
+            A_LEFT_VLOW_MIDDLEDUMP(500, DOWN.liftTicksTwo, true, 0.8, 0.98, 0.35, false, true, false,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, null, null),
-            A_LEFT_VLOW_RIGHTDUMP(700, 140, true, 0.8, 1, 0.35, false, true, false,
+            A_LEFT_VLOW_RIGHTDUMP(700, DOWN.liftTicksTwo, true, 0.8, 1, 0.35, false, true, false,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, null, null),
-            A_LEFT_LOW(T_LEFT_LOW.liftTicks, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, T_LEFT_LOW.armRoll, T_LEFT_LOW.carriageRoll, T_LEFT_LOW.armLength, false, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
+            A_LEFT_LOW(T_LEFT_LOW.liftTicks, DOWN.liftTicksTwo, T_LEFT_LOW.armOut, T_LEFT_LOW.armRoll, T_LEFT_LOW.carriageRoll, T_LEFT_LOW.armLength, false, T_LEFT_LOW.retractArm, T_LEFT_LOW.safeArmPitch,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, null, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime),
 
-            A_RIGHT_VLOW_RIGHTDUMP(400, 140, true, 0.06, 0.45, 0.34, false, true, false,
+            A_RIGHT_VLOW_RIGHTDUMP(400, DOWN.liftTicksTwo, true, 0.06, 0.45, 0.34, false, true, false,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, null, null),
-            A_RIGHT_VLOW_MIDDLEDUMP(420, 140, true, 0.06, 0.15, 0.34, false, true, false,
+            A_RIGHT_VLOW_MIDDLEDUMP(420, DOWN.liftTicksTwo, true, 0.06, 0.15, 0.34, false, true, false,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, null, null),
-            A_RIGHT_VLOW_LEFTDUMP(750, 140, true, 0.06, 0.1, 0.34, false, true, false,
+            A_RIGHT_VLOW_LEFTDUMP(750, DOWN.liftTicksTwo, true, 0.06, 0.1, 0.34, false, true, false,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, null, null),
-            A_RIGHT_LOW(T_LEFT_LOW.liftTicks, T_LEFT_LOW.liftTicksTwo, T_LEFT_LOW.armOut, T_RIGHT_LOW.armRoll, T_RIGHT_LOW.carriageRoll, T_RIGHT_LOW.armLength, false, T_RIGHT_LOW.retractArm, false,
+            A_RIGHT_LOW(T_LEFT_LOW.liftTicks, DOWN.liftTicksTwo, T_LEFT_LOW.armOut, T_RIGHT_LOW.armRoll, T_RIGHT_LOW.carriageRoll, T_RIGHT_LOW.armLength, false, T_RIGHT_LOW.retractArm, false,
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, T_LEFT_LOW.armLengthTime, null, T_LEFT_LOW.retractArmTime, null, null);
 
             private final int liftTicks;
@@ -508,7 +508,7 @@ public class NewLift extends SubsystemBase {
     public static int POSITION_LIMIT = 4200;
     public static double CLAW_OPEN_POSITION = 0;
     public static double CLAW_CLOSED_POSITION = 0.2;
-    public static double ARM_IN_PITCH = 0.325;
+    public static double ARM_IN_PITCH = 0.32;
     public static double ARM_SAFE_PITCH = 0.40;
     public static double ARM_OUT_PITCH = 0.44;
     public static double ARM_PITCH_MOVE_TIME = 1.33;
@@ -654,6 +654,8 @@ public class NewLift extends SubsystemBase {
             return Default.DOWN;
         }
     };
+
+    private LiftPosition actualLiftPosition = LiftPosition.Default.DOWN;
     private LiftPosition previousLiftPosition = LiftPosition.Default.DOWN;
     private State state = State.STARTING_MOVE;
     private boolean automatic = true;
@@ -790,6 +792,9 @@ public class NewLift extends SubsystemBase {
         liftMotor.set(1);
         switch(state) {
             case STARTING_MOVE:
+                if(time.seconds() < maxMoveTime) {
+                   break;
+                }
                 state = State.VV_EARLY_MOVE;
                 waitingForLiftMove = false;
                 maxMoveTime = 0;
@@ -844,6 +849,7 @@ public class NewLift extends SubsystemBase {
                 prepareMove();
                 time.reset();
             case MOVE:
+                previousLiftPosition = position;
                 doForceMove();
                 if(waitingForLiftMove && !liftMotor.atTargetPosition()) {
                     break;
@@ -904,7 +910,9 @@ public class NewLift extends SubsystemBase {
     public void setPosition(LiftPosition position) {
         if(position == null) return;
         initial = false;
-        previousLiftPosition = this.position;
+        if(position.isArmOut() != this.position.isArmOut()) {
+            previousLiftPosition = this.position;
+        }
         this.position = position;
         state = State.STARTING_MOVE;
     }
