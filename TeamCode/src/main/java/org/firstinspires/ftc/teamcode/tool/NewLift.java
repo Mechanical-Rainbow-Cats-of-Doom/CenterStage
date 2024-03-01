@@ -631,7 +631,7 @@ public class NewLift extends SubsystemBase {
 
         @Override
         public Time getClawTime() {
-            return null;
+            return Time.NORMAL;
         }
 
         @Override
