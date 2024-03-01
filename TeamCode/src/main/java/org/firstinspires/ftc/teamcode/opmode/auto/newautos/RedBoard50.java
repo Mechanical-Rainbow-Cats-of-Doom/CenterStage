@@ -17,15 +17,15 @@ import org.firstinspires.ftc.teamcode.tool.PixelSensor;
 import org.firstinspires.ftc.teamcode.vision.PropDetector;
 import org.firstinspires.ftc.teamcode.vision.PropPipeline;
 
-@Autonomous
-public class BoardWall extends LinearOpMode {
+@Autonomous(group = "50 Points")
+public class RedBoard50 extends LinearOpMode {
     public Pose2d startPose;
 
     @Override
     public void runOpMode() throws InterruptedException {
-        boolean isRed = SwapSides.isRed;
+        boolean isRed = true;
         // initialize camera
-        startPose = new Pose2d(12, -61.75 * (isRed ? 1 : -1), Math.toRadians(270) - (isRed ? 0 : Math.toRadians(180)));
+        startPose = new Pose2d(14, -61.75, Math.toRadians(270) - (isRed ? 0 : Math.toRadians(180)));
         PropDetector detector = new PropDetector(hardwareMap, "webcam", true,
                 isRed, PropPipeline.PropPipelineRectsProvider.Default.DEFAULT);
         MecanumDrive drive = new MecanumDrive(hardwareMap, startPose);
@@ -36,46 +36,50 @@ public class BoardWall extends LinearOpMode {
 
         // Purple pixel movements
         Action leftPurple = drive.actionBuilder(drive.pose)
-                .strafeToLinearHeading(new Vector2d(18, -48 * (isRed ? 1 : -1)), Math.toRadians(280))
-                .strafeToLinearHeading(new Vector2d(3, -43 * (isRed ? 1 : -1)), Math.toRadians(360))
+                .strafeToLinearHeading(new Vector2d(18, -48), Math.toRadians(280))
+                .strafeToLinearHeading(new Vector2d(3, -43), Math.toRadians(360))
                 .build();
-        Action leftDump = drive.actionBuilder(new Pose2d(6, -40 * (isRed ? 1 : -1), Math.toRadians(310)))
-                .strafeToLinearHeading(new Vector2d(55, -37 * (isRed ? 1 : -1)), Math.toRadians(170))
+        Action leftDump = drive.actionBuilder(new Pose2d(6, -40, Math.toRadians(310)))
+                .strafeToLinearHeading(new Vector2d(55.5, -38), Math.toRadians(170))
                 .build();
 
         Action centerPurple = drive.actionBuilder(drive.pose)
-                .strafeTo(new Vector2d(12, -36.4 * (isRed ? 1 : -1)))
-                .strafeTo(new Vector2d(20, -40 * (isRed ? 1 : -1)))
+                .strafeTo(new Vector2d(12, -35.5))
+                .strafeTo(new Vector2d(20, -40))
                 .build();
-        Action centerDump = drive.actionBuilder(new Pose2d(20, -35 * (isRed ? 1 : -1), Math.toRadians(270)))
-                .strafeToLinearHeading(new Vector2d(55, -36.5 * (isRed ? 1 : -1)), Math.toRadians(180))
+        Action centerDump = drive.actionBuilder(new Pose2d(20, -40, Math.toRadians(270)))
+                .strafeToLinearHeading(new Vector2d(55.5, -38), Math.toRadians(180))
                 .build();
 
         Action rightPurple = drive.actionBuilder(drive.pose)
-                .strafeToLinearHeading(new Vector2d(18, -40 * (isRed ? 1 : -1)), Math.toRadians(230))
-                .strafeToLinearHeading(new Vector2d(18, -48 * (isRed ? 1 : -1)), Math.toRadians(270))
+                .strafeToLinearHeading(new Vector2d(18, -40), Math.toRadians(230))
+                .strafeToLinearHeading(new Vector2d(18, -48), Math.toRadians(270))
                 .build();
         Action rightDump = drive.actionBuilder(new Pose2d(18, -48, Math.toRadians(270)))
-                .strafeToLinearHeading(new Vector2d(28, -45 * (isRed ? 1 : -1)), Math.toRadians(180))
-                .strafeToLinearHeading(new Vector2d(55, -37 * (isRed ? 1 : -1)), Math.toRadians(180))
+                .strafeToLinearHeading(new Vector2d(28, -45), Math.toRadians(180))
+                .strafeToLinearHeading(new Vector2d(55.5, -38), Math.toRadians(180))
                 .build();
 
-        Action middleToWall = drive.actionBuilder(new Pose2d(55, -37 * (isRed ? 1 : -1), Math.toRadians(180)))
-                .strafeToLinearHeading(new Vector2d(12, -61 * (isRed ? 1 : -1)), Math.toRadians(170))
+        Action park = drive.actionBuilder(new Pose2d(55.5, -38, Math.toRadians(180)))
+                .strafeToLinearHeading(new Vector2d(54, -61), Math.toRadians(180))
                 .build();
 
-        Action cycleDown = drive.actionBuilder(new Pose2d(12, -61 * (isRed ? 1 : -1), Math.toRadians(170)))
-                .strafeToLinearHeading(new Vector2d(-52.5, -60 * (isRed ? 1 : -1)), Math.toRadians(180))
-                .strafeTo(new Vector2d(-53, -36 * (isRed ? 1 : -1)))
+        Action middleToWall = drive.actionBuilder(new Pose2d(55.5, -37, Math.toRadians(180)))
+                .strafeToLinearHeading(new Vector2d(12, -61), Math.toRadians(170))
                 .build();
 
-        Action cycleBack = drive.actionBuilder(new Pose2d(-54, -35 * (isRed ? 1 : -1), Math.toRadians(180)))
-                .strafeToLinearHeading(new Vector2d(-35, -61 * (isRed ? 1 : -1)), Math.toRadians(180))
-                .strafeToLinearHeading(new Vector2d(40, -60 * (isRed ? 1 : -1)), Math.toRadians(180))
+        Action cycleDown = drive.actionBuilder(new Pose2d(12, -61, Math.toRadians(170)))
+                .strafeToLinearHeading(new Vector2d(-52.5, -60), Math.toRadians(180))
+                .strafeTo(new Vector2d(-54, -34))
                 .build();
 
-        Action cycleDump = drive.actionBuilder(new Pose2d(40, -62 * (isRed ? 1 : -1), Math.toRadians(180)))
-                .strafeToLinearHeading(new Vector2d(55, -50 * (isRed ? 1 : -1)), Math.toRadians(180))
+        Action cycleBack = drive.actionBuilder(new Pose2d(-54, -34, Math.toRadians(180)))
+                .strafeToLinearHeading(new Vector2d(-35, -61), Math.toRadians(180))
+                .strafeToLinearHeading(new Vector2d(40, -60), Math.toRadians(180))
+                .build();
+
+        Action cycleDump = drive.actionBuilder(new Pose2d(40, -62, Math.toRadians(180)))
+                .strafeToLinearHeading(new Vector2d(55, -50), Math.toRadians(180))
                 .build();
 
 
@@ -117,7 +121,7 @@ public class BoardWall extends LinearOpMode {
                         centerPurple,
                         new ParallelAction(
                                 centerDump,
-                                lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_VLOW_MIDDLEDUMP_RIGHT_LEAN)
+                                lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_VLOW_MIDDLEDUMP_LEFT_LEAN)
                         ),
                         lift.getClawAction(true),
                         new SleepAction(0.5),
@@ -163,34 +167,18 @@ public class BoardWall extends LinearOpMode {
 //        }
 
         Actions.runBlocking(
-                new SequentialAction(
-                        purplePixel,
-                        new ParallelAction(
-                                lift.moveLiftToPosition(NewLift.LiftPosition.Default.DOWN),
-                                middleToWall
-                        ),
-                        cycleDown,
-                        intake.spinIntakeAction(0.3, () -> 0.75, NewIntake.DefaultHeight.UP),
-                        intake.spinIntakeAction(1, () -> 0.75, NewIntake.DefaultHeight.PIXEL_5),
-                        intake.spinIntakeAction(1.5, () -> 0.8, NewIntake.DefaultHeight.PIXEL_4),
-//                        intake.spinIntakeAction(0.5, () -> 1, NewIntake.DefaultHeight.UP),
-//                        intake.spinIntakeTimerAction(pixelSensor, 2, 1.5, () -> 1, NewIntake.DefaultHeight.UP),
-//                        intake.setIntakeHeightAction(NewIntake.DefaultHeight.UP),
-                        new ParallelAction(
-                                cycleBack,
-                                intake.spinIntakeAction(3, () -> 1, NewIntake.DefaultHeight.UP)
-                        ),
-                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_RIGHT_VLOW_LEFTDUMP),
-                        new ParallelAction(
-                                lift.moveLiftToPosition(NewLift.LiftPosition.Default.A_RIGHT_LOW),
-                                cycleDump
-                        ),
-                        new SleepAction(0.4),
-                        lift.getClawAction(true),
-                        new SleepAction(1),
-                        lift.getClawAction(false),
-                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.DOWN)
+                new ParallelAction(
+                        lift.runPeriodicAction(),
+                        new SequentialAction(
+                                purplePixel,
+                                new SleepAction(1),
+                                new ParallelAction(
+                                        lift.moveLiftToPosition(NewLift.LiftPosition.Default.DOWN),
+                                        park
+                                )
+                        )
                 )
+
         );
 
     }

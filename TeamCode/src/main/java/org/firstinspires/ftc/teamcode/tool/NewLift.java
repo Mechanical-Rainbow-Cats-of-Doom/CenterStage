@@ -72,7 +72,7 @@ public class NewLift extends SubsystemBase {
         }
 
         enum Default implements LiftPosition {
-            DOWN(0, 203, false, 0.43, 0.535, 0.85, false, true, true,
+            DOWN(0, 214, false, 0.43, 0.535, 0.85, false, true, true,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.VERY_EARLY, Time.VERY_EARLY, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, Time.VV_EARLY, null),
             T_LEFT_LOW(1120, DOWN.liftTicksTwo, true, 0.8, 0.76, 0.35, true, true, false,
                     Time.NORMAL, Time.EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_LATE_BUTTON, Time.VERY_EARLY, null, null, Default.DOWN),
@@ -137,14 +137,16 @@ public class NewLift extends SubsystemBase {
             // NO WORK
             A_VLOW_MIDDLEDUMP_LEFT_LEAN(0, DOWN.liftTicksTwo, true, 0.7, 0.535, 1, false, true, false,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, null, null),
-            A_MIDDLE_VLOW_LEFTDUMP(280, DOWN.liftTicksTwo, true, 0.25, 0.3, 1, false, true, false,
+            A_MIDDLE_VLOW_LEFTDUMP(140, DOWN.liftTicksTwo, true, 0.25, 0.3, 1, false, true, false,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, null, null),
             A_MIDDLE_VLOW_RIGHTDUMP(140, DOWN.liftTicksTwo, true, 0.5, 0.75, 1, false, true, false,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, null, null),
 
-            A_LEFT_VLOW_LEFTDUMP(800, DOWN.liftTicksTwo, true, 0.8, 0.72, 0.35, false, true, false,
+            A_LEFT_VLOW_LEFTDUMP(650, DOWN.liftTicksTwo, true, 0.8, 0.72, 0.35, false, true, false,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, null, null),
             A_LEFT_VLOW_MIDDLEDUMP(500, DOWN.liftTicksTwo, true, 0.8, 0.98, 0.35, false, true, false,
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, null, null),
+            A_LEFT_VLOW_MIDDLEDUMP_UPPER(800, DOWN.liftTicksTwo, true, 0.8, 0.98, 0.35, false, true, false,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, null, null),
             A_LEFT_VLOW_RIGHTDUMP(700, DOWN.liftTicksTwo, true, 0.8, 1, 0.35, false, true, false,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, null, null),
@@ -152,6 +154,8 @@ public class NewLift extends SubsystemBase {
                     T_LEFT_LOW.liftMoveTime, T_LEFT_LOW.liftMoveTwoTime, T_LEFT_LOW.armPitchTime, T_LEFT_LOW.armRollTime, T_LEFT_LOW.carriageRollTime, null, T_LEFT_LOW.clawTime, T_LEFT_LOW.retractArmTime, T_LEFT_LOW.safeArmPitchTime, T_LEFT_LOW.liftBlockingTime),
 
             A_RIGHT_VLOW_RIGHTDUMP(400, DOWN.liftTicksTwo, true, 0.06, 0.45, 0.34, false, true, false,
+                    Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, null, null),
+            A_RIGHT_VLOW_RIGHTDUMP_UPPER(600, DOWN.liftTicksTwo, true, 0.06, 0.45, 0.34, false, true, false,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, null, null),
             A_RIGHT_VLOW_MIDDLEDUMP(420, DOWN.liftTicksTwo, true, 0.06, 0.15, 0.34, false, true, false,
                     Time.NORMAL, Time.VERY_EARLY, Time.EARLY, Time.NORMAL, Time.NORMAL, Time.NORMAL, Time.VERY_EARLY, Time.VERY_EARLY, null, null),
@@ -1152,6 +1156,12 @@ public class NewLift extends SubsystemBase {
 
             return time.seconds() > CLAW_MOVE_TIME;
         }
+    }
+    public Action runPeriodicAction() {
+        return telemetryPacket -> {
+            periodic();
+            return true;
+        };
     }
 
     public Action getClawAction(boolean open) {
