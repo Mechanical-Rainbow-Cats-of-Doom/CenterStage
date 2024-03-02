@@ -26,8 +26,6 @@ public class RedBoard50 extends LinearOpMode {
         boolean isRed = true;
         // initialize camera
         startPose = new Pose2d(14, -61.75, Math.toRadians(270) - (isRed ? 0 : Math.toRadians(180)));
-        PropDetector detector = new PropDetector(hardwareMap, "webcam", true,
-                isRed, PropPipeline.PropPipelineRectsProvider.Default.DEFAULT);
         MecanumDrive drive = new MecanumDrive(hardwareMap, startPose);
 
         NewLift lift = new NewLift(hardwareMap);
@@ -85,17 +83,22 @@ public class RedBoard50 extends LinearOpMode {
 
         int visionOutput = -1;
 
-        while (!isStopRequested() && !opModeIsActive()) {
-            float startTime = System.currentTimeMillis() / 1000f;
-            visionOutput = detector.run(() -> {
-                int time = (int) ((System.currentTimeMillis() - startTime) / 10f) % 4;
+        {
+            PropDetector detector = new PropDetector(hardwareMap, "webcam", false,
+                    isRed, PropPipeline.PropPipelineRectsProvider.Default.DEFAULT);
+            while (!isStopRequested() && !opModeIsActive()) {
+                float startTime = System.currentTimeMillis() / 1000f;
+                visionOutput = detector.run(() -> {
+                    int time = (int) ((System.currentTimeMillis() - startTime) / 10f) % 4;
 //                telemetry.addLine("Waiting for detector" + (time > 1 ? "." : "") +
 //                        (time > 2 ? "." : "") +
 //                        (time > 3 ? "." : ""));
 //                telemetry.update();
-            });
-            telemetry.addData("Vision detection", visionOutput);
-            telemetry.update();
+                });
+                telemetry.addData("Vision detection", visionOutput);
+                telemetry.update();
+            }
+            detector.close();
         }
 
         waitForStart();

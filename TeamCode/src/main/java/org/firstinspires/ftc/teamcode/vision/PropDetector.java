@@ -15,7 +15,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class PropDetector {
+public class PropDetector implements AutoCloseable {
     private final OpenCvCamera camera;
     private final boolean debug, isRed;
     public static int CAMERA_WIDTH = 320, CAMERA_HEIGHT = 240;
@@ -95,5 +95,10 @@ public class PropDetector {
 
     public HighlightSelectionZonePipeline getHighlightSelectionZonePipeline() {
         return highlightSelectionZonePipeline;
+    }
+
+    @Override
+    public void close() {
+        camera.closeCameraDevice();
     }
 }

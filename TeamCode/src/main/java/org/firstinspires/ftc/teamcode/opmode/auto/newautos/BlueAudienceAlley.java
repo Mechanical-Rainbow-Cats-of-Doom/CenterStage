@@ -27,8 +27,6 @@ public class BlueAudienceAlley extends LinearOpMode {
         startPose = new Pose2d(-30, 63.75, Math.toRadians(90));
 
         // initialize camera
-        PropDetector detector = new PropDetector(hardwareMap, "webcam", true,
-                isRed, PropPipeline.PropPipelineRectsProvider.Default.DEFAULT);
 
         NewLift lift = new NewLift(hardwareMap);
         NewIntake intake = new NewIntake(hardwareMap);
@@ -84,17 +82,22 @@ public class BlueAudienceAlley extends LinearOpMode {
         int visionOutput = -1;
         telemetry.addData("Vision detection", visionOutput);
 
-        while (!isStopRequested() && !opModeIsActive()) {
-            float startTime = System.currentTimeMillis() / 1000f;
-            visionOutput = detector.run(() -> {
-                int time = (int) ((System.currentTimeMillis() - startTime) / 10f) % 4;
+        {
+            PropDetector detector = new PropDetector(hardwareMap, "webcam", false,
+                    isRed, PropPipeline.PropPipelineRectsProvider.Default.DEFAULT);
+            while (!isStopRequested() && !opModeIsActive()) {
+                float startTime = System.currentTimeMillis() / 1000f;
+                visionOutput = detector.run(() -> {
+                    int time = (int) ((System.currentTimeMillis() - startTime) / 10f) % 4;
 //                telemetry.addLine("Waiting for detector" + (time > 1 ? "." : "") +
 //                        (time > 2 ? "." : "") +
 //                        (time > 3 ? "." : ""));
 //                telemetry.update();
-            });
-            telemetry.addData("Vision detection", visionOutput);
-            telemetry.update();
+                });
+                telemetry.addData("Vision detection", visionOutput);
+                telemetry.update();
+            }
+            detector.close();
         }
 
         waitForStart();
