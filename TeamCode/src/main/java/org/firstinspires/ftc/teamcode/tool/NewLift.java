@@ -775,8 +775,10 @@ public class NewLift extends SubsystemBase {
                     armRollServo.turnToAngle(Range.clip(unsignedMod(-angle + ARM_ANGLE_OFFSET, 360), MIN_CLIPPED_ARM_ANGLE, MAX_CLIPPED_ARM_ANGLE));
             }
 
-            if(getCurrentLiftPosition() > POSITION_LIMIT && toolGamepad.getLeftY() >= 0) {
-                liftMotor.setTargetPosition(POSITION_LIMIT);
+            if(getCurrentLiftPosition() > POSITION_LIMIT*LIFT_TICK_MULTIPLIER && toolGamepad.getLeftY() >= 0) {
+                runMode = Motor.RunMode.PositionControl;
+                liftMotor.setRunMode(Motor.RunMode.PositionControl);
+                liftMotor.setTargetPosition((int) (POSITION_LIMIT*LIFT_TICK_MULTIPLIER));
                 liftMotor.set(1);
                 return;
             }
